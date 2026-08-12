@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A practical tutorial for building auditable literature reviews with Dewey.">
+  <title>Expected Parrot | Auditable literature reviews with Dewey</title>
+  <style>
+    :root{--green:#428a5f;--dark:#214d35;--light:#edf7f1;--ink:#17201a;--muted:#667069;--paper:#f5f7f5;--rule:#dfe5e0;--amber:#b66b13;--code:#19231d;--sidebar:286px;--measure:790px;--serif:Georgia,"Times New Roman",serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;--mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:var(--paper);font:16px/1.7 var(--sans)}#progress{position:fixed;inset:0 auto auto 0;z-index:20;width:0;height:4px;background:#65b783}
+    nav{position:fixed;inset:0 auto 0 0;z-index:10;width:var(--sidebar);overflow:auto;padding:24px 22px 40px;color:#eef7f1;background:var(--dark);font:14px/1.35 var(--sans)}.brand{display:block;margin-bottom:24px;padding:13px 14px;color:var(--ink);background:#fff;border-radius:9px;text-decoration:none}.brand strong{display:block;font:700 19px/1.15 var(--serif)}.brand small{color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}nav .book{margin:0 8px 23px;font:600 20px/1.25 var(--serif)}nav .part{margin:19px 8px 5px;color:#9fd3b2;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}nav>a:not(.brand){display:block;padding:6px 8px;color:#d5e9dc;text-decoration:none;border-radius:6px}nav>a:not(.brand):hover{color:#fff;background:#2d6244}.small{margin:28px 8px 0;color:#b7cec0;font-size:12px}.nav-toggle{display:none;width:100%;padding:10px;color:#fff;background:#2d6244;border:1px solid #72a685;border-radius:7px;font-weight:700;text-align:left}.nav-toggle:after{float:right;content:"+"}.open .nav-toggle:after{content:"−"}
+    main{margin-left:var(--sidebar)}article{max-width:920px;margin:auto;padding:48px 48px 110px;background:#fff}header{padding:38px 0 44px;border-bottom:3px solid var(--green)}.hero{display:block;width:100%;max-width:790px;margin:0 0 34px;border:1px solid var(--rule);border-radius:8px}.eyebrow{color:var(--green);font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.3}h1{max-width:780px;margin:14px 0 20px;font-size:clamp(40px,6vw,61px);letter-spacing:-.025em}h2{margin:78px 0 22px;padding:12px 0 8px;color:var(--green);font-size:32px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}h3{margin:38px 0 12px;font-size:22px}.dek{max-width:740px;color:var(--muted);font-size:21px;line-height:1.5}.meta{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:25px;color:var(--muted);font-size:13px}.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:25px}.cta a{padding:10px 17px;border-radius:8px;font-weight:700;text-decoration:none}.primary{color:#fff;background:var(--green)}.ghost{color:var(--dark);border:2px solid var(--green)}
+    p,ul,ol,table,pre{max-width:var(--measure)}a{color:var(--green)}code{padding:.14em .35em;background:#f0f3f0;border-radius:4px;font:88% var(--mono)}pre{position:relative;overflow:auto;margin:18px 0 26px;padding:20px 58px 20px 22px;color:#d8e3db;background:var(--code);border-radius:8px;font:13px/1.55 var(--mono)}pre code{padding:0;color:inherit;background:none}.copy{position:absolute;top:10px;right:10px;padding:5px 8px;color:#d8ebe0;background:#34453b;border:0;border-radius:5px;font:11px var(--sans);cursor:pointer}.box,.contents{max-width:var(--measure);margin:34px 0 16px;padding:24px 28px;background:#f7f9f7;border:1px solid var(--rule);border-left:4px solid var(--green)}.warning{border-left-color:var(--amber)}.box h2,.contents h2{margin:0 0 13px;padding:0;color:var(--dark);font-size:23px;border:0}.contents ol{margin:0;padding-left:1.4rem;columns:2;column-gap:42px}.contents li{break-inside:avoid}.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;max-width:var(--measure);margin:25px 0}.flow div{padding:12px 7px;background:var(--light);border:1px solid #cfe3d5;border-radius:7px;text-align:center;font-size:13px;font-weight:700}.flow b{display:block;color:var(--green);font-size:19px}table{width:100%;margin:20px 0 28px;border-collapse:collapse;font-size:14px}th,td{padding:11px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule)}th{color:#fff;background:var(--green)}tbody tr:nth-child(even){background:#f7f9f7}.chapter{font-size:.55em;vertical-align:.35em}footer{margin-top:85px;padding-top:28px;color:var(--muted);border-top:3px solid var(--green);font-size:13px}
+    @media(max-width:960px){nav{position:static;width:auto}.nav-toggle{display:block}nav .part,nav>a:not(.brand),nav .small{display:none}nav.open .part{display:block}nav.open>a:not(.brand){display:inline-block}nav.open .small{display:block}main{margin-left:0}article{padding:28px 24px 80px}}@media(max-width:650px){h2{font-size:28px}.contents ol{columns:1}.flow{grid-template-columns:1fr 1fr}table{display:block;overflow:auto}}@media print{nav,#progress,.copy,.nav-toggle{display:none!important}main{margin:0}article{max-width:none;padding:0}}
+  </style>
+</head>
+<body>
+<div id="progress"></div>
+<nav aria-label="Tutorial contents">
+  <a class="brand" href="https://www.expectedparrot.com/"><strong>Expected Parrot</strong><small>Open-source research tools</small></a>
+  <div class="book">Auditable literature reviews with Dewey</div>
+  <button class="nav-toggle" type="button" aria-expanded="false">Show tutorial contents</button>
+  <div class="part">Foundations</div><a href="#orientation">1. What Dewey does</a><a href="#install">2. Install Dewey</a><a href="#project">3. Start a review</a>
+  <div class="part">Build the literature</div><a href="#seed">4. Add anchor papers</a><a href="#render">5. Read and summarize</a><a href="#snowball">6. Traverse citations</a><a href="#identity">7. Control duplicates</a><a href="#screen">8. Screen candidates</a>
+  <div class="part">Synthesize and share</div><a href="#organize">9. Organize evidence</a><a href="#meta">10. Prepare a meta-analysis</a><a href="#explorer">11. Explore the review</a><a href="#share">12. Share everything</a>
+  <div class="part">Safety</div><a href="#audit">13. Audit and resume</a><a href="#files">14. What Dewey stores</a><a href="#principles">15. Research principles</a>
+  <div class="small">A practical tutorial for researchers working with Dewey and a coding agent.</div>
+</nav>
+<main><article>
+<header>
+  <img class="hero" src="https://raw.githubusercontent.com/expectedparrot/dewey/main/assets/dewey-literature-parrot.png" alt="Dewey, a scholarly parrot working in a library">
+  <div class="eyebrow">Expected Parrot · A practical, evidence-first tutorial</div>
+  <h1>Build a literature review that remembers how it knows</h1>
+  <p class="dek">Dewey helps a researcher and a coding agent find, screen, read, connect, and share scholarly literature without collapsing uncertain leads into evidence or losing the path by which a paper was found.</p>
+  <div class="cta"><a class="primary" href="https://github.com/expectedparrot/dewey">View Dewey on GitHub →</a><a class="ghost" href="https://github.com/expectedparrot/dewey/tree/main/ai-interviewers-review">Browse the worked review</a></div>
+  <div class="meta"><span>Tool: <strong>Dewey</strong></span><span>License: <strong>MIT</strong></span><span>Runtime: <strong>Python 3.11+</strong></span><span>Interface: <strong>CLI + portable HTML</strong></span></div>
+</header>
+
+<section class="box">
+  <h2>The basic workflow</h2>
+  <p>A review grows through distinct stages. Dewey keeps the boundary between them visible:</p>
+  <div class="flow"><div><b>1</b>Question</div><div><b>2</b>Discover</div><div><b>3</b>Screen</div><div><b>4</b>Read</div><div><b>5</b>Synthesize</div></div>
+  <ol><li>Frame a research question before accumulating documents.</li><li>Put search results and references into a discovery queue.</li><li>Screen explicitly at title/abstract, full-text, and quantitative stages.</li><li>Preserve the accepted papers, rendered text, summaries, and notes.</li><li>Snowball selectively while retaining every discovery path.</li><li>Connect, audit, explore, and share the resulting review.</li></ol>
+</section>
+
+<section class="contents"><h2>Contents</h2><ol>
+  <li><a href="#orientation">What Dewey does</a></li><li><a href="#install">Install Dewey</a></li><li><a href="#project">Start a review</a></li><li><a href="#seed">Add anchor papers</a></li><li><a href="#render">Read and summarize</a></li><li><a href="#snowball">Traverse citations</a></li><li><a href="#identity">Control duplicates</a></li><li><a href="#screen">Screen candidates</a></li><li><a href="#organize">Organize evidence</a></li><li><a href="#meta">Prepare a meta-analysis</a></li><li><a href="#explorer">Explore the review</a></li><li><a href="#share">Share everything</a></li><li><a href="#audit">Audit and resume</a></li><li><a href="#files">What Dewey stores</a></li><li><a href="#principles">Research principles</a></li>
+</ol></section>
+
+<section id="orientation"><h2><span class="chapter">01</span> What Dewey does</h2>
+  <p>Dewey is a local workspace for a literature review. It is especially useful when a coding agent is helping: the durable record lives in files rather than chat history. The agent can inspect what exists, what remains unresolved, and what should happen next.</p>
+  <p>The central distinction is between a <strong>candidate</strong> and a <strong>source</strong>. A candidate is a potentially relevant work found through search, a bibliography, or manual entry. A source has been intentionally accepted into the managed corpus. Broad discovery therefore cannot silently become the evidence base.</p>
+  <table><thead><tr><th>Object</th><th>Meaning</th><th>Action</th></tr></thead><tbody><tr><td>Candidate</td><td>A lead that may or may not belong</td><td>Screen it</td></tr><tr><td>Source</td><td>A managed document with stable identity</td><td>Read and summarize it</td></tr><tr><td>Provenance</td><td>Every route through which a work was found</td><td>Audit snowballing</td></tr><tr><td>Decision</td><td>A staged include, exclude, or maybe judgment</td><td>Record reason and reviewer</td></tr><tr><td>Link</td><td>A relationship between managed sources</td><td>Build citation and synthesis structure</td></tr></tbody></table>
+</section>
+
+<section id="install"><h2><span class="chapter">02</span> Install Dewey</h2>
+  <pre><code>git clone https://github.com/expectedparrot/dewey.git
+cd dewey
+uv sync
+uv run dewey --help</code></pre>
+  <p>Or install the command globally:</p>
+  <pre><code>uv tool install git+https://github.com/expectedparrot/dewey.git</code></pre>
+  <p>Dewey uses <code>paper2md</code> for local PDF conversion. Firecrawl Parse is available when <code>FIRECRAWL_API_KEY</code> is in the environment or a local <code>.env</code>.</p>
+  <div class="box warning"><strong>External-document warning.</strong> Firecrawl uploads the selected PDF and may consume paid credits. Do not use it for confidential or restricted material without authorization.</div>
+</section>
+
+<section id="project"><h2><span class="chapter">03</span> Start a review</h2>
+  <p>Create an ordinary directory, initialize Dewey, and state the question. The question guides relevance scoring and gives later reviewers the intended scope.</p>
+  <pre><code>mkdir ai-interviewers-review
+cd ai-interviewers-review
+dewey init
+dewey topic set --topic "AI interviewers" \
+  --question "How do AI interviewers affect data quality and respondent experience?"
+dewey guide
+dewey next</code></pre>
+  <p><code>guide</code> explains the lifecycle. <code>next</code> inspects current state and recommends the next action. Use both whenever a researcher or agent returns after time away.</p>
+</section>
+
+<section id="seed"><h2><span class="chapter">04</span> Add anchor papers</h2>
+  <p>Begin with a small, diverse set: a recent empirical study, a foundational method paper, and perhaps a review or adjacent application. Queue uncertain leads without pretending they passed screening.</p>
+  <pre><code>dewey discover add --title "AI-Assisted Conversational Interviewing" \
+  --author "Barari, Soubhik" --year 2025
+dewey discover list --status candidate</code></pre>
+  <p>If a PDF or BibTeX record is intentionally in scope, add it directly:</p>
+  <pre><code>dewey add source paper.pdf
+dewey add source citation.bib</code></pre>
+</section>
+
+<section id="render"><h2><span class="chapter">05</span> Read, render, and summarize</h2>
+  <p>Render PDF text before searching it or extracting references. Local conversion is the default.</p>
+  <pre><code>dewey render md &lt;source-id&gt;
+dewey cat &lt;source-id&gt; --representation md
+dewey summary set &lt;source-id&gt; --text \
+  "Randomized comparison of adaptive LLM probes and standardized questions. Reports richer answers with a modest experience cost."
+dewey notes edit &lt;source-id&gt; --append \
+  "Inspect appendix for exact group statistics."</code></pre>
+  <p>A short summary should cover the question, method or evidence, main finding, and relevance. Put interpretation, quotations, caveats, and follow-up work in notes.</p>
+  <pre><code>dewey render md &lt;source-id&gt; --backend firecrawl</code></pre>
+  <p>Use the cloud backend only when upload has been authorized.</p>
+</section>
+
+<section id="snowball"><h2><span class="chapter">06</span> Traverse citations without losing the trail</h2>
+  <p>After reading a relevant paper, extract its own bibliography. References become candidates, not automatically accepted sources.</p>
+  <pre><code>dewey traverse references &lt;source-id&gt;
+dewey discover list --status candidate</code></pre>
+  <p>Each sighting records its parent source, raw citation, discovery method, and time. If three papers cite the same work, Dewey keeps one work with three provenance records.</p>
+  <div class="box"><strong>Snowballing heuristic.</strong> Prefer references that supply a missing comparison, outcome, population, method, or historical predecessor. Stop a branch when it repeatedly yields already-known or out-of-scope work.</div>
+</section>
+
+<section id="identity"><h2><span class="chapter">07</span> Control duplicate works</h2>
+  <p>Citation strings vary. Dewey reconciles sightings using normalized DOI, arXiv ID, and conservative title identity. Audit before applying a bulk merge:</p>
+  <pre><code>dewey discover dedupe --json
+dewey discover dedupe --apply
+dewey doctor</code></pre>
+  <p>Merging retains the oldest candidate ID, richer metadata, current screening state, and all provenance. Uncertain probable duplicates remain separate for human review.</p>
+</section>
+
+<section id="screen"><h2><span class="chapter">08</span> Screen candidates explicitly</h2>
+  <p>Screening is independent of reading state. Record decisions at title/abstract, full-text, and quantitative-eligibility stages.</p>
+  <pre><code>dewey screen decide &lt;candidate-id&gt; \
+  --stage title-abstract --decision include \
+  --reviewer jh --protocol-version v1 \
+  --criterion population=yes --criterion comparator=unclear \
+  --rationale "Potential controlled comparison; retrieve full text."
+
+dewey screen decide &lt;candidate-id&gt; \
+  --stage full-text --decision exclude --reason no-comparator \
+  --reviewer jh --rationale "Descriptive deployment study only."</code></pre>
+  <p>Exclusions require a controlled reason. Decisions are append-only, so corrections do not erase history.</p>
+  <pre><code>dewey screen history &lt;candidate-id&gt;
+dewey screen conflicts
+dewey screen audit
+dewey discover accept &lt;candidate-id&gt;</code></pre>
+</section>
+
+<section id="organize"><h2><span class="chapter">09</span> Organize the evidence</h2>
+  <p>Reading status, summaries, notes, and links answer different questions. Keep them separate.</p>
+  <pre><code>dewey state set &lt;source-id&gt; reading
+dewey state set &lt;source-id&gt; included
+dewey link add &lt;later-source&gt; &lt;earlier-source&gt; --type cites
+dewey link add &lt;source-a&gt; &lt;source-b&gt; --type contradicts \
+  --note "Opposite respondent-burden finding."
+dewey order add &lt;source-id&gt;
+dewey index rebuild
+dewey search "respondent burden"</code></pre>
+  <p>Citation links describe lineage. Synthesis links such as <code>contradicts</code>, <code>uses_method</code>, and <code>builds_on</code> preserve relationships that matter to the argument.</p>
+</section>
+
+<section id="meta"><h2><span class="chapter">10</span> Prepare a meta-analysis</h2>
+  <p>Quantitative eligibility is stricter than narrative relevance. Record whether a paper supplies an eligible comparison and calculable outcome.</p>
+  <pre><code>dewey screen decide &lt;candidate-id&gt; \
+  --stage quantitative-eligibility --decision include \
+  --criterion randomized=yes --criterion comparator=yes \
+  --criterion calculable-effect=yes --protocol-version v1</code></pre>
+  <p>Prespecify population, intervention, comparator, outcomes, designs, effect direction, multiple-outcome handling, and dependence assumptions. Keep effects from a shared sample linked.</p>
+  <div class="box warning"><strong>Current boundary.</strong> Native validated effect-size records are under development. Until then, keep a versioned extraction table in the project and cite page, table, figure, or supplement locations for every value.</div>
+</section>
+
+<section id="explorer"><h2><span class="chapter">11</span> Explore the review in a browser</h2>
+  <pre><code>dewey export html --output literature-explorer.html
+open literature-explorer.html</code></pre>
+  <p>The self-contained explorer includes the corpus, summaries, notes, rendered Markdown, discovery candidates, provenance counts, downloadable BibTeX, and an interactive chronological citation diagram. It is a snapshot; rebuild it after changes.</p>
+</section>
+
+<section id="share"><h2><span class="chapter">12</span> Share the complete project</h2>
+  <p>The explorer is for reading. A Dewey ZIP is the transferable research workspace.</p>
+  <pre><code>dewey export zip
+dewey export zip --output ai-interviewers-review.dewey.zip</code></pre>
+  <p>The archive contains managed PDFs, Markdown, summaries, notes, metadata, discovery and screening history, links, analyses, and browser exports in one folder. Its manifest records paths, sizes, and SHA-256 checksums. Git data, caches, symlinks, prior archives, and <code>.env</code> are omitted.</p>
+</section>
+
+<section id="audit"><h2><span class="chapter">13</span> Audit and resume safely</h2>
+  <pre><code>dewey status
+dewey doctor
+dewey screen audit
+dewey screen conflicts
+dewey next</code></pre>
+  <p><code>status</code> distinguishes unique candidate works from discovery sightings. <code>doctor</code> checks repository consistency and exact duplicates. Screening audit finds incomplete decisions; conflicts expose different reviewer decisions at the same stage.</p>
+</section>
+
+<section id="files"><h2><span class="chapter">14</span> What Dewey stores</h2>
+  <pre><code>review/
+├── .dewey/
+│   ├── config.json
+│   ├── discovery.json
+│   ├── instructions.md
+│   ├── review_order.json
+│   ├── logs/activity.jsonl
+│   ├── indexes/search.sqlite
+│   └── sources/src_.../
+│       ├── entry.bib
+│       ├── metadata.json
+│       ├── state.json
+│       ├── source.pdf
+│       ├── source.md
+│       ├── summary.txt
+│       ├── notes.md
+│       └── links.json
+├── literature-explorer.html
+└── analysis files</code></pre>
+  <p>Stable source IDs connect notes, links, citations, and commands. The index and explorer are derived; source records, decisions, provenance, notes, and summaries are durable review state.</p>
+</section>
+
+<section id="principles"><h2><span class="chapter">15</span> Research principles</h2>
+  <ol><li><strong>A lead is not evidence.</strong> Screen before accepting.</li><li><strong>Absence is not a null result.</strong> Record inaccessible or uncertain evidence honestly.</li><li><strong>Every judgment needs a trail.</strong> Keep reviewer, stage, reason, protocol, and provenance.</li><li><strong>Every number needs a location.</strong> Record page, table, figure, supplement, or correspondence.</li><li><strong>Duplicate records are not independent studies.</strong> Reconcile work identity and shared samples.</li><li><strong>Automation proposes; researchers decide.</strong> Inspect conversion, references, screening, and synthesis.</li></ol>
+</section>
+
+<footer>Dewey is an open-source Expected Parrot research tool. Visit the <a href="https://github.com/expectedparrot/dewey">repository</a>, use the <a href="https://github.com/expectedparrot/dewey/issues">issue tracker</a>, or browse the <a href="https://expectedparrot.github.io/directory/">package directory</a>.</footer>
+</article></main>
+<script>
+const nav=document.querySelector('nav'),toggle=document.querySelector('.nav-toggle'),progress=document.getElementById('progress');
+toggle.addEventListener('click',()=>{const open=nav.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open))});
+document.querySelectorAll('pre').forEach(pre=>{const b=document.createElement('button');b.className='copy';b.type='button';b.textContent='Copy';b.onclick=async()=>{await navigator.clipboard.writeText(pre.querySelector('code').innerText);b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1200)};pre.appendChild(b)});
+addEventListener('scroll',()=>{const h=document.documentElement.scrollHeight-innerHeight;progress.style.width=(h?scrollY/h*100:0)+'%'});
+</script>
+</body>
+</html>
