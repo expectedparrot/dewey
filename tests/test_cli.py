@@ -10,6 +10,7 @@ from unittest.mock import patch
 from typer.testing import CliRunner
 
 from dewey.cli import app
+from dewey.repo import convert_pdf_with_paper2md
 
 
 class DeweyCliTests(unittest.TestCase):
@@ -134,6 +135,20 @@ class DeweyCliTests(unittest.TestCase):
         source_id = json.loads(result.stdout)["source_id"]
         metadata = json.loads((self.root / ".dewey" / "sources" / source_id / "metadata.json").read_text())
         self.assertEqual(metadata["markdown_generator"], {"name": "firecrawl", "version": "v2"})
+
+    @patch("paper2md.converter.convert")
+    @patch("dewey.repo._paper2md_version", return_value="0.1.0")
+    def test_paper2md_retries_with_pymupdf(self, _version, convert) -> None:
+        class Result:
+            markdown = "# Recovered\n"
+            backend_used = "pymupdf"
+
+        convert.side_effect = [KeyError("encoder"), Result()]
+        pdf = self.write_file("fallback.pdf", "%PDF-1.4\n")
+        markdown, version = convert_pdf_with_paper2md(pdf, self.root / "output")
+        self.assertEqual(markdown, "# Recovered\n")
+        self.assertEqual(version, "0.1.0 (pymupdf)")
+        self.assertEqual(convert.call_args_list[1].kwargs["backend"], "pymupdf")
 
     def test_bib_commands_update_metadata_and_output(self) -> None:
         self.init_repo()
@@ -370,6 +385,25 @@ class DeweyCliTests(unittest.TestCase):
         self.assertEqual(links["outgoing"][0]["target"], child)
         self.assertEqual(links["outgoing"][0]["type"], "cites")
 
+    def test_discovery_candidate_can_resolve_to_existing_source(self) -> None:
+        self.init_repo()
+        parent = self.add_bib_source("parent.bib", "@article{parent, title={Parent}, year={2025}}\n")
+        child = self.add_bib_source("child.bib", "@article{child, title={Child}, year={2024}}\n")
+        added = self.invoke(["discover", "add", "--title", "Child", "--json"])
+        candidate_id = json.loads(added.stdout)["candidate"]["candidate_id"]
+        path = self.root / ".dewey" / "discovery.json"
+        data = json.loads(path.read_text())
+        data["candidates"][0]["cited_by_source_id"] = parent
+        path.write_text(json.dumps(data))
+
+        resolved = self.invoke(["discover", "resolve", candidate_id, child, "--json"])
+        self.assertEqual(resolved.exit_code, 0)
+        candidate = json.loads(path.read_text())["candidates"][0]
+        self.assertEqual(candidate["status"], "added")
+        self.assertEqual(candidate["added_source_id"], child)
+        links = json.loads(self.invoke(["link", "list", parent, "--json"]).stdout)
+        self.assertEqual(links["outgoing"][0]["target"], child)
+
     def test_reference_traversal_queues_candidates(self) -> None:
         self.init_repo()
         self.invoke(["topic", "set", "--topic", "survey validation", "--question", "What predicts validity?"])
@@ -408,6 +442,35 @@ Body.
         candidates = json.loads(self.invoke(["discover", "list", "--json"]).stdout)["candidates"]
         self.assertEqual(candidates[0]["discovery_method"], "document_references")
         self.assertTrue(any(item["doi"] == "10.1234/example" for item in candidates))
+
+    def test_reference_traversal_accepts_formatted_heading(self) -> None:
+        from dewey.discovery import extract_reference_entries
+
+        entries = extract_reference_entries(
+            "# Paper\n\n## **References**\n\n- Smith, A. (2024). A sufficiently long citation title. Journal.\n"
+        )
+        self.assertEqual(len(entries), 1)
+
+    def test_export_html_builds_self_contained_literature_explorer(self) -> None:
+        self.init_repo()
+        self.invoke(["topic", "set", "--topic", "AI interviewers", "--question", "Do they collect rich data?"])
+        source_id = self.add_bib_source(
+            "paper.bib", "@article{paper2025, title={Interview Evidence}, author={Smith, A.}, year={2025}}\n"
+        )
+        self.invoke(["summary", "set", source_id, "--text", "A concise source summary."])
+        self.invoke(["discover", "add", "--title", "Candidate Study", "--json"])
+        result = self.invoke(["export", "html", "--output", "report/explorer.html", "--title", "AI Interview Explorer", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["sources"], 1)
+        explorer = (self.root / "report" / "explorer.html").read_text(encoding="utf-8")
+        self.assertIn("AI Interview Explorer", explorer)
+        self.assertIn("Interview Evidence", explorer)
+        self.assertIn("Candidate Study", explorer)
+        self.assertIn('data-tab="sources"', explorer)
+        self.assertIn('data-tab="candidates"', explorer)
+        self.assertIn('data-tab="graph"', explorer)
+        self.assertNotIn("source.pdf", explorer)
 
 
 if __name__ == "__main__":

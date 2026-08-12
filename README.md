@@ -1,6 +1,8 @@
 # dewey — local literature-review and bibliography workspace CLI
 <!-- id: dewey/dewey -->
 
+![Dewey, a scholarly parrot exploring a library](assets/dewey-literature-parrot.png)
+
 dewey manages a local literature-review repository of PDFs, markdown renderings, BibTeX records, short summaries, notes, workflow state, discovery candidates, citation links, reading order, and search indexes. It helps an agent grow a traceable review corpus from a research question without silently treating every search result or cited paper as evidence.
 
 ## Copy and paste into a coding agent
@@ -140,7 +142,9 @@ Canonical sequence:
 
 Run `dewey status` and `dewey doctor` when returning to an old repository or after scripted changes.
 
-PDFs use the local `paper2md` backend by default. Firecrawl Parse is available as an
+PDFs use the local `paper2md` backend by default. Dewey tries paper2md's layout-aware
+Marker path first and retries with its PyMuPDF backend if the local model stack fails.
+Firecrawl Parse is available as an
 explicit cloud backend when `FIRECRAWL_API_KEY` is set:
 
 ```bash
@@ -204,6 +208,7 @@ For full options, run `dewey <subcommand> --help`.
 | `dewey topic ...` | Record the topic and research question. |
 | `dewey discover ...` | Queue, screen, accept, or export candidate papers. |
 | `dewey traverse references` | Extract the document's bibliography into the candidate queue. |
+| `dewey export html` | Build a self-contained interactive literature explorer. |
 | `dewey summary ...` | Store or retrieve a short plain-text source summary. |
 | `dewey status` / `doctor` | Show repository health and workflow state. |
 | `dewey add source` / `remove source` | Register or remove source records. |

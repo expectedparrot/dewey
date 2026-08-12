@@ -18,6 +18,7 @@ from dewey.discovery import (
     relevance_score,
 )
 from dewey.guide import GUIDE
+from dewey.html_export import write_explorer
 from dewey.models import (
     BibEntry,
     CandidateStatus,
@@ -51,6 +52,7 @@ topic_app = typer.Typer(no_args_is_help=True)
 summary_app = typer.Typer(no_args_is_help=True)
 discover_app = typer.Typer(no_args_is_help=True)
 traverse_app = typer.Typer(no_args_is_help=True)
+export_app = typer.Typer(no_args_is_help=True)
 
 app.add_typer(add_app, name="add")
 app.add_typer(remove_app, name="remove")
@@ -66,6 +68,7 @@ app.add_typer(topic_app, name="topic")
 app.add_typer(summary_app, name="summary")
 app.add_typer(discover_app, name="discover")
 app.add_typer(traverse_app, name="traverse")
+app.add_typer(export_app, name="export")
 
 
 def wants_json(json_output: bool = False) -> bool:
@@ -511,6 +514,48 @@ def discover_accept(candidate_id_value: str = typer.Argument(..., metavar="CANDI
     fail(action, "candidate_not_found", f"No discovery candidate exists for {candidate_id_value}", 4, json_output)
 
 
+@discover_app.command("resolve")
+def discover_resolve(
+    candidate_id_value: str = typer.Argument(..., metavar="CANDIDATE_ID"),
+    source_id: str = typer.Argument(..., metavar="SOURCE_ID"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "discovery.resolve"
+    repo = load_repo(action, json_output)
+    ensure_source_exists(repo, source_id, action, json_output)
+    discovery = repo.load_discovery()
+    for index, item in enumerate(discovery.candidates):
+        if item.candidate_id != candidate_id_value:
+            continue
+        if item.added_source_id and item.added_source_id != source_id:
+            fail(action, "candidate_already_added", f"Candidate already resolved as {item.added_source_id}", 2, json_output)
+        if item.cited_by_source_id and item.cited_by_source_id in repo.list_source_ids():
+            links = repo.load_links(item.cited_by_source_id)
+            if not any(link.target == source_id and link.type == LinkType.cites for link in links.outgoing):
+                links.outgoing.append(
+                    LinkRecord(target=source_id, type=LinkType.cites, note="Resolved from bibliography", created_at=utc_now())
+                )
+                repo.write_links(item.cited_by_source_id, links)
+                repo.index_source(item.cited_by_source_id)
+        discovery.candidates[index] = item.model_copy(
+            update={"status": CandidateStatus.added, "added_source_id": source_id}
+        )
+        repo.write_discovery(discovery)
+        repo.append_log(action, candidate_id=candidate_id_value, source_id=source_id)
+        emit(
+            {
+                "ok": True,
+                "action": action,
+                "candidate_id": candidate_id_value,
+                "source_id": source_id,
+                "text": f"Resolved {candidate_id_value} as {source_id}",
+            },
+            json_output,
+        )
+        return
+    fail(action, "candidate_not_found", f"No discovery candidate exists for {candidate_id_value}", 4, json_output)
+
+
 @discover_app.command("export-triage")
 def discover_export_triage(output: Path = typer.Option(..., "--output"), json_output: bool = typer.Option(False, "--json")) -> None:
     action = "discovery.export_triage"
@@ -549,6 +594,19 @@ def traverse_references(
     added = len(repo.load_discovery().candidates) - before
     repo.append_log(action, source_id=source_id, fetched=len(fetched), added=added)
     emit({"ok": True, "action": action, "source_id": source_id, "extracted": len(fetched), "added": added, "text": f"Extracted {len(fetched)} references from the document; added {added} new candidates"}, json_output)
+
+
+@export_app.command("html")
+def export_html(
+    output: Path = typer.Option(Path("dewey-explorer.html"), "--output"),
+    title: str | None = typer.Option(None, "--title"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "export.html"
+    repo = load_repo(action, json_output)
+    result = write_explorer(repo, output, title)
+    repo.append_log(action, **result)
+    emit({"ok": True, "action": action, **result, "text": f"Wrote literature explorer to {result['path']}"}, json_output)
 
 
 @add_app.command("source")

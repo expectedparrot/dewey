@@ -488,8 +488,20 @@ def convert_pdf_with_paper2md(pdf_path: Path, output_dir: Path) -> tuple[str, st
     try:
         from paper2md.converter import convert
 
-        result = convert(pdf_path=pdf_path, output_dir=output_dir, backend="auto")
-        return result.markdown, _paper2md_version()
+        try:
+            result = convert(pdf_path=pdf_path, output_dir=output_dir, backend="auto")
+        except Exception as primary_error:
+            try:
+                result = convert(pdf_path=pdf_path, output_dir=output_dir, backend="pymupdf")
+            except Exception as fallback_error:
+                raise DeweyError(
+                    "paper2md_failed",
+                    f"paper2md marker backend failed ({primary_error}); pymupdf fallback failed ({fallback_error})",
+                ) from fallback_error
+        version = _paper2md_version()
+        backend_used = getattr(result, "backend_used", None)
+        generator_version = f"{version} ({backend_used})" if version and backend_used else version
+        return result.markdown, generator_version
     except ImportError:
         pass
 

@@ -1,0 +1,17 @@
+{
+  "source_id": "src_2fc31ffa6791",
+  "bibtex_key": "chopra2023qualitative",
+  "entry_type": "techreport",
+  "managed_pdf_path": ".dewey/sources/src_2fc31ffa6791/source.pdf",
+  "original_pdf_path": "/Users/johnhorton/tools/ep/dewey/ai-interviewers-review/inbox/chopra2023.pdf",
+  "content_hash": "4e82e5217f11f2b80ac823daacc80937f7ff22194a50e34098b96810f2452d55",
+  "markdown_path": ".dewey/sources/src_2fc31ffa6791/source.md",
+  "markdown_status": "ready",
+  "markdown_generator": {
+    "name": "paper2md",
+    "version": "0.1.0 (pymupdf)"
+  },
+  "created_at": "2026-08-12T12:10:58Z",
+  "updated_at": "2026-08-12T12:12:55Z",
+  "markdown_source": null
+}

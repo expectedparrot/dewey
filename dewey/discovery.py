@@ -8,7 +8,10 @@ from dewey.models import DiscoveryCandidate
 from dewey.repo import DeweyError, utc_now
 
 WORD_RE = re.compile(r"[a-z0-9]{3,}")
-REFERENCE_HEADING_RE = re.compile(r"^#{1,6}\s+(references|bibliography|works cited|literature cited)\s*$", re.I | re.M)
+REFERENCE_HEADING_RE = re.compile(
+    r"^#{1,6}\s+[*_]*(references|bibliography|works cited|literature cited)[*_]*\s*$",
+    re.I | re.M,
+)
 NEXT_HEADING_RE = re.compile(r"^#{1,6}\s+\S", re.M)
 DOI_RE = re.compile(r"10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.I)
 

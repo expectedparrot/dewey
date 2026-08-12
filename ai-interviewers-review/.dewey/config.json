@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "project_name": null,
+  "bibtex_encoding": "utf-8",
+  "pdf_copy_mode": "copy",
+  "search_backend": "sqlite_fts5",
+  "default_output": "text",
+  "topic": "AI interviewers",
+  "research_question": "How are AI interviewers designed and evaluated, and how do they affect interview quality, respondent experience, and resulting data compared with human or conventional interviewing?"
+}

@@ -1,0 +1,28 @@
+{
+  "outgoing": [
+    {
+      "target": "src_0876e37522c7",
+      "type": "cites",
+      "note": "Resolved from bibliography",
+      "created_at": "2026-08-12T12:12:35Z"
+    },
+    {
+      "target": "src_a7e84b286007",
+      "type": "cites",
+      "note": "Resolved from bibliography",
+      "created_at": "2026-08-12T12:12:36Z"
+    },
+    {
+      "target": "src_2fc31ffa6791",
+      "type": "cites",
+      "note": "Resolved from bibliography",
+      "created_at": "2026-08-12T12:12:56Z"
+    },
+    {
+      "target": "src_8f39b52d2f72",
+      "type": "cites",
+      "note": "Resolved from bibliography",
+      "created_at": "2026-08-12T12:15:07Z"
+    }
+  ]
+}

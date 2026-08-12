@@ -1,0 +1,3 @@
+Review objective: assess how AI interviewers are designed and evaluated, with emphasis on comparison conditions, respondent experience, richness and validity of elicited data, interviewer behavior, safety, privacy, reproducibility, and scalability.
+For each empirical paper, record sample and setting, modality, model and prompting architecture, human or survey comparator, evaluation metrics, principal findings, limitations, and whether code/data/prompts are available.
+Treat positive quality claims cautiously when based on small or selected samples, hypothetical human comparisons, respondent satisfaction alone, or LLM-based evaluation without demonstrated human agreement.
