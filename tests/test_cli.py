@@ -4,6 +4,7 @@ import json
 import os
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -180,7 +181,20 @@ class DeweyCliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
 
         result = self.invoke(
-            ["bib", "edit", source_id, "--field", "title", "--value", "Revised Book", "--field", "year", "--value", "2026", "--json"]
+            [
+                "bib",
+                "edit",
+                source_id,
+                "--field",
+                "title",
+                "--value",
+                "Revised Book",
+                "--field",
+                "year",
+                "--value",
+                "2026",
+                "--json",
+            ]
         )
         self.assertEqual(result.exit_code, 0)
 
@@ -304,7 +318,9 @@ class DeweyCliTests(unittest.TestCase):
         )
 
         self.assertEqual(self.invoke(["state", "set", first, "reading", "--json"]).exit_code, 0)
-        self.assertEqual(self.invoke(["notes", "edit", second, "--append", "Contains scaling discussion.", "--json"]).exit_code, 0)
+        self.assertEqual(
+            self.invoke(["notes", "edit", second, "--append", "Contains scaling discussion.", "--json"]).exit_code, 0
+        )
         self.assertEqual(self.invoke(["link", "add", second, first, "--type", "builds_on", "--json"]).exit_code, 0)
 
         query_payload = json.loads(self.invoke(["search", "--status", "reading", "--json"]).stdout)
@@ -335,7 +351,9 @@ class DeweyCliTests(unittest.TestCase):
         initial = json.loads(self.invoke(["next", "--json"]).stdout)
         self.assertEqual(initial["phase"], "frame")
 
-        result = self.invoke(["topic", "set", "--topic", "Synthetic surveys", "--question", "When do LLM agents match people?", "--json"])
+        result = self.invoke(
+            ["topic", "set", "--topic", "Synthetic surveys", "--question", "When do LLM agents match people?", "--json"]
+        )
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "seed")
 
@@ -349,9 +367,21 @@ class DeweyCliTests(unittest.TestCase):
 }
 """,
         )
-        result = self.invoke(["summary", "set", source_id, "--text", "Tests synthetic answers against held-out human responses.", "--json"])
+        result = self.invoke(
+            [
+                "summary",
+                "set",
+                source_id,
+                "--text",
+                "Tests synthetic answers against held-out human responses.",
+                "--json",
+            ]
+        )
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(json.loads(self.invoke(["summary", "show", source_id, "--json"]).stdout)["summary"].strip(), "Tests synthetic answers against held-out human responses.")
+        self.assertEqual(
+            json.loads(self.invoke(["summary", "show", source_id, "--json"]).stdout)["summary"].strip(),
+            "Tests synthetic answers against held-out human responses.",
+        )
         self.assertEqual(json.loads(self.invoke(["status", "--json"]).stdout)["counts"]["summarized"], 1)
 
     def test_discovery_queue_acceptance_and_citation_provenance(self) -> None:
@@ -365,10 +395,21 @@ class DeweyCliTests(unittest.TestCase):
 }
 """,
         )
-        result = self.invoke([
-            "discover", "add", "--title", "A Relevant Cited Paper", "--author", "Scholar One",
-            "--year", "2020", "--doi", "10.1/cited", "--json",
-        ])
+        result = self.invoke(
+            [
+                "discover",
+                "add",
+                "--title",
+                "A Relevant Cited Paper",
+                "--author",
+                "Scholar One",
+                "--year",
+                "2020",
+                "--doi",
+                "10.1/cited",
+                "--json",
+            ]
+        )
         candidate_id = json.loads(result.stdout)["candidate"]["candidate_id"]
 
         self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "frame")
@@ -403,6 +444,149 @@ class DeweyCliTests(unittest.TestCase):
         self.assertEqual(candidate["added_source_id"], child)
         links = json.loads(self.invoke(["link", "list", parent, "--json"]).stdout)
         self.assertEqual(links["outgoing"][0]["target"], child)
+
+    def test_duplicate_discovery_sightings_preserve_all_citation_provenance(self) -> None:
+        self.init_repo()
+        first_parent = self.add_bib_source("first.bib", "@article{first, title={First}, year={2025}}\n")
+        second_parent = self.add_bib_source("second.bib", "@article{second, title={Second}, year={2025}}\n")
+        child = self.add_bib_source("child.bib", "@article{child, title={Shared Work}, year={2024}}\n")
+        discovery_path = self.root / ".dewey" / "discovery.json"
+        discovery_path.write_text(
+            json.dumps(
+                {
+                    "candidates": [
+                        {
+                            "candidate_id": "cand_first",
+                            "title": "Shared Work",
+                            "authors": [],
+                            "year": 2024,
+                            "doi": "https://doi.org/10.1234/SHARED",
+                            "cited_by_source_id": first_parent,
+                            "discovery_method": "document_references",
+                            "status": "candidate",
+                            "created_at": "2026-01-01T00:00:00Z",
+                        },
+                        {
+                            "candidate_id": "cand_second",
+                            "title": "Shared work.",
+                            "authors": [],
+                            "year": 2024,
+                            "doi": "10.1234/shared",
+                            "cited_by_source_id": second_parent,
+                            "discovery_method": "document_references",
+                            "status": "candidate",
+                            "created_at": "2026-01-02T00:00:00Z",
+                        },
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        audit = json.loads(self.invoke(["discover", "dedupe", "--json"]).stdout)
+        self.assertEqual(audit["duplicates"], 1)
+        applied = json.loads(self.invoke(["discover", "dedupe", "--apply", "--json"]).stdout)
+        self.assertEqual(applied["merged"], 1)
+        candidate = json.loads(discovery_path.read_text())["candidates"][0]
+        self.assertEqual(len(candidate["provenance"]), 2)
+
+        resolved = self.invoke(["discover", "resolve", candidate["candidate_id"], child, "--json"])
+        self.assertEqual(resolved.exit_code, 0)
+        for parent in (first_parent, second_parent):
+            links = json.loads(self.invoke(["link", "list", parent, "--json"]).stdout)
+            self.assertEqual(links["outgoing"][0]["target"], child)
+
+    def test_dedupe_joins_transitive_identity_matches(self) -> None:
+        self.init_repo()
+        discovery_path = self.root / ".dewey" / "discovery.json"
+        records = [
+            {
+                "candidate_id": "by_doi",
+                "title": "Abbreviated title",
+                "doi": "10.1234/shared",
+                "raw_citation": "First sighting",
+                "created_at": "2026-01-01T00:00:00Z",
+            },
+            {
+                "candidate_id": "by_title",
+                "title": "The full study title",
+                "raw_citation": "Second sighting",
+                "created_at": "2026-01-02T00:00:00Z",
+            },
+            {
+                "candidate_id": "bridge",
+                "title": "The full study title",
+                "doi": "10.1234/shared",
+                "raw_citation": "Third sighting",
+                "created_at": "2026-01-03T00:00:00Z",
+            },
+        ]
+        discovery_path.write_text(json.dumps({"candidates": records}), encoding="utf-8")
+
+        audit = json.loads(self.invoke(["discover", "dedupe", "--json"]).stdout)
+        self.assertEqual(audit["duplicates"], 2)
+        applied = json.loads(self.invoke(["discover", "dedupe", "--apply", "--json"]).stdout)
+        self.assertEqual(applied["after"], 1)
+        status = json.loads(self.invoke(["status", "--json"]).stdout)
+        self.assertEqual(status["counts"]["discovery_sightings"], 3)
+
+    def test_screening_decisions_are_append_only_and_structured(self) -> None:
+        self.init_repo()
+        added = json.loads(self.invoke(["discover", "add", "--title", "Candidate study", "--json"]).stdout)
+        candidate_id = added["candidate"]["candidate_id"]
+
+        first = self.invoke(
+            [
+                "screen",
+                "decide",
+                candidate_id,
+                "--decision",
+                "include",
+                "--stage",
+                "title-abstract",
+                "--reviewer",
+                "agent-a",
+                "--criterion",
+                "population=yes",
+                "--criterion",
+                "comparison=unclear",
+                "--rationale",
+                "Needs full-text review",
+                "--protocol-version",
+                "v1",
+                "--json",
+            ]
+        )
+        self.assertEqual(first.exit_code, 0)
+        second = self.invoke(
+            [
+                "screen",
+                "decide",
+                candidate_id,
+                "--decision",
+                "exclude",
+                "--stage",
+                "full-text",
+                "--reviewer",
+                "agent-b",
+                "--criterion",
+                "comparison=no",
+                "--reason",
+                "no-comparator",
+                "--rationale",
+                "No eligible comparator",
+                "--json",
+            ]
+        )
+        self.assertEqual(second.exit_code, 0)
+        history = json.loads(self.invoke(["screen", "history", candidate_id, "--json"]).stdout)
+        self.assertEqual(len(history["decisions"]), 2)
+        self.assertEqual(history["decisions"][0]["criteria"]["population"], "yes")
+        self.assertEqual(history["decisions"][1]["stage"], "full-text")
+        self.assertEqual(history["decisions"][1]["reason_code"], "no-comparator")
+        self.assertEqual(history["decisions"][0]["protocol_version"], "v1")
+        audit = json.loads(self.invoke(["screen", "audit", "--json"]).stdout)
+        self.assertTrue(audit["ok"])
 
     def test_reference_traversal_queues_candidates(self) -> None:
         self.init_repo()
@@ -459,7 +643,9 @@ Body.
         )
         self.invoke(["summary", "set", source_id, "--text", "A concise source summary."])
         self.invoke(["discover", "add", "--title", "Candidate Study", "--json"])
-        result = self.invoke(["export", "html", "--output", "report/explorer.html", "--title", "AI Interview Explorer", "--json"])
+        result = self.invoke(
+            ["export", "html", "--output", "report/explorer.html", "--title", "AI Interview Explorer", "--json"]
+        )
         self.assertEqual(result.exit_code, 0)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["sources"], 1)
@@ -470,7 +656,58 @@ Body.
         self.assertIn('data-tab="sources"', explorer)
         self.assertIn('data-tab="candidates"', explorer)
         self.assertIn('data-tab="graph"', explorer)
+        self.assertIn("Download BibTeX", explorer)
+        self.assertIn("Chronological citation network", explorer)
+        self.assertIn("Smith (2025)", explorer)
+        self.assertIn("possible sources found through searches", explorer)
         self.assertNotIn("source.pdf", explorer)
+
+    def test_export_zip_is_portable_and_excludes_secrets(self) -> None:
+        self.init_repo()
+        source_id = self.add_bib_source(
+            "paper.bib", "@article{paper2025, title={Portable Evidence}, author={Smith, A.}, year={2025}}\n"
+        )
+        self.write_file(".env", "SECRET=do-not-share\n")
+        self.write_file(".git/private", "git internals\n")
+        self.write_file("analysis/results.csv", "estimate,se\n0.2,0.1\n")
+        result = self.invoke(["export", "zip", "--output", "review.dewey.zip", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.stdout)
+        archive_path = Path(payload["path"])
+        self.assertTrue(archive_path.exists())
+        with zipfile.ZipFile(archive_path) as archive:
+            names = archive.namelist()
+            root = names[0].split("/", 1)[0]
+            self.assertIn(f"{root}/.dewey/config.json", names)
+            self.assertIn(f"{root}/.dewey/sources/{source_id}/entry.bib", names)
+            self.assertIn(f"{root}/analysis/results.csv", names)
+            self.assertIn(f"{root}/dewey-export-manifest.json", names)
+            self.assertFalse(any(name.endswith("/.env") for name in names))
+            self.assertFalse(any("/.git/" in name for name in names))
+            manifest = json.loads(archive.read(f"{root}/dewey-export-manifest.json"))
+            self.assertTrue(all(len(item["sha256"]) == 64 for item in manifest["files"]))
+            self.assertTrue(any(item["path"] == ".env" for item in manifest["excluded"]))
+
+        extracted = self.root / "unpacked"
+        with zipfile.ZipFile(archive_path) as archive:
+            archive.extractall(extracted)
+        previous_root = self.root
+        self.root = extracted / root
+        try:
+            doctor = json.loads(self.invoke(["doctor", "--json"]).stdout)
+            self.assertTrue(doctor["ok"])
+        finally:
+            self.root = previous_root
+
+    def test_explorer_citation_labels_follow_author_year_conventions(self) -> None:
+        from dewey.html_export import citation_label
+
+        self.assertEqual(citation_label("Horton, John", "2026"), "Horton (2026)")
+        self.assertEqual(citation_label("Horton, John and Smith, Ada", "2026"), "Horton & Smith (2026)")
+        self.assertEqual(
+            citation_label("Horton, John and Smith, Ada and Jones, Lin", "2026"),
+            "Horton et al. (2026)",
+        )
 
 
 if __name__ == "__main__":

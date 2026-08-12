@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class MarkdownStatus(str, Enum):
@@ -127,6 +127,49 @@ class CandidateStatus(str, Enum):
     added = "added"
 
 
+class ScreeningStage(str, Enum):
+    title_abstract = "title-abstract"
+    full_text = "full-text"
+    quantitative_eligibility = "quantitative-eligibility"
+
+
+class ScreeningDecisionValue(str, Enum):
+    include = "include"
+    exclude = "exclude"
+    maybe = "maybe"
+
+
+class ExclusionReason(str, Enum):
+    duplicate = "duplicate"
+    not_relevant = "not-relevant"
+    wrong_population = "wrong-population"
+    wrong_intervention = "wrong-intervention"
+    no_comparator = "no-comparator"
+    wrong_outcome = "wrong-outcome"
+    wrong_design = "wrong-design"
+    no_quantitative_data = "no-quantitative-data"
+    unavailable_full_text = "unavailable-full-text"
+    other = "other"
+
+
+class ScreeningDecision(BaseModel):
+    decision: ScreeningDecisionValue
+    stage: ScreeningStage = ScreeningStage.title_abstract
+    reviewer: str = "agent"
+    reason_code: str | None = None
+    rationale: str | None = None
+    criteria: dict[str, str] = Field(default_factory=dict)
+    protocol_version: str | None = None
+    decided_at: str
+
+
+class DiscoveryProvenance(BaseModel):
+    source_id: str | None = None
+    method: str = "manual"
+    raw_citation: str | None = None
+    discovered_at: str
+
+
 class DiscoveryCandidate(BaseModel):
     candidate_id: str
     title: str
@@ -144,6 +187,23 @@ class DiscoveryCandidate(BaseModel):
     rationale: str | None = None
     added_source_id: str | None = None
     created_at: str
+    provenance: list[DiscoveryProvenance] = Field(default_factory=list)
+    screening_decisions: list[ScreeningDecision] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def migrate_legacy_provenance(self) -> "DiscoveryCandidate":
+        legacy_key = (self.cited_by_source_id, self.discovery_method, self.raw_citation)
+        existing_keys = {(item.source_id, item.method, item.raw_citation) for item in self.provenance}
+        if legacy_key not in existing_keys:
+            self.provenance.append(
+                DiscoveryProvenance(
+                    source_id=self.cited_by_source_id,
+                    method=self.discovery_method,
+                    raw_citation=self.raw_citation,
+                    discovered_at=self.created_at,
+                )
+            )
+        return self
 
 
 class DiscoveryFile(BaseModel):

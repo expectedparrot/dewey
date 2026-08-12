@@ -1,0 +1,17 @@
+{
+  "source_id": "src_924a2313c5a7",
+  "bibtex_key": "xiao2020hear",
+  "entry_type": "inproceedings",
+  "managed_pdf_path": ".dewey/sources/src_924a2313c5a7/source.pdf",
+  "original_pdf_path": "/Users/johnhorton/tools/ep/dewey/ai-interviewers-review/inbox/xiao2020-active-listening.pdf",
+  "content_hash": "d1a219534dc49f55295563fc71354c52e8ef1a3a87b132c5866351e64a80e450",
+  "markdown_path": ".dewey/sources/src_924a2313c5a7/source.md",
+  "markdown_status": "ready",
+  "markdown_generator": {
+    "name": "paper2md",
+    "version": "0.1.0 (pymupdf)"
+  },
+  "created_at": "2026-08-12T12:38:58Z",
+  "updated_at": "2026-08-12T12:39:54Z",
+  "markdown_source": null
+}

@@ -18,6 +18,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from dewey.bibtex import BibTeXError, dump_entry, parse_single_entry
+from dewey.identity import identity_keys, identity_match, normalize_doi
 from dewey.models import (
     BibEntry,
     Config,
@@ -146,15 +147,134 @@ class DeweyRepo:
 
     def add_candidate(self, candidate: DiscoveryCandidate) -> DiscoveryCandidate:
         discovery = self.load_discovery()
-        candidate_doi = (candidate.doi or "").lower()
-        for existing in discovery.candidates:
-            if candidate_doi and (existing.doi or "").lower() == candidate_doi:
-                return existing
-            if existing.title.casefold() == candidate.title.casefold():
-                return existing
+        for index, existing in enumerate(discovery.candidates):
+            if identity_match(existing, candidate):
+                merged = self.merge_candidates(existing, candidate)
+                discovery.candidates[index] = merged
+                self.write_discovery(discovery)
+                return merged
         discovery.candidates.append(candidate)
         self.write_discovery(discovery)
         return candidate
+
+    @staticmethod
+    def merge_candidates(existing: DiscoveryCandidate, incoming: DiscoveryCandidate) -> DiscoveryCandidate:
+        provenance = list(existing.provenance)
+        seen = {(item.source_id, item.method, item.raw_citation) for item in provenance}
+        for item in incoming.provenance:
+            key = (item.source_id, item.method, item.raw_citation)
+            if key not in seen:
+                provenance.append(item)
+                seen.add(key)
+        decisions = list(existing.screening_decisions)
+        seen_decisions = {
+            (
+                item.decision,
+                item.stage,
+                item.reviewer,
+                item.reason_code,
+                item.rationale,
+                tuple(sorted(item.criteria.items())),
+                item.protocol_version,
+                item.decided_at,
+            )
+            for item in decisions
+        }
+        for item in incoming.screening_decisions:
+            key = (
+                item.decision,
+                item.stage,
+                item.reviewer,
+                item.reason_code,
+                item.rationale,
+                tuple(sorted(item.criteria.items())),
+                item.protocol_version,
+                item.decided_at,
+            )
+            if key not in seen_decisions:
+                decisions.append(item)
+                seen_decisions.add(key)
+        rank = {"rejected": 0, "candidate": 1, "relevant": 2, "added": 3}
+        preferred = incoming if rank[incoming.status.value] > rank[existing.status.value] else existing
+        richer = (
+            incoming
+            if sum(bool(value) for value in (incoming.authors, incoming.year, incoming.abstract))
+            > sum(bool(value) for value in (existing.authors, existing.year, existing.abstract))
+            else existing
+        )
+        return existing.model_copy(
+            update={
+                "title": richer.title,
+                "authors": richer.authors or existing.authors,
+                "year": richer.year or existing.year,
+                "doi": normalize_doi(existing.doi) or normalize_doi(incoming.doi),
+                "url": existing.url or incoming.url,
+                "open_access_url": existing.open_access_url or incoming.open_access_url,
+                "abstract": existing.abstract or incoming.abstract,
+                "status": preferred.status,
+                "rationale": preferred.rationale or existing.rationale or incoming.rationale,
+                "added_source_id": preferred.added_source_id or existing.added_source_id or incoming.added_source_id,
+                "provenance": provenance,
+                "screening_decisions": decisions,
+            }
+        )
+
+    def duplicate_candidate_groups(self) -> list[dict[str, Any]]:
+        candidates = self.load_discovery().candidates
+        components = self._candidate_identity_components(candidates)
+        return [
+            {
+                "candidate_ids": [candidates[index].candidate_id for index in component],
+                "title": candidates[component[0]].title,
+                "matches": [
+                    {"candidate_id": candidates[index].candidate_id, "method": "canonical_identity", "score": 1.0}
+                    for index in component[1:]
+                ],
+            }
+            for component in components
+            if len(component) > 1
+        ]
+
+    @staticmethod
+    def _candidate_identity_components(candidates: list[DiscoveryCandidate]) -> list[list[int]]:
+        """Return transitively connected groups sharing an exact identity key."""
+        parents = list(range(len(candidates)))
+
+        def find(index: int) -> int:
+            while parents[index] != index:
+                parents[index] = parents[parents[index]]
+                index = parents[index]
+            return index
+
+        def union(left: int, right: int) -> None:
+            left_root, right_root = find(left), find(right)
+            if left_root != right_root:
+                parents[right_root] = left_root
+
+        key_owner: dict[str, int] = {}
+        for index, candidate in enumerate(candidates):
+            for key in identity_keys(candidate):
+                if key in key_owner:
+                    union(index, key_owner[key])
+                else:
+                    key_owner[key] = index
+        components: dict[int, list[int]] = {}
+        for index in range(len(candidates)):
+            components.setdefault(find(index), []).append(index)
+        return sorted(components.values(), key=lambda component: component[0])
+
+    def deduplicate_candidates(self) -> dict[str, int]:
+        discovery = self.load_discovery()
+        unique: list[DiscoveryCandidate] = []
+        for component in self._candidate_identity_components(discovery.candidates):
+            canonical = discovery.candidates[component[0]]
+            for index in component[1:]:
+                canonical = self.merge_candidates(canonical, discovery.candidates[index])
+            unique.append(canonical)
+        before = len(discovery.candidates)
+        discovery.candidates = unique
+        self.write_discovery(discovery)
+        return {"before": before, "after": len(unique), "merged": before - len(unique)}
 
     def source_dir(self, source_id: str) -> Path:
         return self.sources_dir / source_id
@@ -305,7 +425,9 @@ class DeweyRepo:
             if backend == "firecrawl":
                 markdown_text, generator_version = convert_pdf_with_firecrawl(pdf_path)
             elif backend == "paper2md":
-                markdown_text, generator_version = convert_pdf_with_paper2md(pdf_path, source_dir / "artifacts" / "paper2md")
+                markdown_text, generator_version = convert_pdf_with_paper2md(
+                    pdf_path, source_dir / "artifacts" / "paper2md"
+                )
             else:
                 raise DeweyError("invalid_backend", f"Unknown Markdown backend: {backend}", exit_code=2)
         except DeweyError as exc:
@@ -511,7 +633,7 @@ def convert_pdf_with_paper2md(pdf_path: Path, output_dir: Path) -> tuple[str, st
     except FileNotFoundError as exc:
         raise DeweyError(
             "paper2md_not_found",
-            "paper2md is not installed. Install it from GitHub: pip install \"paper2md @ git+https://github.com/expectedparrot/paper2md.git\"",
+            'paper2md is not installed. Install it from GitHub: pip install "paper2md @ git+https://github.com/expectedparrot/paper2md.git"',
             exit_code=1,
         ) from exc
 

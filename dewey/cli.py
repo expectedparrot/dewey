@@ -8,7 +8,9 @@ from pathlib import Path
 from typing import Any
 
 import typer
+from dotenv import load_dotenv
 
+from dewey.archive import write_project_archive
 from dewey.bibtex import BibTeXError, dump_entry
 from dewey.discovery import (
     candidate_from_citation,
@@ -23,9 +25,13 @@ from dewey.models import (
     BibEntry,
     CandidateStatus,
     DiscoveryCandidate,
+    ExclusionReason,
     LinkRecord,
     LinkType,
     MarkdownStatus,
+    ScreeningDecision,
+    ScreeningDecisionValue,
+    ScreeningStage,
     SourceStatus,
 )
 from dewey.repo import (
@@ -38,6 +44,7 @@ from dewey.repo import (
 )
 
 app = typer.Typer(no_args_is_help=True)
+load_dotenv()
 add_app = typer.Typer(no_args_is_help=True)
 remove_app = typer.Typer(no_args_is_help=True)
 bib_app = typer.Typer(no_args_is_help=True)
@@ -51,6 +58,7 @@ index_app = typer.Typer(no_args_is_help=True)
 topic_app = typer.Typer(no_args_is_help=True)
 summary_app = typer.Typer(no_args_is_help=True)
 discover_app = typer.Typer(no_args_is_help=True)
+screen_app = typer.Typer(no_args_is_help=True)
 traverse_app = typer.Typer(no_args_is_help=True)
 export_app = typer.Typer(no_args_is_help=True)
 
@@ -67,6 +75,7 @@ app.add_typer(index_app, name="index")
 app.add_typer(topic_app, name="topic")
 app.add_typer(summary_app, name="summary")
 app.add_typer(discover_app, name="discover")
+app.add_typer(screen_app, name="screen")
 app.add_typer(traverse_app, name="traverse")
 app.add_typer(export_app, name="export")
 
@@ -218,10 +227,12 @@ def status(json_output: bool = typer.Option(False, "--json")) -> None:
     candidate_counts = {status.value: 0 for status in CandidateStatus}
     for candidate in discovery.candidates:
         candidate_counts[candidate.status.value] += 1
+    discovery_sightings = sum(len(candidate.provenance) for candidate in discovery.candidates)
     index_health = {"exists": repo.index_db.exists(), "stats": repo.stats() if repo.index_db.exists() else None}
     text = (
         f"Sources: {len(source_ids)} | PDFs: {pdf_count} | Markdown ready: {md_ready} | "
-        f"Summarized: {summarized} | Candidates: {candidate_counts['candidate']} | "
+        f"Summarized: {summarized} | Candidates: {candidate_counts['candidate']} "
+        f"({discovery_sightings} sightings) | "
         f"Ordered: {len(order.order)} | Links: {count_total_links(repo)} | Markdown stale/failed: {stale_or_failed}"
     )
     emit(
@@ -238,6 +249,7 @@ def status(json_output: bool = typer.Option(False, "--json")) -> None:
                 "stale_or_failed_markdown": stale_or_failed,
                 "summarized": summarized,
                 "candidates_by_status": candidate_counts,
+                "discovery_sightings": discovery_sightings,
             },
             "index": index_health,
             "text": text,
@@ -296,6 +308,8 @@ def doctor(json_output: bool = typer.Option(False, "--json")) -> None:
     for source_id in order.order:
         if source_id not in source_ids:
             issues.append({"code": "missing_order_source", "source_id": source_id})
+    for group in repo.duplicate_candidate_groups():
+        issues.append({"code": "duplicate_candidates", **group})
     try:
         repo.init_index()
         repo.stats()
@@ -338,18 +352,30 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
         recommendations = ["dewey discover list --status candidate", f"Review {len(undecided)} candidate(s)"]
     elif relevant:
         phase = "promote"
-        recommendations = [f"dewey discover accept {relevant[0].candidate_id}", f"Accept or reject {len(relevant)} relevant candidate(s)"]
+        recommendations = [
+            f"dewey discover accept {relevant[0].candidate_id}",
+            f"Accept or reject {len(relevant)} relevant candidate(s)",
+        ]
     elif not source_ids:
         phase = "seed"
         recommendations = ["The last candidate set yielded no sources; broaden or revise the search"]
     elif unsummarized:
         phase = "read"
-        recommendations = [f"dewey summary set {unsummarized[0]} --text <summary>", f"Summarize {len(unsummarized)} source(s)"]
+        recommendations = [
+            f"dewey summary set {unsummarized[0]} --text <summary>",
+            f"Summarize {len(unsummarized)} source(s)",
+        ]
     else:
         phase = "expand"
         recommendations = ["Traverse citations from a strong included source", "dewey traverse references <source-id>"]
     emit(
-        {"ok": True, "action": action, "phase": phase, "next_steps": recommendations, "text": "\n".join(recommendations)},
+        {
+            "ok": True,
+            "action": action,
+            "phase": phase,
+            "next_steps": recommendations,
+            "text": "\n".join(recommendations),
+        },
         json_output,
     )
 
@@ -365,7 +391,16 @@ def topic_set(
     config = repo.load_config().model_copy(update={"topic": topic.strip(), "research_question": question.strip()})
     repo.write_config(config)
     repo.append_log(action, topic=config.topic, research_question=config.research_question)
-    emit({"ok": True, "action": action, "topic": config.topic, "research_question": config.research_question, "text": f"Topic: {config.topic}\nQuestion: {config.research_question}"}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "topic": config.topic,
+            "research_question": config.research_question,
+            "text": f"Topic: {config.topic}\nQuestion: {config.research_question}",
+        },
+        json_output,
+    )
 
 
 @topic_app.command("show")
@@ -373,7 +408,16 @@ def topic_show(json_output: bool = typer.Option(False, "--json")) -> None:
     action = "topic.show"
     repo = load_repo(action, json_output)
     config = repo.load_config()
-    emit({"ok": True, "action": action, "topic": config.topic, "research_question": config.research_question, "text": f"Topic: {config.topic or '(unset)'}\nQuestion: {config.research_question or '(unset)'}"}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "topic": config.topic,
+            "research_question": config.research_question,
+            "text": f"Topic: {config.topic or '(unset)'}\nQuestion: {config.research_question or '(unset)'}",
+        },
+        json_output,
+    )
 
 
 @summary_app.command("set")
@@ -396,7 +440,10 @@ def summary_set(
     atomic_write_text(repo.source_dir(source_id) / "summary.txt", summary)
     repo.index_source(source_id)
     repo.append_log(action, source_id=source_id)
-    emit({"ok": True, "action": action, "source_id": source_id, "summary": summary.rstrip(), "text": summary.rstrip()}, json_output)
+    emit(
+        {"ok": True, "action": action, "source_id": source_id, "summary": summary.rstrip(), "text": summary.rstrip()},
+        json_output,
+    )
 
 
 @summary_app.command("show")
@@ -423,13 +470,29 @@ def discover_add(
     repo = load_repo(action, json_output)
     config = repo.load_config()
     candidate = DiscoveryCandidate(
-        candidate_id=candidate_id(), title=title.strip(), authors=author, year=year, doi=doi, url=url,
-        abstract=abstract, relevance_score=relevance_score(" ".join([title, abstract or ""]), config.topic or config.research_question or ""),
+        candidate_id=candidate_id(),
+        title=title.strip(),
+        authors=author,
+        year=year,
+        doi=doi,
+        url=url,
+        abstract=abstract,
+        relevance_score=relevance_score(
+            " ".join([title, abstract or ""]), config.topic or config.research_question or ""
+        ),
         created_at=utc_now(),
     )
     stored = repo.add_candidate(candidate)
     repo.append_log(action, candidate_id=stored.candidate_id)
-    emit({"ok": True, "action": action, "candidate": stored.model_dump(mode="json"), "text": f"{stored.candidate_id}\t{stored.title}"}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "candidate": stored.model_dump(mode="json"),
+            "text": f"{stored.candidate_id}\t{stored.title}",
+        },
+        json_output,
+    )
 
 
 @discover_app.command("list")
@@ -440,10 +503,50 @@ def discover_list(
     action = "discovery.list"
     repo = load_repo(action, json_output)
     candidates = [item for item in repo.load_discovery().candidates if status is None or item.status == status]
-    candidates.sort(key=lambda item: (item.relevance_score is None, -(item.relevance_score or 0), item.title.casefold()))
+    candidates.sort(
+        key=lambda item: (item.relevance_score is None, -(item.relevance_score or 0), item.title.casefold())
+    )
     data = [item.model_dump(mode="json") for item in candidates]
-    text_value = "\n".join(f"{item.candidate_id}\t{item.status.value}\t{item.relevance_score if item.relevance_score is not None else '-'}\t{item.title}" for item in candidates)
+    text_value = "\n".join(
+        f"{item.candidate_id}\t{item.status.value}\t{item.relevance_score if item.relevance_score is not None else '-'}\t{item.title}"
+        for item in candidates
+    )
     emit({"ok": True, "action": action, "candidates": data, "text": text_value}, json_output)
+
+
+@discover_app.command("dedupe")
+def discover_dedupe(
+    apply: bool = typer.Option(False, "--apply", help="Merge duplicate records; without this flag, only report them."),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "discovery.dedupe"
+    repo = load_repo(action, json_output)
+    groups = repo.duplicate_candidate_groups()
+    if not apply:
+        emit(
+            {
+                "ok": True,
+                "action": action,
+                "applied": False,
+                "groups": groups,
+                "duplicates": sum(len(group["candidate_ids"]) - 1 for group in groups),
+                "text": f"Found {len(groups)} duplicate group(s); rerun with --apply to merge them",
+            },
+            json_output,
+        )
+        return
+    result = repo.deduplicate_candidates()
+    repo.append_log(action, **result)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "applied": True,
+            **result,
+            "text": f"Merged {result['merged']} duplicate candidate(s); {result['after']} unique candidates remain",
+        },
+        json_output,
+    )
 
 
 def _candidate(repo: DeweyRepo, candidate_id_value: str) -> DiscoveryCandidate:
@@ -453,30 +556,272 @@ def _candidate(repo: DeweyRepo, candidate_id_value: str) -> DiscoveryCandidate:
     raise DeweyError("candidate_not_found", f"No discovery candidate exists for {candidate_id_value}", exit_code=4)
 
 
+def add_discovery_citation_links(repo: DeweyRepo, candidate: DiscoveryCandidate, source_id: str, note: str) -> int:
+    added = 0
+    for provenance in candidate.provenance:
+        parent = provenance.source_id
+        if not parent or parent not in repo.list_source_ids():
+            continue
+        links = repo.load_links(parent)
+        if any(link.target == source_id and link.type == LinkType.cites for link in links.outgoing):
+            continue
+        links.outgoing.append(LinkRecord(target=source_id, type=LinkType.cites, note=note, created_at=utc_now()))
+        repo.write_links(parent, links)
+        repo.index_source(parent)
+        added += 1
+    return added
+
+
 @discover_app.command("decide")
 def discover_decide(
     candidate_id_value: str = typer.Argument(..., metavar="CANDIDATE_ID"),
     status: CandidateStatus = typer.Option(..., "--status"),
     rationale: str | None = typer.Option(None, "--rationale"),
+    reviewer: str = typer.Option("agent", "--reviewer"),
+    stage: ScreeningStage = typer.Option(ScreeningStage.title_abstract, "--stage"),
+    criterion: list[str] = typer.Option([], "--criterion", help="Criterion as NAME=VALUE; repeat as needed."),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     action = "discovery.decide"
     repo = load_repo(action, json_output)
     if status == CandidateStatus.added:
         fail(action, "invalid_status", "Use discover accept to add a candidate", 2, json_output)
+    criteria: dict[str, str] = {}
+    for value in criterion:
+        if "=" not in value or not value.split("=", 1)[0].strip():
+            fail(action, "invalid_criterion", f"Expected NAME=VALUE, got {value!r}", 2, json_output)
+        name, answer = value.split("=", 1)
+        criteria[name.strip()] = answer.strip()
     discovery = repo.load_discovery()
     for index, item in enumerate(discovery.candidates):
         if item.candidate_id == candidate_id_value:
-            discovery.candidates[index] = item.model_copy(update={"status": status, "rationale": rationale})
+            decision = ScreeningDecision(
+                decision={
+                    CandidateStatus.relevant: ScreeningDecisionValue.include,
+                    CandidateStatus.rejected: ScreeningDecisionValue.exclude,
+                    CandidateStatus.candidate: ScreeningDecisionValue.maybe,
+                }[status],
+                stage=stage,
+                reviewer=reviewer,
+                rationale=rationale,
+                criteria=criteria,
+                decided_at=utc_now(),
+            )
+            discovery.candidates[index] = item.model_copy(
+                update={
+                    "status": status,
+                    "rationale": rationale,
+                    "screening_decisions": [*item.screening_decisions, decision],
+                }
+            )
             repo.write_discovery(discovery)
-            repo.append_log(action, candidate_id=candidate_id_value, status=status.value)
-            emit({"ok": True, "action": action, "candidate": discovery.candidates[index].model_dump(mode="json"), "text": f"{candidate_id_value}: {status.value}"}, json_output)
+            repo.append_log(
+                action,
+                candidate_id=candidate_id_value,
+                status=status.value,
+                reviewer=reviewer,
+                stage=stage.value,
+                criteria=criteria,
+            )
+            emit(
+                {
+                    "ok": True,
+                    "action": action,
+                    "candidate": discovery.candidates[index].model_dump(mode="json"),
+                    "text": f"{candidate_id_value}: {status.value}",
+                },
+                json_output,
+            )
             return
     fail(action, "candidate_not_found", f"No discovery candidate exists for {candidate_id_value}", 4, json_output)
 
 
+@discover_app.command("history")
+def discover_history(
+    candidate_id_value: str = typer.Argument(..., metavar="CANDIDATE_ID"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "discovery.history"
+    repo = load_repo(action, json_output)
+    candidate = _candidate(repo, candidate_id_value)
+    decisions = [item.model_dump(mode="json") for item in candidate.screening_decisions]
+    text_value = "\n".join(
+        f"{item.decided_at}\t{item.stage.value}\t{item.decision.value}\t{item.reviewer}\t{item.rationale or ''}"
+        for item in candidate.screening_decisions
+    )
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "candidate_id": candidate_id_value,
+            "decisions": decisions,
+            "text": text_value or "No recorded screening decisions",
+        },
+        json_output,
+    )
+
+
+@screen_app.command("decide")
+def screen_decide(
+    candidate_id_value: str = typer.Argument(..., metavar="CANDIDATE_ID"),
+    stage: ScreeningStage = typer.Option(..., "--stage"),
+    decision: ScreeningDecisionValue = typer.Option(..., "--decision"),
+    reason: ExclusionReason | None = typer.Option(None, "--reason"),
+    rationale: str | None = typer.Option(None, "--rationale"),
+    reviewer: str = typer.Option("agent", "--reviewer"),
+    protocol_version: str | None = typer.Option(None, "--protocol-version"),
+    criterion: list[str] = typer.Option([], "--criterion", help="Criterion as NAME=VALUE; repeat as needed."),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "screen.decide"
+    repo = load_repo(action, json_output)
+    if decision == ScreeningDecisionValue.exclude and reason is None:
+        fail(action, "missing_reason", "Excluded records require --reason", 2, json_output)
+    if decision != ScreeningDecisionValue.exclude and reason is not None:
+        fail(action, "unexpected_reason", "--reason is only valid for an exclude decision", 2, json_output)
+    criteria: dict[str, str] = {}
+    for value in criterion:
+        if "=" not in value or not value.split("=", 1)[0].strip():
+            fail(action, "invalid_criterion", f"Expected NAME=VALUE, got {value!r}", 2, json_output)
+        name, answer = value.split("=", 1)
+        criteria[name.strip()] = answer.strip()
+    discovery = repo.load_discovery()
+    for index, candidate in enumerate(discovery.candidates):
+        if candidate.candidate_id != candidate_id_value:
+            continue
+        record = ScreeningDecision(
+            decision=decision,
+            stage=stage,
+            reviewer=reviewer,
+            reason_code=reason.value if reason else None,
+            rationale=rationale,
+            criteria=criteria,
+            protocol_version=protocol_version,
+            decided_at=utc_now(),
+        )
+        current_status = candidate.status
+        if current_status != CandidateStatus.added:
+            current_status = {
+                ScreeningDecisionValue.include: CandidateStatus.relevant,
+                ScreeningDecisionValue.exclude: CandidateStatus.rejected,
+                ScreeningDecisionValue.maybe: CandidateStatus.candidate,
+            }[decision]
+        updated = candidate.model_copy(
+            update={
+                "status": current_status,
+                "rationale": rationale,
+                "screening_decisions": [*candidate.screening_decisions, record],
+            }
+        )
+        discovery.candidates[index] = updated
+        repo.write_discovery(discovery)
+        repo.append_log(
+            action,
+            candidate_id=candidate_id_value,
+            stage=stage.value,
+            decision=decision.value,
+            reason=reason.value if reason else None,
+            reviewer=reviewer,
+            protocol_version=protocol_version,
+        )
+        emit(
+            {
+                "ok": True,
+                "action": action,
+                "candidate": updated.model_dump(mode="json"),
+                "decision": record.model_dump(mode="json"),
+                "text": f"{candidate_id_value}: {stage.value} {decision.value}",
+            },
+            json_output,
+        )
+        return
+    fail(action, "candidate_not_found", f"No discovery candidate exists for {candidate_id_value}", 4, json_output)
+
+
+@screen_app.command("history")
+def screen_history(
+    candidate_id_value: str = typer.Argument(..., metavar="CANDIDATE_ID"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    discover_history(candidate_id_value, json_output)
+
+
+def screening_conflicts(repo: DeweyRepo) -> list[dict[str, Any]]:
+    conflicts: list[dict[str, Any]] = []
+    for candidate in repo.load_discovery().candidates:
+        latest: dict[tuple[ScreeningStage, str], ScreeningDecision] = {}
+        for decision in candidate.screening_decisions:
+            latest[(decision.stage, decision.reviewer)] = decision
+        for stage in ScreeningStage:
+            stage_decisions = [record for (record_stage, _), record in latest.items() if record_stage == stage]
+            values = {record.decision for record in stage_decisions}
+            if len(values) > 1:
+                conflicts.append(
+                    {
+                        "candidate_id": candidate.candidate_id,
+                        "stage": stage.value,
+                        "decisions": [record.model_dump(mode="json") for record in stage_decisions],
+                    }
+                )
+    return conflicts
+
+
+@screen_app.command("conflicts")
+def screen_conflicts(json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "screen.conflicts"
+    repo = load_repo(action, json_output)
+    conflicts = screening_conflicts(repo)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "conflicts": conflicts,
+            "text": f"Found {len(conflicts)} unresolved screening conflict(s)",
+        },
+        json_output,
+    )
+
+
+@screen_app.command("audit")
+def screen_audit(json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "screen.audit"
+    repo = load_repo(action, json_output)
+    issues: list[dict[str, Any]] = []
+    for candidate in repo.load_discovery().candidates:
+        for decision in candidate.screening_decisions:
+            if decision.decision == ScreeningDecisionValue.exclude and not decision.reason_code:
+                issues.append(
+                    {
+                        "code": "exclusion_without_reason",
+                        "candidate_id": candidate.candidate_id,
+                        "stage": decision.stage.value,
+                    }
+                )
+            if decision.reason_code == ExclusionReason.other.value and not decision.rationale:
+                issues.append(
+                    {
+                        "code": "other_without_rationale",
+                        "candidate_id": candidate.candidate_id,
+                        "stage": decision.stage.value,
+                    }
+                )
+    issues.extend({"code": "reviewer_conflict", **conflict} for conflict in screening_conflicts(repo))
+    emit(
+        {
+            "ok": not issues,
+            "action": action,
+            "issues": issues,
+            "text": f"Screening audit found {len(issues)} issue(s)",
+        },
+        json_output,
+    )
+
+
 @discover_app.command("accept")
-def discover_accept(candidate_id_value: str = typer.Argument(..., metavar="CANDIDATE_ID"), json_output: bool = typer.Option(False, "--json")) -> None:
+def discover_accept(
+    candidate_id_value: str = typer.Argument(..., metavar="CANDIDATE_ID"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
     action = "discovery.accept"
     repo = load_repo(action, json_output)
     discovery = repo.load_discovery()
@@ -484,7 +829,9 @@ def discover_accept(candidate_id_value: str = typer.Argument(..., metavar="CANDI
         if item.candidate_id != candidate_id_value:
             continue
         if item.status == CandidateStatus.added:
-            fail(action, "candidate_already_added", f"Candidate already added as {item.added_source_id}", 2, json_output)
+            fail(
+                action, "candidate_already_added", f"Candidate already added as {item.added_source_id}", 2, json_output
+            )
         key_base = (item.authors[0].split()[-1] if item.authors else "source") + str(item.year or "")
         key = "".join(ch.lower() for ch in key_base if ch.isalnum()) or item.candidate_id
         existing = repo.existing_bibtex_keys()
@@ -500,16 +847,23 @@ def discover_accept(candidate_id_value: str = typer.Argument(..., metavar="CANDI
         if item.url:
             fields["url"] = item.url
         source_id = repo.create_source(BibEntry(entry_type="article", key=key, fields=fields))
-        if item.cited_by_source_id and item.cited_by_source_id in repo.list_source_ids():
-            links = repo.load_links(item.cited_by_source_id)
-            links.outgoing.append(LinkRecord(target=source_id, type=LinkType.cites, note="Discovered from bibliography", created_at=utc_now()))
-            repo.write_links(item.cited_by_source_id, links)
-            repo.index_source(item.cited_by_source_id)
+        add_discovery_citation_links(repo, item, source_id, "Discovered from bibliography")
         repo.index_source(source_id)
-        discovery.candidates[index] = item.model_copy(update={"status": CandidateStatus.added, "added_source_id": source_id})
+        discovery.candidates[index] = item.model_copy(
+            update={"status": CandidateStatus.added, "added_source_id": source_id}
+        )
         repo.write_discovery(discovery)
         repo.append_log(action, candidate_id=candidate_id_value, source_id=source_id)
-        emit({"ok": True, "action": action, "candidate_id": candidate_id_value, "source_id": source_id, "text": f"Added {source_id}: {item.title}"}, json_output)
+        emit(
+            {
+                "ok": True,
+                "action": action,
+                "candidate_id": candidate_id_value,
+                "source_id": source_id,
+                "text": f"Added {source_id}: {item.title}",
+            },
+            json_output,
+        )
         return
     fail(action, "candidate_not_found", f"No discovery candidate exists for {candidate_id_value}", 4, json_output)
 
@@ -528,15 +882,14 @@ def discover_resolve(
         if item.candidate_id != candidate_id_value:
             continue
         if item.added_source_id and item.added_source_id != source_id:
-            fail(action, "candidate_already_added", f"Candidate already resolved as {item.added_source_id}", 2, json_output)
-        if item.cited_by_source_id and item.cited_by_source_id in repo.list_source_ids():
-            links = repo.load_links(item.cited_by_source_id)
-            if not any(link.target == source_id and link.type == LinkType.cites for link in links.outgoing):
-                links.outgoing.append(
-                    LinkRecord(target=source_id, type=LinkType.cites, note="Resolved from bibliography", created_at=utc_now())
-                )
-                repo.write_links(item.cited_by_source_id, links)
-                repo.index_source(item.cited_by_source_id)
+            fail(
+                action,
+                "candidate_already_added",
+                f"Candidate already resolved as {item.added_source_id}",
+                2,
+                json_output,
+            )
+        add_discovery_citation_links(repo, item, source_id, "Resolved from bibliography")
         discovery.candidates[index] = item.model_copy(
             update={"status": CandidateStatus.added, "added_source_id": source_id}
         )
@@ -557,13 +910,28 @@ def discover_resolve(
 
 
 @discover_app.command("export-triage")
-def discover_export_triage(output: Path = typer.Option(..., "--output"), json_output: bool = typer.Option(False, "--json")) -> None:
+def discover_export_triage(
+    output: Path = typer.Option(..., "--output"), json_output: bool = typer.Option(False, "--json")
+) -> None:
     action = "discovery.export_triage"
     repo = load_repo(action, json_output)
     config = repo.load_config()
-    records = [edsl_triage_record(item, config.topic or "", config.research_question or "") for item in repo.load_discovery().candidates if item.status == CandidateStatus.candidate]
+    records = [
+        edsl_triage_record(item, config.topic or "", config.research_question or "")
+        for item in repo.load_discovery().candidates
+        if item.status == CandidateStatus.candidate
+    ]
     atomic_write_text(output, "".join(json.dumps(record) + "\n" for record in records))
-    emit({"ok": True, "action": action, "output": str(output), "records": len(records), "text": f"Wrote {len(records)} triage records to {output}"}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "output": str(output),
+            "records": len(records),
+            "text": f"Wrote {len(records)} triage records to {output}",
+        },
+        json_output,
+    )
 
 
 @traverse_app.command("references")
@@ -577,7 +945,13 @@ def traverse_references(
     ensure_source_exists(repo, source_id, action, json_output)
     metadata = repo.load_metadata(source_id)
     if metadata.markdown_status != MarkdownStatus.ready or not metadata.markdown_path:
-        fail(action, "markdown_required", f"Render {source_id} to Markdown before traversing its references", 2, json_output)
+        fail(
+            action,
+            "markdown_required",
+            f"Render {source_id} to Markdown before traversing its references",
+            2,
+            json_output,
+        )
     markdown_path = repo.root / metadata.markdown_path
     if not markdown_path.exists():
         fail(action, "markdown_missing", f"Markdown file is missing for {source_id}", 4, json_output)
@@ -593,7 +967,17 @@ def traverse_references(
         repo.add_candidate(candidate)
     added = len(repo.load_discovery().candidates) - before
     repo.append_log(action, source_id=source_id, fetched=len(fetched), added=added)
-    emit({"ok": True, "action": action, "source_id": source_id, "extracted": len(fetched), "added": added, "text": f"Extracted {len(fetched)} references from the document; added {added} new candidates"}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "source_id": source_id,
+            "extracted": len(fetched),
+            "added": added,
+            "text": f"Extracted {len(fetched)} references from the document; added {added} new candidates",
+        },
+        json_output,
+    )
 
 
 @export_app.command("html")
@@ -606,7 +990,32 @@ def export_html(
     repo = load_repo(action, json_output)
     result = write_explorer(repo, output, title)
     repo.append_log(action, **result)
-    emit({"ok": True, "action": action, **result, "text": f"Wrote literature explorer to {result['path']}"}, json_output)
+    emit(
+        {"ok": True, "action": action, **result, "text": f"Wrote literature explorer to {result['path']}"}, json_output
+    )
+
+
+@export_app.command("zip")
+def export_zip(
+    output: Path | None = typer.Option(None, "--output", "-o"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "export.zip"
+    repo = load_repo(action, json_output)
+    try:
+        result = write_project_archive(repo, output)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    repo.append_log(action, path=result["path"], files=result["files"], bytes=result["bytes"])
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            **result,
+            "text": f"Wrote portable Dewey project ({result['files']} files) to {result['path']}",
+        },
+        json_output,
+    )
 
 
 @add_app.command("source")
@@ -834,11 +1243,23 @@ def bib_show(source_id: str, json_output: bool = typer.Option(False, "--json")) 
     ensure_source_exists(repo, source_id, action, json_output)
     entry = repo.load_entry(source_id)
     raw = dump_entry(entry)
-    emit({"ok": True, "action": action, "source_id": source_id, "raw": raw, "parsed": entry.as_dict(), "text": raw.rstrip()}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "source_id": source_id,
+            "raw": raw,
+            "parsed": entry.as_dict(),
+            "text": raw.rstrip(),
+        },
+        json_output,
+    )
 
 
 @bib_app.command("set")
-def bib_set(source_id: str, file: Path = typer.Option(..., "--file"), json_output: bool = typer.Option(False, "--json")) -> None:
+def bib_set(
+    source_id: str, file: Path = typer.Option(..., "--file"), json_output: bool = typer.Option(False, "--json")
+) -> None:
     action = "bib.set"
     repo = load_repo(action, json_output)
     ensure_source_exists(repo, source_id, action, json_output)
@@ -846,7 +1267,9 @@ def bib_set(source_id: str, file: Path = typer.Option(..., "--file"), json_outpu
         entry = parse_entry_file(file.resolve())
         existing = repo.existing_bibtex_keys(exclude_source_id=source_id)
         if entry.key in existing:
-            raise DeweyError("duplicate_bibtex_key", f"BibTeX key '{entry.key}' already exists in {existing[entry.key]}", 2)
+            raise DeweyError(
+                "duplicate_bibtex_key", f"BibTeX key '{entry.key}' already exists in {existing[entry.key]}", 2
+            )
         repo.write_entry(source_id, entry)
         metadata = repo.load_metadata(source_id)
         metadata.bibtex_key = entry.key
@@ -878,7 +1301,9 @@ def bib_edit(
         updated = normalize_entry_update(entry, list(zip(field, value)), unset)
         existing = repo.existing_bibtex_keys(exclude_source_id=source_id)
         if updated.key in existing:
-            raise DeweyError("duplicate_bibtex_key", f"BibTeX key '{updated.key}' already exists in {existing[updated.key]}", 2)
+            raise DeweyError(
+                "duplicate_bibtex_key", f"BibTeX key '{updated.key}' already exists in {existing[updated.key]}", 2
+            )
         repo.write_entry(source_id, updated)
         metadata = repo.load_metadata(source_id)
         metadata.bibtex_key = updated.key
@@ -893,16 +1318,32 @@ def bib_edit(
 
 
 @app.command()
-def cite(source_id: str, format: str = typer.Option("bibtex", "--format"), json_output: bool = typer.Option(False, "--json")) -> None:
+def cite(
+    source_id: str, format: str = typer.Option("bibtex", "--format"), json_output: bool = typer.Option(False, "--json")
+) -> None:
     action = "cite.show"
     repo = load_repo(action, json_output)
     ensure_source_exists(repo, source_id, action, json_output)
     entry = repo.load_entry(source_id)
     if format == "bibtex":
         text = dump_entry(entry).rstrip()
-        payload = {"ok": True, "action": action, "source_id": source_id, "format": format, "citation": text, "text": text}
+        payload = {
+            "ok": True,
+            "action": action,
+            "source_id": source_id,
+            "format": format,
+            "citation": text,
+            "text": text,
+        }
     elif format == "key":
-        payload = {"ok": True, "action": action, "source_id": source_id, "format": format, "citation": entry.key, "text": entry.key}
+        payload = {
+            "ok": True,
+            "action": action,
+            "source_id": source_id,
+            "format": format,
+            "citation": entry.key,
+            "text": entry.key,
+        }
     elif format == "json":
         payload = {"ok": True, "action": action, "source_id": source_id, "format": format, "citation": entry.as_dict()}
     else:
@@ -925,7 +1366,16 @@ def state_set(source_id: str, status: SourceStatus, json_output: bool = typer.Op
     repo.write_state(source_id, state)
     update_source_index(repo, source_id)
     repo.append_log(action, source_id=source_id, status=status.value)
-    emit({"ok": True, "action": action, "source_id": source_id, "status": status.value, "text": f"Set {source_id} to {status.value}"}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "source_id": source_id,
+            "status": status.value,
+            "text": f"Set {source_id} to {status.value}",
+        },
+        json_output,
+    )
 
 
 @state_app.command("show")
@@ -934,7 +1384,16 @@ def state_show(source_id: str, json_output: bool = typer.Option(False, "--json")
     repo = load_repo(action, json_output)
     ensure_source_exists(repo, source_id, action, json_output)
     state = repo.load_state(source_id)
-    emit({"ok": True, "action": action, "source_id": source_id, "state": state.model_dump(), "text": json.dumps(state.model_dump(), indent=2)}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "source_id": source_id,
+            "state": state.model_dump(),
+            "text": json.dumps(state.model_dump(), indent=2),
+        },
+        json_output,
+    )
 
 
 @state_app.command("set-priority")
@@ -947,7 +1406,16 @@ def state_set_priority(source_id: str, priority: int, json_output: bool = typer.
     repo.write_state(source_id, state)
     update_source_index(repo, source_id)
     repo.append_log(action, source_id=source_id, priority=priority)
-    emit({"ok": True, "action": action, "source_id": source_id, "priority": priority, "text": f"Set priority for {source_id} to {priority}"}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "source_id": source_id,
+            "priority": priority,
+            "text": f"Set priority for {source_id} to {priority}",
+        },
+        json_output,
+    )
 
 
 @state_app.command("mark-read")
@@ -974,7 +1442,9 @@ def notes_show(source_id: str, json_output: bool = typer.Option(False, "--json")
 
 
 @notes_app.command("set")
-def notes_set(source_id: str, file: Path = typer.Option(..., "--file"), json_output: bool = typer.Option(False, "--json")) -> None:
+def notes_set(
+    source_id: str, file: Path = typer.Option(..., "--file"), json_output: bool = typer.Option(False, "--json")
+) -> None:
     action = "notes.set"
     repo = load_repo(action, json_output)
     ensure_source_exists(repo, source_id, action, json_output)
@@ -990,7 +1460,9 @@ def notes_set(source_id: str, file: Path = typer.Option(..., "--file"), json_out
 
 
 @notes_app.command("edit")
-def notes_edit(source_id: str, append: str = typer.Option(..., "--append"), json_output: bool = typer.Option(False, "--json")) -> None:
+def notes_edit(
+    source_id: str, append: str = typer.Option(..., "--append"), json_output: bool = typer.Option(False, "--json")
+) -> None:
     action = "notes.edit"
     repo = load_repo(action, json_output)
     ensure_source_exists(repo, source_id, action, json_output)
@@ -1018,13 +1490,33 @@ def link_add(
     links = repo.load_links(from_id)
     for existing in links.outgoing:
         if existing.target == to_id and existing.type == type and existing.note == note:
-            emit({"ok": True, "action": action, "from": from_id, "to": to_id, "duplicate": True, "text": "Link already exists"}, json_output)
+            emit(
+                {
+                    "ok": True,
+                    "action": action,
+                    "from": from_id,
+                    "to": to_id,
+                    "duplicate": True,
+                    "text": "Link already exists",
+                },
+                json_output,
+            )
             return
     links.outgoing.append(LinkRecord(target=to_id, type=type, note=note, created_at=utc_now()))
     repo.write_links(from_id, links)
     update_source_index(repo, from_id)
     repo.append_log(action, **{"from": from_id, "to": to_id, "type": type.value})
-    emit({"ok": True, "action": action, "from": from_id, "to": to_id, "type": type.value, "text": f"Linked {from_id} -> {to_id}"}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "from": from_id,
+            "to": to_id,
+            "type": type.value,
+            "text": f"Linked {from_id} -> {to_id}",
+        },
+        json_output,
+    )
 
 
 @link_app.command("list")
@@ -1060,7 +1552,17 @@ def link_remove(
     repo.write_links(from_id, links)
     update_source_index(repo, from_id)
     repo.append_log(action, **{"from": from_id, "to": to_id, "type": type.value})
-    emit({"ok": True, "action": action, "from": from_id, "to": to_id, "type": type.value, "text": f"Removed link {from_id} -> {to_id}"}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "from": from_id,
+            "to": to_id,
+            "type": type.value,
+            "text": f"Removed link {from_id} -> {to_id}",
+        },
+        json_output,
+    )
 
 
 @order_app.command("show")
@@ -1085,7 +1587,10 @@ def order_set(source_ids: list[str], json_output: bool = typer.Option(False, "--
     order.order = source_ids
     repo.write_order(order)
     repo.append_log(action)
-    emit({"ok": True, "action": action, "order": source_ids, "text": f"Set order for {len(source_ids)} source(s)"}, json_output)
+    emit(
+        {"ok": True, "action": action, "order": source_ids, "text": f"Set order for {len(source_ids)} source(s)"},
+        json_output,
+    )
 
 
 @order_app.command("add")
@@ -1115,7 +1620,9 @@ def order_add(
         order.order.append(source_id)
     repo.write_order(order)
     repo.append_log(action, source_id=source_id)
-    emit({"ok": True, "action": action, "order": order.order, "text": f"Placed {source_id} in review order"}, json_output)
+    emit(
+        {"ok": True, "action": action, "order": order.order, "text": f"Placed {source_id} in review order"}, json_output
+    )
 
 
 @order_app.command("remove")
@@ -1126,7 +1633,10 @@ def order_remove(source_id: str, json_output: bool = typer.Option(False, "--json
     order.order = [item for item in order.order if item != source_id]
     repo.write_order(order)
     repo.append_log(action, source_id=source_id)
-    emit({"ok": True, "action": action, "order": order.order, "text": f"Removed {source_id} from review order"}, json_output)
+    emit(
+        {"ok": True, "action": action, "order": order.order, "text": f"Removed {source_id} from review order"},
+        json_output,
+    )
 
 
 @instructions_app.command("show")
@@ -1138,7 +1648,9 @@ def instructions_show(json_output: bool = typer.Option(False, "--json")) -> None
 
 
 @instructions_app.command("set")
-def instructions_set(file: Path = typer.Option(..., "--file"), json_output: bool = typer.Option(False, "--json")) -> None:
+def instructions_set(
+    file: Path = typer.Option(..., "--file"), json_output: bool = typer.Option(False, "--json")
+) -> None:
     action = "instructions.set"
     repo = load_repo(action, json_output)
     try:
@@ -1187,7 +1699,15 @@ def render_md(
             update_source_index(repo, candidate)
             repo.append_log(action, source_id=candidate)
             results.append({"source_id": candidate, "markdown_status": result.status.value})
-        emit({"ok": True, "action": action, "results": results, "text": f"Rendered Markdown for {len(results)} source(s)"}, json_output)
+        emit(
+            {
+                "ok": True,
+                "action": action,
+                "results": results,
+                "text": f"Rendered Markdown for {len(results)} source(s)",
+            },
+            json_output,
+        )
         return
     if source_id is None:
         fail(action, "invalid_arguments", "Provide <source-id> or --all", 2, json_output)
@@ -1206,7 +1726,16 @@ def render_md(
     except DeweyError as exc:
         fail(action, exc.code, exc.message, exc.exit_code, json_output)
         return
-    emit({"ok": True, "action": action, "source_id": source_id, "markdown_status": result.status.value, "text": f"Rendered Markdown for {source_id}"}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "source_id": source_id,
+            "markdown_status": result.status.value,
+            "text": f"Rendered Markdown for {source_id}",
+        },
+        json_output,
+    )
 
 
 @app.command("cat")
@@ -1224,7 +1753,17 @@ def cat_source(
     if metadata.markdown_status != MarkdownStatus.ready or not metadata.markdown_path:
         fail(action, "markdown_missing", f"No Markdown representation exists for {source_id}", 4, json_output)
     text = (repo.root / metadata.markdown_path).read_text(encoding="utf-8")
-    emit({"ok": True, "action": action, "source_id": source_id, "representation": "md", "content": text, "text": text.rstrip()}, json_output)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "source_id": source_id,
+            "representation": "md",
+            "content": text,
+            "text": text.rstrip(),
+        },
+        json_output,
+    )
 
 
 @app.command("path")
@@ -1306,7 +1845,15 @@ def search(
                 except sqlite3.Error:
                     fts_source_ids &= fts_match(f'"{expr.split(":", 1)[-1]}"')
             if not fts_source_ids:
-                payload = {"ok": True, "action": action, "query": _query_payload(query, title, author, bibtex, notes, fulltext, status, has_pdf, has_md, linked_to, link_type), "results": [], "text": ""}
+                payload = {
+                    "ok": True,
+                    "action": action,
+                    "query": _query_payload(
+                        query, title, author, bibtex, notes, fulltext, status, has_pdf, has_md, linked_to, link_type
+                    ),
+                    "results": [],
+                    "text": "",
+                }
                 emit(payload, json_output)
                 return
             placeholders = ",".join("?" for _ in fts_source_ids)
@@ -1344,11 +1891,15 @@ def search(
         payload = {
             "ok": True,
             "action": action,
-            "query": _query_payload(query, title, author, bibtex, notes, fulltext, status, has_pdf, has_md, linked_to, link_type),
+            "query": _query_payload(
+                query, title, author, bibtex, notes, fulltext, status, has_pdf, has_md, linked_to, link_type
+            ),
             "results": results,
         }
         if not wants_json(json_output):
-            payload["text"] = "\n".join(f"{item['source_id']}\t{item['bibtex_key']}\t{item['title']}" for item in results)
+            payload["text"] = "\n".join(
+                f"{item['source_id']}\t{item['bibtex_key']}\t{item['title']}" for item in results
+            )
         emit(payload, json_output)
     finally:
         conn.close()
@@ -1395,7 +1946,11 @@ def _query_payload(
 
 def build_match_snippets(row: sqlite3.Row, terms: list[str]) -> list[dict[str, str]]:
     matches = []
-    for field_name, field_text in [("bibtex", row["bibtex_text"]), ("notes", row["notes_text"]), ("markdown", row["markdown_text"])]:
+    for field_name, field_text in [
+        ("bibtex", row["bibtex_text"]),
+        ("notes", row["notes_text"]),
+        ("markdown", row["markdown_text"]),
+    ]:
         if not field_text:
             continue
         lower = field_text.lower()

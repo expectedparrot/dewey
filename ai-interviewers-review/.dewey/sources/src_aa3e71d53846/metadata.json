@@ -1,0 +1,17 @@
+{
+  "source_id": "src_aa3e71d53846",
+  "bibtex_key": "kim2019comparing",
+  "entry_type": "inproceedings",
+  "managed_pdf_path": ".dewey/sources/src_aa3e71d53846/source.pdf",
+  "original_pdf_path": "/Users/johnhorton/tools/ep/dewey/ai-interviewers-review/inbox/kim2019-chatbot-web-surveys.pdf",
+  "content_hash": "d8c1428ca3f59b869ce44b39b9ee8056f171bad821884c4a3f64f8e8f047efdd",
+  "markdown_path": ".dewey/sources/src_aa3e71d53846/source.md",
+  "markdown_status": "ready",
+  "markdown_generator": {
+    "name": "paper2md",
+    "version": "0.1.0 (pymupdf)"
+  },
+  "created_at": "2026-08-12T12:38:58Z",
+  "updated_at": "2026-08-12T12:40:01Z",
+  "markdown_source": null
+}

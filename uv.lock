@@ -418,6 +418,7 @@ source = { editable = "." }
 dependencies = [
     { name = "paper2md" },
     { name = "pydantic" },
+    { name = "python-dotenv" },
     { name = "pyyaml" },
     { name = "typer" },
 ]
@@ -437,6 +438,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6" },
     { name = "typer", specifier = ">=0.12.0" },

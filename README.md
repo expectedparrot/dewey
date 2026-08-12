@@ -152,6 +152,9 @@ dewey add source paper.pdf --backend firecrawl
 dewey render md <source-id> --backend firecrawl
 ```
 
+Dewey loads `FIRECRAWL_API_KEY` from the environment or a local `.env` file. Local
+`.env` files are ignored by Git and omitted from Dewey ZIP exports.
+
 Firecrawl uploads the PDF to its API, may consume paid credits, and currently accepts
 files up to 50 MB. Do not select it for confidential or restricted documents unless the
 user has approved that external disclosure. Conversion backend and version are recorded
@@ -206,9 +209,10 @@ For full options, run `dewey <subcommand> --help`.
 | `dewey init` | Initialize a review repository. |
 | `dewey guide` / `next` | Show workflow heuristics and the next state-aware action. |
 | `dewey topic ...` | Record the topic and research question. |
-| `dewey discover ...` | Queue, screen, accept, or export candidate papers. |
+| `dewey discover ...` | Queue, screen, accept, deduplicate, or export candidate papers. |
 | `dewey traverse references` | Extract the document's bibliography into the candidate queue. |
-| `dewey export html` | Build a self-contained interactive literature explorer. |
+| `dewey export html` | Build a self-contained interactive literature explorer with corpus and BibTeX downloads, discovery screening, and an SVG citation graph. |
+| `dewey export zip` | Package the complete managed project as a portable ZIP with checksums. |
 | `dewey summary ...` | Store or retrieve a short plain-text source summary. |
 | `dewey status` / `doctor` | Show repository health and workflow state. |
 | `dewey add source` / `remove source` | Register or remove source records. |
@@ -222,6 +226,29 @@ For full options, run `dewey <subcommand> --help`.
 | `dewey render md` | Create markdown views of sources. |
 | `dewey cat` / `path` | Retrieve source content or local paths. |
 | `dewey search` / `index ...` | Search and rebuild the local index. |
+
+### Work identity and discovery provenance
+
+Dewey treats a discovery candidate as a scholarly work, rather than as one search result. Repeated sightings are merged using exact normalized DOI, arXiv identifier, or title identity (with conservative title matching for new additions). Every search, bibliography, and parent paper that led to the work remains in its `provenance` list.
+
+Audit an existing project before consolidation with `dewey discover dedupe --json`. Apply the reported exact matches with `dewey discover dedupe --apply`. `dewey doctor` also reports unresolved exact duplicate groups. This operation preserves the oldest candidate ID, metadata, screening state, and all distinct discovery paths.
+
+Screening decisions are append-only audit records. For example:
+
+```console
+dewey screen decide cand_123 --decision include --stage title-abstract \
+  --reviewer agent --criterion population=yes --criterion comparison=unclear \
+  --protocol-version v1 --rationale "Potential controlled AI-versus-human comparison."
+dewey screen history cand_123
+```
+
+The candidate's current status remains convenient for filtering, while `screening_decisions` retains who made each decision, when, at which stage, against which criteria, and why.
+
+### Sharing a complete review
+
+Run `dewey export zip` from anywhere inside a project. The resulting `PROJECT.dewey.zip` contains the complete managed review—including PDFs, Markdown, summaries, metadata, decisions, discovery provenance, and the explorer—in one top-level folder. After extraction, `cd` into that folder and use normal Dewey commands.
+
+Each archive contains `dewey-export-manifest.json` with SHA-256 checksums and file sizes. Dewey excludes Git internals, caches, prior Dewey archives, symlinks, and `.env` files so local credentials are not accidentally shared. External files referenced only by an original path cannot be packaged; PDFs added to Dewey's managed source directories are included.
 
 ## Common pitfalls
 <!-- id: dewey/pitfalls -->
