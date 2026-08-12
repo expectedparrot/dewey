@@ -6,6 +6,19 @@ Dewey is an agent-facing CLI for building auditable literature reviews. It keeps
 
 Human documentation: [tutorial](https://expectedparrot.github.io/dewey/) · [source](docs/index.html)
 
+## Copy and paste into Codex or Claude Code
+
+```text
+Use Dewey to manage this literature review. If `dewey` is unavailable, install it with
+`uv tool install git+https://github.com/expectedparrot/dewey.git`. Work inside the review
+directory. Run `dewey init` only if it is not already a Dewey project, then run
+`dewey guide` and `dewey next`. Carry out the recommended action and rerun `dewey next`
+after each material step. Use `--json` when structured output is helpful and run
+`dewey doctor` before relying on or sharing the project. Ask before uploading a PDF,
+using Firecrawl or another paid service, or running model inference. Do not treat
+discovery candidates as evidence until they have been screened.
+```
+
 ## Install
 
 ```bash
