@@ -1,7 +1,39 @@
 # dewey — local literature-review and bibliography workspace CLI
 <!-- id: dewey/dewey -->
 
-dewey manages a local literature-review repository of PDFs, markdown renderings, BibTeX records, notes, workflow state, links, reading order, and search indexes. The agent uses it to help the user build and maintain a traceable review corpus, keep citation metadata aligned with source files, and retrieve evidence while drafting or synthesizing research.
+dewey manages a local literature-review repository of PDFs, markdown renderings, BibTeX records, short summaries, notes, workflow state, discovery candidates, citation links, reading order, and search indexes. It helps an agent grow a traceable review corpus from a research question without silently treating every search result or cited paper as evidence.
+
+## Copy and paste into a coding agent
+
+```text
+Use Dewey to help me build and review the literature for this project.
+
+Start by running `dewey guide` and `dewey next`, then help me state or refine
+the topic and research question. Find a small, diverse set of plausible anchor
+papers, but keep search results and extracted citations as discovery candidates
+until we screen them. Do not silently add every result to the evidence base.
+
+For papers we read, preserve a concise plain-text summary covering the question,
+evidence or method, main finding, and relevance to this review. Keep detailed
+interpretation and quotations in notes, distinguish authors' claims from our
+assessment, and record explicit inclusion or exclusion decisions.
+
+For relevant papers, render the document and selectively traverse its own
+References or Bibliography section. Review those citation leads before trying to
+locate or add the cited documents. Run `dewey next` after each material stage and
+continue until searches and citation traversal stop producing useful new leads.
+
+Use local PDF conversion by default. Ask before uploading documents, using paid
+services, or running EDSL/model inference. Preserve provenance and report missing,
+inaccessible, or uncertain evidence rather than treating it as a negative result.
+```
+
+The short bootstrap commands are:
+
+```bash
+dewey guide
+dewey next
+```
 
 ## When to use this
 <!-- id: dewey/when-to-use -->
@@ -45,7 +77,7 @@ How the agent elicits this:
 - Ask whether the corpus is exploratory, systematic, or tied to a specific report section.
 - Ask which source types should be included: papers, PDFs, web reports, notes, or existing BibTeX.
 
-Default to suggest: initialize the repository, add sources first, then set reading state and notes as the review proceeds.
+Default to suggest: initialize the repository, record the topic and research question, seed a discovery queue with a few anchor papers, and accept only screened candidates into the corpus.
 
 Fallback: if the user has no clear review question yet, store sources and add a repository instruction note describing the provisional scope.
 
@@ -59,7 +91,7 @@ How the agent elicits this:
 - Ask whether duplicate detection should preserve multiple versions or treat them as the same source.
 - Ask whether rendered markdown is needed for search, quotation, or downstream synthesis.
 
-Default to suggest: add PDFs first, attach BibTeX when available, then rebuild the index.
+Default to suggest: preserve candidate metadata first, accept relevant candidates, attach PDFs when available, then rebuild the index.
 
 Fallback: if BibTeX is missing, add the source and create minimal metadata now; improve citation fields later.
 
@@ -69,7 +101,7 @@ Fallback: if BibTeX is missing, add the source and create minimal metadata now; 
 What it is: per-source status, priority, notes, links, reading order, and instructions.
 
 How the agent elicits this:
-- Ask how the user wants to triage sources: unread, reading, read, key, exclude, or custom statuses supported by the CLI.
+- Ask how the user wants to triage sources using the supported states: unread, queued, reading, read, included, or excluded.
 - Ask what relation types matter: supports, contradicts, extends, method, dataset, background.
 - Ask whether a manual reading order should drive the next work session.
 
@@ -83,8 +115,9 @@ Fallback: if the corpus is too large to structure immediately, add all sources, 
 dewey maintains a local repository with:
 
 - Source records with stable IDs, file paths, hashes, metadata, and optional rendered markdown.
+- A discovery queue that keeps unverified leads separate from accepted sources and records citation provenance.
 - BibTeX records and citation keys retrievable through `dewey bib` and `dewey cite`.
-- Notes, workflow state, priority, reading order, and repository instructions.
+- Short plain-text summaries plus detailed notes, workflow state, priority, reading order, and repository instructions.
 - Links between sources for synthesis graphs or argument structure.
 - A search index and rendered markdown views for retrieval.
 - An activity log of mutating operations for auditability.
@@ -95,16 +128,30 @@ dewey maintains a local repository with:
 Canonical sequence:
 
 1. `dewey init` — initialize the literature repository.
-2. `dewey add source <path>` — register PDFs, markdown, or source files.
-3. `dewey bib set <source-id> --file <path>` or `dewey bib edit <source-id>` — attach citation metadata.
-4. `dewey render md <source-id>` or `dewey render md --all` — create markdown representations when needed.
-5. `dewey notes set/edit <source-id>` — capture source-specific observations.
-6. `dewey state set <source-id> <status>` and `dewey state set-priority` — manage reading workflow.
-7. `dewey link add <from> <to> --type <type>` — preserve synthesis relationships.
-8. `dewey search <query>` and `dewey index rebuild` — retrieve passages and refresh search.
-9. `dewey order set ...` — define a reading or reporting order.
+2. `dewey topic set --topic <topic> --question <question>` — frame retrieval and inclusion.
+3. `dewey discover add ...` — queue plausible anchor papers without prematurely adding them.
+4. `dewey discover accept <candidate-id>` or `discover decide ... --status rejected` — screen candidates.
+5. `dewey add source <path>` — directly register a PDF, Markdown file, or single BibTeX entry when appropriate.
+6. `dewey render md <source-id>` — make source text searchable, then read it.
+7. `dewey summary set <source-id> --text <summary>` — preserve a concise, standalone account.
+8. `dewey notes edit`, `state set`, and `link add` — capture interpretation and synthesis state.
+9. `dewey traverse references <source-id>` — extract the rendered paper's own bibliography into the screening queue.
+10. `dewey search`, `index rebuild`, and `order set` — retrieve and organize the accepted corpus.
 
 Run `dewey status` and `dewey doctor` when returning to an old repository or after scripted changes.
+
+PDFs use the local `paper2md` backend by default. Firecrawl Parse is available as an
+explicit cloud backend when `FIRECRAWL_API_KEY` is set:
+
+```bash
+dewey add source paper.pdf --backend firecrawl
+dewey render md <source-id> --backend firecrawl
+```
+
+Firecrawl uploads the PDF to its API, may consume paid credits, and currently accepts
+files up to 50 MB. Do not select it for confidential or restricted documents unless the
+user has approved that external disclosure. Conversion backend and version are recorded
+in source metadata.
 
 ## Worked examples
 <!-- id: dewey/examples -->
@@ -122,11 +169,11 @@ Agent: "Good. I’ll add the PDFs, connect citation metadata, rebuild search, th
 
 ```bash
 dewey init
-dewey add source papers/*.pdf
-dewey bib set src_001 --file references.bib
+for paper in papers/*.pdf; do dewey add source "$paper"; done
 dewey index rebuild
 dewey search "LLM agents human survey validation"
-dewey state set src_001 reading
+# Use the source_id returned by `dewey add`:
+dewey state set <source-id> reading
 ```
 
 Output: a searchable local review repository with source IDs, citations, and workflow state.
@@ -135,11 +182,12 @@ Output: a searchable local review repository with source IDs, citations, and wor
 <!-- id: dewey/example-synthesis-trail -->
 
 ```bash
-dewey notes edit smith2024 --append "Uses human benchmark survey; good Tier 2 comparison source."
-dewey link add smith2024 jones2025 --type extends
-dewey order add smith2024 --before jones2025
+dewey summary set <source-id> --text "Tests agent responses against a held-out human benchmark."
+dewey notes edit <source-id> --append "Good Tier 2 comparison source."
+dewey link add <source-id> <other-source-id> --type builds_on
+dewey order add <source-id> --before <other-source-id>
 dewey render md --all
-dewey cite smith2024
+dewey cite <source-id>
 ```
 
 Output: notes, source links, reading order, markdown renderings, and a citation key for drafting.
@@ -152,6 +200,11 @@ For full options, run `dewey <subcommand> --help`.
 | Command | Purpose |
 |---|---|
 | `dewey init` | Initialize a review repository. |
+| `dewey guide` / `next` | Show workflow heuristics and the next state-aware action. |
+| `dewey topic ...` | Record the topic and research question. |
+| `dewey discover ...` | Queue, screen, accept, or export candidate papers. |
+| `dewey traverse references` | Extract the document's bibliography into the candidate queue. |
+| `dewey summary ...` | Store or retrieve a short plain-text source summary. |
 | `dewey status` / `doctor` | Show repository health and workflow state. |
 | `dewey add source` / `remove source` | Register or remove source records. |
 | `dewey list` / `show` | Browse source records. |

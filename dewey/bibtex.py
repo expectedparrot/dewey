@@ -4,7 +4,6 @@ import re
 
 from dewey.models import BibEntry
 
-
 ENTRY_RE = re.compile(r"^\s*@(?P<type>[A-Za-z]+)\s*\{\s*(?P<key>[^,\s]+)\s*,(?P<body>.*)\}\s*$", re.S)
 
 

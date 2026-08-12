@@ -23,6 +23,7 @@ class SourceStatus(str, Enum):
 
 
 class LinkType(str, Enum):
+    cites = "cites"
     builds_on = "builds_on"
     contradicts = "contradicts"
     compares_to = "compares_to"
@@ -41,6 +42,8 @@ class Config(BaseModel):
     pdf_copy_mode: str = "copy"
     search_backend: str = "sqlite_fts5"
     default_output: str = "text"
+    topic: str | None = None
+    research_question: str | None = None
 
 
 class MarkdownGenerator(BaseModel):
@@ -115,3 +118,33 @@ class BibEntry(BaseModel):
             "key": self.key,
             "fields": self.fields,
         }
+
+
+class CandidateStatus(str, Enum):
+    candidate = "candidate"
+    relevant = "relevant"
+    rejected = "rejected"
+    added = "added"
+
+
+class DiscoveryCandidate(BaseModel):
+    candidate_id: str
+    title: str
+    authors: list[str] = Field(default_factory=list)
+    year: int | None = None
+    doi: str | None = None
+    url: str | None = None
+    open_access_url: str | None = None
+    abstract: str | None = None
+    raw_citation: str | None = None
+    cited_by_source_id: str | None = None
+    discovery_method: str = "manual"
+    status: CandidateStatus = CandidateStatus.candidate
+    relevance_score: float | None = None
+    rationale: str | None = None
+    added_source_id: str | None = None
+    created_at: str
+
+
+class DiscoveryFile(BaseModel):
+    candidates: list[DiscoveryCandidate] = Field(default_factory=list)

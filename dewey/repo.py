@@ -4,10 +4,11 @@ import hashlib
 import importlib.metadata
 import json
 import os
-import shutil
 import sqlite3
 import subprocess
 import tempfile
+import urllib.error
+import urllib.request
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -20,18 +21,17 @@ from dewey.bibtex import BibTeXError, dump_entry, parse_single_entry
 from dewey.models import (
     BibEntry,
     Config,
-    LinkRecord,
+    DiscoveryCandidate,
+    DiscoveryFile,
     LinksFile,
     MarkdownGenerator,
     MarkdownStatus,
     Metadata,
     ReviewOrder,
-    SourceStatus,
     State,
 )
 
-
-REQUIRED_SOURCE_FILES = ("entry.bib", "metadata.json", "state.json", "notes.md", "links.json")
+REQUIRED_SOURCE_FILES = ("entry.bib", "metadata.json", "state.json", "summary.txt", "notes.md", "links.json")
 
 
 class DeweyError(Exception):
@@ -47,6 +47,7 @@ class RenderResult:
     status: MarkdownStatus
     markdown_path: str | None
     stderr: str | None
+    generator_name: str = "paper2md"
     generator_version: str | None = None
 
 
@@ -107,6 +108,7 @@ class DeweyRepo:
         self.instructions_path = self.dewey_dir / "instructions.md"
         self.order_path = self.dewey_dir / "review_order.json"
         self.config_path = self.dewey_dir / "config.json"
+        self.discovery_path = self.dewey_dir / "discovery.json"
 
     @classmethod
     def discover(cls) -> "DeweyRepo":
@@ -123,12 +125,36 @@ class DeweyRepo:
         atomic_write_json(repo.config_path, Config().model_dump())
         atomic_write_text(repo.instructions_path, "")
         atomic_write_json(repo.order_path, ReviewOrder().model_dump())
+        atomic_write_json(repo.discovery_path, DiscoveryFile().model_dump())
         atomic_write_text(repo.log_path, "")
         repo.init_index()
         return repo
 
     def load_config(self) -> Config:
         return Config.model_validate(read_json(self.config_path))
+
+    def write_config(self, config: Config) -> None:
+        atomic_write_json(self.config_path, config.model_dump())
+
+    def load_discovery(self) -> DiscoveryFile:
+        if not self.discovery_path.exists():
+            return DiscoveryFile()
+        return DiscoveryFile.model_validate(read_json(self.discovery_path))
+
+    def write_discovery(self, discovery: DiscoveryFile) -> None:
+        atomic_write_json(self.discovery_path, discovery.model_dump())
+
+    def add_candidate(self, candidate: DiscoveryCandidate) -> DiscoveryCandidate:
+        discovery = self.load_discovery()
+        candidate_doi = (candidate.doi or "").lower()
+        for existing in discovery.candidates:
+            if candidate_doi and (existing.doi or "").lower() == candidate_doi:
+                return existing
+            if existing.title.casefold() == candidate.title.casefold():
+                return existing
+        discovery.candidates.append(candidate)
+        self.write_discovery(discovery)
+        return candidate
 
     def source_dir(self, source_id: str) -> Path:
         return self.sources_dir / source_id
@@ -248,6 +274,7 @@ class DeweyRepo:
         self.write_metadata(source_id, metadata)
         self.write_state(source_id, state)
         atomic_write_text(source_dir / "notes.md", "")
+        atomic_write_text(source_dir / "summary.txt", "")
         self.write_links(source_id, LinksFile())
         return source_id
 
@@ -262,7 +289,7 @@ class DeweyRepo:
             },
         )
 
-    def render_markdown_for_source(self, source_id: str) -> RenderResult:
+    def render_markdown_for_source(self, source_id: str, backend: str = "paper2md") -> RenderResult:
         metadata = self.load_metadata(source_id)
         source_dir = self.require_source_dir(source_id)
         pdf_path = None
@@ -275,7 +302,12 @@ class DeweyRepo:
 
         stderr_path = source_dir / "artifacts" / "pdf2md.stderr.log"
         try:
-            markdown_text, generator_version = convert_pdf_with_paper2md(pdf_path, source_dir / "artifacts" / "paper2md")
+            if backend == "firecrawl":
+                markdown_text, generator_version = convert_pdf_with_firecrawl(pdf_path)
+            elif backend == "paper2md":
+                markdown_text, generator_version = convert_pdf_with_paper2md(pdf_path, source_dir / "artifacts" / "paper2md")
+            else:
+                raise DeweyError("invalid_backend", f"Unknown Markdown backend: {backend}", exit_code=2)
         except DeweyError as exc:
             atomic_write_text(stderr_path, exc.message + "\n")
             return RenderResult(status=MarkdownStatus.failed, markdown_path=None, stderr=exc.message)
@@ -290,6 +322,7 @@ class DeweyRepo:
             status=MarkdownStatus.ready,
             markdown_path=str(md_path.relative_to(self.root)),
             stderr=None,
+            generator_name=backend,
             generator_version=generator_version,
         )
 
@@ -340,6 +373,9 @@ class DeweyRepo:
         entry = self.load_entry(source_id)
         notes_path = self.require_source_dir(source_id) / "notes.md"
         notes_text = notes_path.read_text(encoding="utf-8")
+        summary_path = self.require_source_dir(source_id) / "summary.txt"
+        summary_text = summary_path.read_text(encoding="utf-8") if summary_path.exists() else ""
+        indexed_notes = "\n".join(part for part in [summary_text, notes_text] if part)
         md_text = ""
         if metadata.markdown_path:
             md_path = self.root / metadata.markdown_path
@@ -348,7 +384,7 @@ class DeweyRepo:
         has_pdf = 1 if metadata.managed_pdf_path or metadata.original_pdf_path else 0
         has_md = 1 if metadata.markdown_status == MarkdownStatus.ready and metadata.markdown_path else 0
         all_text = "\n".join(
-            part for part in [entry.title(), entry.author(), entry.flattened_fields(), notes_text, md_text] if part
+            part for part in [entry.title(), entry.author(), entry.flattened_fields(), indexed_notes, md_text] if part
         )
 
         conn = sqlite3.connect(self.index_db)
@@ -371,7 +407,7 @@ class DeweyRepo:
                     entry.author(),
                     entry.year(),
                     dump_entry(entry),
-                    notes_text,
+                    indexed_notes,
                     md_text,
                     state.status.value,
                     has_pdf,
@@ -383,7 +419,7 @@ class DeweyRepo:
                 INSERT INTO source_fts(source_id, title, author, bibtex, notes, markdown, all_text)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                (source_id, entry.title(), entry.author(), dump_entry(entry), notes_text, md_text, all_text),
+                (source_id, entry.title(), entry.author(), dump_entry(entry), indexed_notes, md_text, all_text),
             )
             links = self.load_links(source_id)
             for link in links.outgoing:
@@ -475,6 +511,66 @@ def convert_pdf_with_paper2md(pdf_path: Path, output_dir: Path) -> tuple[str, st
     if not markdown_path.exists():
         raise DeweyError("paper2md_failed", f"paper2md did not produce {markdown_path}", exit_code=1)
     return markdown_path.read_text(encoding="utf-8"), _paper2md_version()
+
+
+def convert_pdf_with_firecrawl(pdf_path: Path) -> tuple[str, str | None]:
+    api_key = os.environ.get("FIRECRAWL_API_KEY")
+    if not api_key:
+        raise DeweyError(
+            "firecrawl_api_key_missing",
+            "FIRECRAWL_API_KEY is required for the Firecrawl backend",
+            exit_code=2,
+        )
+    if pdf_path.stat().st_size > 50 * 1024 * 1024:
+        raise DeweyError("firecrawl_file_too_large", "Firecrawl Parse accepts files up to 50 MB", exit_code=2)
+
+    boundary = f"----dewey-{uuid.uuid4().hex}"
+    options = json.dumps(
+        {
+            "formats": ["markdown"],
+            "parsers": [{"type": "pdf", "mode": "auto"}],
+            "timeout": 300000,
+        }
+    )
+    body = bytearray()
+
+    def add_part(name: str, value: bytes, filename: str | None = None, content_type: str | None = None) -> None:
+        body.extend(f"--{boundary}\r\n".encode())
+        disposition = f'Content-Disposition: form-data; name="{name}"'
+        if filename:
+            disposition += f'; filename="{filename}"'
+        body.extend((disposition + "\r\n").encode())
+        if content_type:
+            body.extend(f"Content-Type: {content_type}\r\n".encode())
+        body.extend(b"\r\n")
+        body.extend(value)
+        body.extend(b"\r\n")
+
+    add_part("file", pdf_path.read_bytes(), pdf_path.name, "application/pdf")
+    add_part("options", options.encode(), content_type="application/json")
+    body.extend(f"--{boundary}--\r\n".encode())
+    request = urllib.request.Request(
+        "https://api.firecrawl.dev/v2/parse",
+        data=bytes(body),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+            "User-Agent": "dewey/0.1",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=330) as response:
+            payload = json.load(response)
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")[:500]
+        raise DeweyError("firecrawl_failed", f"Firecrawl returned HTTP {exc.code}: {detail}") from exc
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        raise DeweyError("firecrawl_failed", f"Firecrawl Parse failed: {exc}") from exc
+    markdown = payload.get("data", {}).get("markdown") if payload.get("success") else None
+    if not markdown:
+        raise DeweyError("firecrawl_failed", "Firecrawl returned no Markdown")
+    return markdown, "v2"
 
 
 def _paper2md_version() -> str | None:

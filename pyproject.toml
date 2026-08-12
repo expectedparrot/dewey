@@ -2,13 +2,20 @@
 name = "dewey"
 version = "0.1.0"
 description = "Filesystem-backed bibliography CLI"
+readme = "README.md"
 requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "John Horton" }]
 dependencies = [
   "paper2md @ git+https://github.com/expectedparrot/paper2md.git",
   "typer>=0.12.0",
   "pydantic>=2.0.0",
   "pyyaml>=6.0"
 ]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+dev = ["pytest>=8", "ruff>=0.6"]
 
 [project.scripts]
 dewey = "dewey.cli:main"
@@ -22,6 +29,16 @@ package-dir = {"" = "."}
 [tool.setuptools.package-data]
 [tool.setuptools.packages.find]
 where = ["."]
+include = ["dewey*"]
+exclude = ["build*", "tests*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

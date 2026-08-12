@@ -124,6 +124,17 @@ class DeweyCliTests(unittest.TestCase):
         self.assertEqual(metadata["markdown_generator"]["name"], "paper2md")
         self.assertEqual(metadata["markdown_generator"]["version"], "test-version")
 
+    def test_render_md_can_use_firecrawl_backend(self) -> None:
+        pdf = self.write_file("cloud-paper.pdf", "%PDF-1.4\nfake pdf\n")
+        self.init_repo()
+
+        with patch("dewey.repo.convert_pdf_with_firecrawl", return_value=("# Cloud result\n", "v2")):
+            result = self.invoke(["add", "source", str(pdf), "--backend", "firecrawl", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        source_id = json.loads(result.stdout)["source_id"]
+        metadata = json.loads((self.root / ".dewey" / "sources" / source_id / "metadata.json").read_text())
+        self.assertEqual(metadata["markdown_generator"], {"name": "firecrawl", "version": "v2"})
+
     def test_bib_commands_update_metadata_and_output(self) -> None:
         self.init_repo()
         source_id = self.add_bib_source(
@@ -303,6 +314,100 @@ class DeweyCliTests(unittest.TestCase):
         result = self.invoke(["show", "src_missing", "--json"])
         self.assertEqual(result.exit_code, 4)
         self.assertEqual(json.loads(result.stdout)["error"]["code"], "source_not_found")
+
+    def test_topic_summary_and_next_workflow(self) -> None:
+        self.init_repo()
+        initial = json.loads(self.invoke(["next", "--json"]).stdout)
+        self.assertEqual(initial["phase"], "frame")
+
+        result = self.invoke(["topic", "set", "--topic", "Synthetic surveys", "--question", "When do LLM agents match people?", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "seed")
+
+        source_id = self.add_bib_source(
+            "anchor.bib",
+            """@article{anchor2025,
+  title={Synthetic Survey Validation},
+  author={Researcher, Riley},
+  year={2025},
+  doi={10.1234/example}
+}
+""",
+        )
+        result = self.invoke(["summary", "set", source_id, "--text", "Tests synthetic answers against held-out human responses.", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(json.loads(self.invoke(["summary", "show", source_id, "--json"]).stdout)["summary"].strip(), "Tests synthetic answers against held-out human responses.")
+        self.assertEqual(json.loads(self.invoke(["status", "--json"]).stdout)["counts"]["summarized"], 1)
+
+    def test_discovery_queue_acceptance_and_citation_provenance(self) -> None:
+        self.init_repo()
+        parent = self.add_bib_source(
+            "parent.bib",
+            """@article{parent2025,
+  title={Parent Paper},
+  author={Parent, Pat},
+  year={2025}
+}
+""",
+        )
+        result = self.invoke([
+            "discover", "add", "--title", "A Relevant Cited Paper", "--author", "Scholar One",
+            "--year", "2020", "--doi", "10.1/cited", "--json",
+        ])
+        candidate_id = json.loads(result.stdout)["candidate"]["candidate_id"]
+
+        self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "frame")
+
+        discovery_path = self.root / ".dewey" / "discovery.json"
+        discovery = json.loads(discovery_path.read_text(encoding="utf-8"))
+        discovery["candidates"][0]["cited_by_source_id"] = parent
+        discovery_path.write_text(json.dumps(discovery), encoding="utf-8")
+
+        accepted = self.invoke(["discover", "accept", candidate_id, "--json"])
+        self.assertEqual(accepted.exit_code, 0)
+        child = json.loads(accepted.stdout)["source_id"]
+        links = json.loads(self.invoke(["link", "list", parent, "--json"]).stdout)
+        self.assertEqual(links["outgoing"][0]["target"], child)
+        self.assertEqual(links["outgoing"][0]["type"], "cites")
+
+    def test_reference_traversal_queues_candidates(self) -> None:
+        self.init_repo()
+        self.invoke(["topic", "set", "--topic", "survey validation", "--question", "What predicts validity?"])
+        parent = self.add_bib_source(
+            "parent.bib",
+            """@article{parent2025,
+  title={Parent Paper},
+  year={2025},
+  doi={10.1234/parent}
+}
+""",
+        )
+        source_dir = self.root / ".dewey" / "sources" / parent
+        markdown_path = source_dir / "source.md"
+        markdown_path.write_text(
+            """# Parent Paper
+
+Body.
+
+# References
+
+1. Smith, A. (2020). Survey validation evidence. Journal of Tests. https://doi.org/10.1234/example
+
+2. Jones, B. (2019). Measurement and synthetic samples. Methods Quarterly.
+""",
+            encoding="utf-8",
+        )
+        metadata_path = source_dir / "metadata.json"
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        metadata["markdown_path"] = str(markdown_path.relative_to(self.root))
+        metadata["markdown_status"] = "ready"
+        metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+        result = self.invoke(["traverse", "references", parent, "--limit", "10", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(json.loads(result.stdout)["added"], 2)
+        candidates = json.loads(self.invoke(["discover", "list", "--json"]).stdout)["candidates"]
+        self.assertEqual(candidates[0]["discovery_method"], "document_references")
+        self.assertTrue(any(item["doi"] == "10.1234/example" for item in candidates))
 
 
 if __name__ == "__main__":

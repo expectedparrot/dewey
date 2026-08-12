@@ -9,8 +9,24 @@ from typing import Any
 
 import typer
 
-from dewey.bibtex import BibTeXError, dump_entry, parse_single_entry
-from dewey.models import BibEntry, LinkRecord, LinkType, MarkdownStatus, ReviewOrder, SourceStatus
+from dewey.bibtex import BibTeXError, dump_entry
+from dewey.discovery import (
+    candidate_from_citation,
+    candidate_id,
+    edsl_triage_record,
+    extract_reference_entries,
+    relevance_score,
+)
+from dewey.guide import GUIDE
+from dewey.models import (
+    BibEntry,
+    CandidateStatus,
+    DiscoveryCandidate,
+    LinkRecord,
+    LinkType,
+    MarkdownStatus,
+    SourceStatus,
+)
 from dewey.repo import (
     DeweyError,
     DeweyRepo,
@@ -19,7 +35,6 @@ from dewey.repo import (
     sha256_file,
     utc_now,
 )
-
 
 app = typer.Typer(no_args_is_help=True)
 add_app = typer.Typer(no_args_is_help=True)
@@ -32,6 +47,10 @@ order_app = typer.Typer(no_args_is_help=True)
 instructions_app = typer.Typer(no_args_is_help=True)
 render_app = typer.Typer(no_args_is_help=True)
 index_app = typer.Typer(no_args_is_help=True)
+topic_app = typer.Typer(no_args_is_help=True)
+summary_app = typer.Typer(no_args_is_help=True)
+discover_app = typer.Typer(no_args_is_help=True)
+traverse_app = typer.Typer(no_args_is_help=True)
 
 app.add_typer(add_app, name="add")
 app.add_typer(remove_app, name="remove")
@@ -43,6 +62,10 @@ app.add_typer(order_app, name="order")
 app.add_typer(instructions_app, name="instructions")
 app.add_typer(render_app, name="render")
 app.add_typer(index_app, name="index")
+app.add_typer(topic_app, name="topic")
+app.add_typer(summary_app, name="summary")
+app.add_typer(discover_app, name="discover")
+app.add_typer(traverse_app, name="traverse")
 
 
 def wants_json(json_output: bool = False) -> bool:
@@ -173,6 +196,7 @@ def status(json_output: bool = typer.Option(False, "--json")) -> None:
     pdf_count = 0
     md_ready = 0
     stale_or_failed = 0
+    summarized = 0
     for source_id in source_ids:
         metadata = repo.load_metadata(source_id)
         state = repo.load_state(source_id)
@@ -183,10 +207,18 @@ def status(json_output: bool = typer.Option(False, "--json")) -> None:
             md_ready += 1
         if metadata.markdown_status in {MarkdownStatus.stale, MarkdownStatus.failed}:
             stale_or_failed += 1
+        summary_path = repo.source_dir(source_id) / "summary.txt"
+        if summary_path.exists() and summary_path.read_text(encoding="utf-8").strip():
+            summarized += 1
     order = repo.load_order()
+    discovery = repo.load_discovery()
+    candidate_counts = {status.value: 0 for status in CandidateStatus}
+    for candidate in discovery.candidates:
+        candidate_counts[candidate.status.value] += 1
     index_health = {"exists": repo.index_db.exists(), "stats": repo.stats() if repo.index_db.exists() else None}
     text = (
         f"Sources: {len(source_ids)} | PDFs: {pdf_count} | Markdown ready: {md_ready} | "
+        f"Summarized: {summarized} | Candidates: {candidate_counts['candidate']} | "
         f"Ordered: {len(order.order)} | Links: {count_total_links(repo)} | Markdown stale/failed: {stale_or_failed}"
     )
     emit(
@@ -201,6 +233,8 @@ def status(json_output: bool = typer.Option(False, "--json")) -> None:
                 "ordered_sources": len(order.order),
                 "total_links": count_total_links(repo),
                 "stale_or_failed_markdown": stale_or_failed,
+                "summarized": summarized,
+                "candidates_by_status": candidate_counts,
             },
             "index": index_health,
             "text": text,
@@ -214,14 +248,14 @@ def doctor(json_output: bool = typer.Option(False, "--json")) -> None:
     action = "project.doctor"
     repo = load_repo(action, json_output)
     issues: list[dict[str, Any]] = []
-    top_level = [repo.config_path, repo.instructions_path, repo.order_path, repo.log_path]
+    top_level = [repo.config_path, repo.instructions_path, repo.order_path, repo.discovery_path, repo.log_path]
     for path in top_level:
         if not path.exists():
             issues.append({"code": "missing_file", "path": str(path)})
     source_ids = set(repo.list_source_ids())
     for source_id in sorted(source_ids):
         source_dir = repo.require_source_dir(source_id)
-        for name in ("entry.bib", "metadata.json", "state.json", "notes.md", "links.json"):
+        for name in ("entry.bib", "metadata.json", "state.json", "summary.txt", "notes.md", "links.json"):
             if not (source_dir / name).exists():
                 issues.append({"code": "missing_source_file", "source_id": source_id, "path": str(source_dir / name)})
         try:
@@ -271,6 +305,252 @@ def doctor(json_output: bool = typer.Option(False, "--json")) -> None:
     emit({"ok": True, "action": action, "issues": [], "text": "Doctor found no issues"}, json_output)
 
 
+@app.command("guide")
+def guide_command() -> None:
+    typer.echo(GUIDE, nl=False)
+
+
+@app.command("next")
+def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "workflow.next"
+    repo = load_repo(action, json_output)
+    config = repo.load_config()
+    discovery = repo.load_discovery()
+    undecided = [item for item in discovery.candidates if item.status == CandidateStatus.candidate]
+    relevant = [item for item in discovery.candidates if item.status == CandidateStatus.relevant]
+    source_ids = repo.list_source_ids()
+    unsummarized = [
+        source_id
+        for source_id in source_ids
+        if not (repo.source_dir(source_id) / "summary.txt").read_text(encoding="utf-8").strip()
+    ]
+    if not config.topic or not config.research_question:
+        phase = "frame"
+        recommendations = ["dewey topic set --topic <topic> --question <research-question>"]
+    elif not source_ids and not discovery.candidates:
+        phase = "seed"
+        recommendations = ["Find 3-5 anchor papers", "dewey discover add --title <title> --doi <doi>"]
+    elif undecided:
+        phase = "screen"
+        recommendations = ["dewey discover list --status candidate", f"Review {len(undecided)} candidate(s)"]
+    elif relevant:
+        phase = "promote"
+        recommendations = [f"dewey discover accept {relevant[0].candidate_id}", f"Accept or reject {len(relevant)} relevant candidate(s)"]
+    elif not source_ids:
+        phase = "seed"
+        recommendations = ["The last candidate set yielded no sources; broaden or revise the search"]
+    elif unsummarized:
+        phase = "read"
+        recommendations = [f"dewey summary set {unsummarized[0]} --text <summary>", f"Summarize {len(unsummarized)} source(s)"]
+    else:
+        phase = "expand"
+        recommendations = ["Traverse citations from a strong included source", "dewey traverse references <source-id>"]
+    emit(
+        {"ok": True, "action": action, "phase": phase, "next_steps": recommendations, "text": "\n".join(recommendations)},
+        json_output,
+    )
+
+
+@topic_app.command("set")
+def topic_set(
+    topic: str = typer.Option(..., "--topic"),
+    question: str = typer.Option(..., "--question"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "topic.set"
+    repo = load_repo(action, json_output)
+    config = repo.load_config().model_copy(update={"topic": topic.strip(), "research_question": question.strip()})
+    repo.write_config(config)
+    repo.append_log(action, topic=config.topic, research_question=config.research_question)
+    emit({"ok": True, "action": action, "topic": config.topic, "research_question": config.research_question, "text": f"Topic: {config.topic}\nQuestion: {config.research_question}"}, json_output)
+
+
+@topic_app.command("show")
+def topic_show(json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "topic.show"
+    repo = load_repo(action, json_output)
+    config = repo.load_config()
+    emit({"ok": True, "action": action, "topic": config.topic, "research_question": config.research_question, "text": f"Topic: {config.topic or '(unset)'}\nQuestion: {config.research_question or '(unset)'}"}, json_output)
+
+
+@summary_app.command("set")
+def summary_set(
+    source_id: str,
+    text: str | None = typer.Option(None, "--text"),
+    file: Path | None = typer.Option(None, "--file"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "summary.set"
+    repo = load_repo(action, json_output)
+    ensure_source_exists(repo, source_id, action, json_output)
+    if (text is None) == (file is None):
+        fail(action, "invalid_arguments", "Specify exactly one of --text or --file", 2, json_output)
+    try:
+        summary = text if text is not None else file.read_text(encoding="utf-8")  # type: ignore[union-attr]
+    except FileNotFoundError:
+        fail(action, "file_not_found", f"No file exists at {file}", 4, json_output)
+    summary = summary.strip() + "\n"
+    atomic_write_text(repo.source_dir(source_id) / "summary.txt", summary)
+    repo.index_source(source_id)
+    repo.append_log(action, source_id=source_id)
+    emit({"ok": True, "action": action, "source_id": source_id, "summary": summary.rstrip(), "text": summary.rstrip()}, json_output)
+
+
+@summary_app.command("show")
+def summary_show(source_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "summary.show"
+    repo = load_repo(action, json_output)
+    ensure_source_exists(repo, source_id, action, json_output)
+    path = repo.source_dir(source_id) / "summary.txt"
+    summary = path.read_text(encoding="utf-8") if path.exists() else ""
+    emit({"ok": True, "action": action, "source_id": source_id, "summary": summary, "text": summary}, json_output)
+
+
+@discover_app.command("add")
+def discover_add(
+    title: str = typer.Option(..., "--title"),
+    author: list[str] = typer.Option([], "--author"),
+    year: int | None = typer.Option(None, "--year"),
+    doi: str | None = typer.Option(None, "--doi"),
+    url: str | None = typer.Option(None, "--url"),
+    abstract: str | None = typer.Option(None, "--abstract"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "discovery.add"
+    repo = load_repo(action, json_output)
+    config = repo.load_config()
+    candidate = DiscoveryCandidate(
+        candidate_id=candidate_id(), title=title.strip(), authors=author, year=year, doi=doi, url=url,
+        abstract=abstract, relevance_score=relevance_score(" ".join([title, abstract or ""]), config.topic or config.research_question or ""),
+        created_at=utc_now(),
+    )
+    stored = repo.add_candidate(candidate)
+    repo.append_log(action, candidate_id=stored.candidate_id)
+    emit({"ok": True, "action": action, "candidate": stored.model_dump(mode="json"), "text": f"{stored.candidate_id}\t{stored.title}"}, json_output)
+
+
+@discover_app.command("list")
+def discover_list(
+    status: CandidateStatus | None = typer.Option(None, "--status"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "discovery.list"
+    repo = load_repo(action, json_output)
+    candidates = [item for item in repo.load_discovery().candidates if status is None or item.status == status]
+    candidates.sort(key=lambda item: (item.relevance_score is None, -(item.relevance_score or 0), item.title.casefold()))
+    data = [item.model_dump(mode="json") for item in candidates]
+    text_value = "\n".join(f"{item.candidate_id}\t{item.status.value}\t{item.relevance_score if item.relevance_score is not None else '-'}\t{item.title}" for item in candidates)
+    emit({"ok": True, "action": action, "candidates": data, "text": text_value}, json_output)
+
+
+def _candidate(repo: DeweyRepo, candidate_id_value: str) -> DiscoveryCandidate:
+    for item in repo.load_discovery().candidates:
+        if item.candidate_id == candidate_id_value:
+            return item
+    raise DeweyError("candidate_not_found", f"No discovery candidate exists for {candidate_id_value}", exit_code=4)
+
+
+@discover_app.command("decide")
+def discover_decide(
+    candidate_id_value: str = typer.Argument(..., metavar="CANDIDATE_ID"),
+    status: CandidateStatus = typer.Option(..., "--status"),
+    rationale: str | None = typer.Option(None, "--rationale"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "discovery.decide"
+    repo = load_repo(action, json_output)
+    if status == CandidateStatus.added:
+        fail(action, "invalid_status", "Use discover accept to add a candidate", 2, json_output)
+    discovery = repo.load_discovery()
+    for index, item in enumerate(discovery.candidates):
+        if item.candidate_id == candidate_id_value:
+            discovery.candidates[index] = item.model_copy(update={"status": status, "rationale": rationale})
+            repo.write_discovery(discovery)
+            repo.append_log(action, candidate_id=candidate_id_value, status=status.value)
+            emit({"ok": True, "action": action, "candidate": discovery.candidates[index].model_dump(mode="json"), "text": f"{candidate_id_value}: {status.value}"}, json_output)
+            return
+    fail(action, "candidate_not_found", f"No discovery candidate exists for {candidate_id_value}", 4, json_output)
+
+
+@discover_app.command("accept")
+def discover_accept(candidate_id_value: str = typer.Argument(..., metavar="CANDIDATE_ID"), json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "discovery.accept"
+    repo = load_repo(action, json_output)
+    discovery = repo.load_discovery()
+    for index, item in enumerate(discovery.candidates):
+        if item.candidate_id != candidate_id_value:
+            continue
+        if item.status == CandidateStatus.added:
+            fail(action, "candidate_already_added", f"Candidate already added as {item.added_source_id}", 2, json_output)
+        key_base = (item.authors[0].split()[-1] if item.authors else "source") + str(item.year or "")
+        key = "".join(ch.lower() for ch in key_base if ch.isalnum()) or item.candidate_id
+        existing = repo.existing_bibtex_keys()
+        if key in existing:
+            key = f"{key}_{item.candidate_id[-4:]}"
+        fields = {"title": item.title}
+        if item.authors:
+            fields["author"] = " and ".join(item.authors)
+        if item.year:
+            fields["year"] = str(item.year)
+        if item.doi:
+            fields["doi"] = item.doi
+        if item.url:
+            fields["url"] = item.url
+        source_id = repo.create_source(BibEntry(entry_type="article", key=key, fields=fields))
+        if item.cited_by_source_id and item.cited_by_source_id in repo.list_source_ids():
+            links = repo.load_links(item.cited_by_source_id)
+            links.outgoing.append(LinkRecord(target=source_id, type=LinkType.cites, note="Discovered from bibliography", created_at=utc_now()))
+            repo.write_links(item.cited_by_source_id, links)
+            repo.index_source(item.cited_by_source_id)
+        repo.index_source(source_id)
+        discovery.candidates[index] = item.model_copy(update={"status": CandidateStatus.added, "added_source_id": source_id})
+        repo.write_discovery(discovery)
+        repo.append_log(action, candidate_id=candidate_id_value, source_id=source_id)
+        emit({"ok": True, "action": action, "candidate_id": candidate_id_value, "source_id": source_id, "text": f"Added {source_id}: {item.title}"}, json_output)
+        return
+    fail(action, "candidate_not_found", f"No discovery candidate exists for {candidate_id_value}", 4, json_output)
+
+
+@discover_app.command("export-triage")
+def discover_export_triage(output: Path = typer.Option(..., "--output"), json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "discovery.export_triage"
+    repo = load_repo(action, json_output)
+    config = repo.load_config()
+    records = [edsl_triage_record(item, config.topic or "", config.research_question or "") for item in repo.load_discovery().candidates if item.status == CandidateStatus.candidate]
+    atomic_write_text(output, "".join(json.dumps(record) + "\n" for record in records))
+    emit({"ok": True, "action": action, "output": str(output), "records": len(records), "text": f"Wrote {len(records)} triage records to {output}"}, json_output)
+
+
+@traverse_app.command("references")
+def traverse_references(
+    source_id: str,
+    limit: int = typer.Option(50, "--limit", min=1, max=200),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "traversal.references"
+    repo = load_repo(action, json_output)
+    ensure_source_exists(repo, source_id, action, json_output)
+    metadata = repo.load_metadata(source_id)
+    if metadata.markdown_status != MarkdownStatus.ready or not metadata.markdown_path:
+        fail(action, "markdown_required", f"Render {source_id} to Markdown before traversing its references", 2, json_output)
+    markdown_path = repo.root / metadata.markdown_path
+    if not markdown_path.exists():
+        fail(action, "markdown_missing", f"Markdown file is missing for {source_id}", 4, json_output)
+    config = repo.load_config()
+    try:
+        citations = extract_reference_entries(markdown_path.read_text(encoding="utf-8"))[:limit]
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    topic = " ".join(filter(None, [config.topic, config.research_question]))
+    fetched = [candidate_from_citation(citation, source_id, topic) for citation in citations]
+    before = len(repo.load_discovery().candidates)
+    for candidate in fetched:
+        repo.add_candidate(candidate)
+    added = len(repo.load_discovery().candidates) - before
+    repo.append_log(action, source_id=source_id, fetched=len(fetched), added=added)
+    emit({"ok": True, "action": action, "source_id": source_id, "extracted": len(fetched), "added": added, "text": f"Extracted {len(fetched)} references from the document; added {added} new candidates"}, json_output)
+
+
 @add_app.command("source")
 def add_source(
     path: Path,
@@ -279,6 +559,7 @@ def add_source(
     force_duplicate: bool = typer.Option(False, "--force-duplicate"),
     copy_mode: bool = typer.Option(False, "--copy"),
     reference_mode: bool = typer.Option(False, "--reference"),
+    backend: str = typer.Option("paper2md", "--backend", help="Markdown backend: paper2md or firecrawl"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     action = "source.add"
@@ -338,7 +619,7 @@ def add_source(
         source_id = repo.create_source(
             entry,
             original_pdf_path=str(path),
-            managed_pdf_path=f".dewey/sources/PENDING/source.pdf" if mode == "copy" else None,
+            managed_pdf_path=".dewey/sources/PENDING/source.pdf" if mode == "copy" else None,
             content_hash=content_hash,
             markdown_status=MarkdownStatus.missing,
         )
@@ -351,12 +632,14 @@ def add_source(
         else:
             metadata.managed_pdf_path = None
         metadata.updated_at = utc_now()
+        repo.write_metadata(source_id, metadata)
         if not no_md:
-            render_result = repo.render_markdown_for_source(source_id)
+            render_result = repo.render_markdown_for_source(source_id, backend=backend)
             metadata.markdown_status = render_result.status
             metadata.markdown_path = render_result.markdown_path
+            metadata.markdown_generator.name = render_result.generator_name
             metadata.markdown_generator.version = render_result.generator_version
-        repo.write_metadata(source_id, metadata)
+            repo.write_metadata(source_id, metadata)
         update_source_index(repo, source_id)
         repo.append_log(action, source_id=source_id, duplicate=False, input_type="pdf")
         emit(
@@ -825,6 +1108,7 @@ def instructions_append(text: str, json_output: bool = typer.Option(False, "--js
 def render_md(
     source_id: str | None = typer.Argument(None),
     all: bool = typer.Option(False, "--all"),
+    backend: str = typer.Option("paper2md", "--backend", help="Markdown backend: paper2md or firecrawl"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     action = "render.md"
@@ -835,9 +1119,10 @@ def render_md(
             metadata = repo.load_metadata(candidate)
             if not (metadata.managed_pdf_path or metadata.original_pdf_path):
                 continue
-            result = repo.render_markdown_for_source(candidate)
+            result = repo.render_markdown_for_source(candidate, backend=backend)
             metadata.markdown_status = result.status
             metadata.markdown_path = result.markdown_path
+            metadata.markdown_generator.name = result.generator_name
             metadata.markdown_generator.version = result.generator_version
             metadata.updated_at = utc_now()
             repo.write_metadata(candidate, metadata)
@@ -850,10 +1135,11 @@ def render_md(
         fail(action, "invalid_arguments", "Provide <source-id> or --all", 2, json_output)
     ensure_source_exists(repo, source_id, action, json_output)
     try:
-        result = repo.render_markdown_for_source(source_id)
+        result = repo.render_markdown_for_source(source_id, backend=backend)
         metadata = repo.load_metadata(source_id)
         metadata.markdown_status = result.status
         metadata.markdown_path = result.markdown_path
+        metadata.markdown_generator.name = result.generator_name
         metadata.markdown_generator.version = result.generator_version
         metadata.updated_at = utc_now()
         repo.write_metadata(source_id, metadata)

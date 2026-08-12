@@ -56,6 +56,15 @@ The source of truth is the contents of `.dewey/`.
 
 ## 3. Supported source model
 
+Discovery candidates are deliberately separate from sources. A candidate is an
+unverified lead found through search or citation traversal. It becomes a source only
+after an explicit acceptance decision. Dewey records the originating source for
+citation-discovered candidates and creates a `cites` link when they are accepted.
+
+Each source also has `summary.txt`: a short, plain-text account of the source's
+question, evidence or method, main result, and relevance to the review. Detailed
+observations and quotations remain in `notes.md`.
+
 A Dewey source represents a single bibliographic item in the project.
 
 For v1, a source consists of:
