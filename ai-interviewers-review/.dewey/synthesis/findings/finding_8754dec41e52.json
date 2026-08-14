@@ -1,0 +1,28 @@
+{
+  "finding_id": "finding_8754dec41e52",
+  "study_id": "study_f3eac377b358",
+  "question_id": null,
+  "author_claim": "Believing a virtual interviewer was automated reduced barriers to disclosure.",
+  "evidence_statement": "Compared with human-operation framing, computer framing produced lower self-reported fear of self-disclosure and impression management.",
+  "reviewer_interpretation": "Perceived machine agency can reduce evaluation apprehension even when the visible agent is held constant; this isolates a psychological mechanism rather than overall interviewer quality.",
+  "outcome": "evaluation apprehension",
+  "direction": "positive for disclosure",
+  "population": null,
+  "conditions": [
+    "computer-control framing versus human-control framing"
+  ],
+  "measure": "fear of self-disclosure and impression-management scales",
+  "timepoint": null,
+  "certainty": "moderate",
+  "locators": [
+    {
+      "page": "98-99",
+      "section": "Results",
+      "table": null,
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T02:04:21Z",
+  "updated_at": "2026-08-14T02:04:21Z"
+}

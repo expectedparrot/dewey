@@ -1,0 +1,27 @@
+{
+  "study_id": "study_050d438c230f",
+  "source_ids": [
+    "src_5e242e942988"
+  ],
+  "label": "Sun et al. child witness interview experiment",
+  "design": "randomized comparison of LLM-formulated and naive-human-formulated interview questions",
+  "population": "78 Mandarin-speaking children aged 6-8",
+  "sample_size": 78,
+  "setting": "online interview after viewing a witnessed mock-event video",
+  "intervention": "real-time ChatGPT-3.5 question formulation, delivered by a human assistant",
+  "comparator": "questions formulated and delivered by naive university-student interviewers",
+  "methods": [
+    "random assignment",
+    "blind content coding with inter-rater reliability",
+    "MANOVA with multiplicity correction"
+  ],
+  "measures": [
+    "question type",
+    "unique correct information",
+    "false information",
+    "information per question",
+    "question latency"
+  ],
+  "created_at": "2026-08-14T09:53:20Z",
+  "updated_at": "2026-08-14T09:53:20Z"
+}

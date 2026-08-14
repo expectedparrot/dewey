@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-08-14" />
+  <title>AI Interviewers: What the Evidence Supports</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root { color-scheme: light; }
+html { background: #f3f0e8; }
+body {
+max-width: 820px;
+margin: 0 auto;
+padding: 64px 72px 96px;
+color: #25312c;
+background: #fffdf8;
+font: 17px/1.68 Georgia, "Times New Roman", serif;
+box-shadow: 0 0 45px rgba(37, 49, 44, .09);
+}
+h1, h2, h3 { color: #173f35; line-height: 1.2; }
+h1 { font-size: 2.5rem; margin-bottom: .15em; letter-spacing: -.025em; }
+h2 { margin-top: 2.3em; padding-top: .35em; border-top: 1px solid #d8d2c5; }
+h3 { margin-top: 1.7em; }
+.subtitle { color: #607068; font-size: 1.25rem; margin-top: 0; }
+.date { color: #748078; font-size: .95rem; }
+blockquote {
+margin: 2em 0;
+padding: .8em 1.2em;
+border-left: 4px solid #bf7a40;
+background: #f7efe3;
+color: #394a43;
+}
+blockquote p { margin: 0; }
+a { color: #94602f; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+li { margin: .45em 0; }
+nav#TOC {
+margin: 2.5em 0;
+padding: 1.2em 1.5em;
+background: #edf2ee;
+border-radius: 8px;
+}
+nav#TOC:before { content: "Contents"; font: bold 1.05rem system-ui, sans-serif; }
+nav#TOC ul { margin-bottom: 0; }
+@media (max-width: 760px) {
+body { padding: 32px 24px 64px; box-shadow: none; }
+h1 { font-size: 2rem; }
+}
+@media print {
+html, body { background: white; }
+body { padding: 0; box-shadow: none; font-size: 11pt; }
+nav#TOC { break-after: page; }
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AI Interviewers: What the Evidence Supports</h1>
+<p class="subtitle">A structured synthesis of disclosure, probing,
+performance, and validity</p>
+<p class="date">August 14, 2026</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#executive-summary" id="toc-executive-summary">Executive
+summary</a></li>
+<li><a href="#review-approach" id="toc-review-approach">Review
+approach</a></li>
+<li><a href="#disclosure-reduced-judgment-is-a-real-but-bounded-advantage" id="toc-disclosure-reduced-judgment-is-a-real-but-bounded-advantage">1.
+Disclosure: reduced judgment is a real but bounded advantage</a></li>
+<li><a href="#adaptive-probing-useful-because-it-is-selective-not-because-it-is-conversational" id="toc-adaptive-probing-useful-because-it-is-selective-not-because-it-is-conversational">2.
+Adaptive probing: useful because it is selective, not because it is
+conversational</a></li>
+<li><a href="#human-comparison-competitive-performance-is-not-general-equivalence" id="toc-human-comparison-competitive-performance-is-not-general-equivalence">3.
+Human comparison: competitive performance is not general
+equivalence</a></li>
+<li><a href="#validity-more-text-is-not-the-same-as-better-evidence" id="toc-validity-more-text-is-not-the-same-as-better-evidence">4.
+Validity: more text is not the same as better evidence</a></li>
+<li><a href="#implications-for-research-and-system-design" id="toc-implications-for-research-and-system-design">Implications for
+research and system design</a></li>
+<li><a href="#what-remains-unknown" id="toc-what-remains-unknown">What
+remains unknown</a></li>
+<li><a href="#conclusion" id="toc-conclusion">Conclusion</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
+<li><a href="#reproducibility" id="toc-reproducibility">Reproducibility</a></li>
+</ul>
+</nav>
+<blockquote>
+<p><strong>Evidence boundary.</strong> This report synthesizes the seven
+sources currently included in the Dewey review. Those sources contain
+eight distinct studies, twelve source-located findings, and eight
+methodological appraisals. Four reviewed synthesis claims organize the
+evidence. The broader discovery corpus contains additional queued and
+unread material, so this is a rigorous synthesis of the included
+evidence rather than a claim of exhaustive coverage.</p>
+</blockquote>
+<h2 id="executive-summary">Executive summary</h2>
+<p>AI interviewers do not simply reproduce human interviews at lower
+cost. They change the social, conversational, and measurement conditions
+under which answers are produced. The included evidence suggests that
+those changes can be valuable: perceived automation may lower evaluation
+apprehension, adaptive questions can elicit more specific or reflective
+answers, and some AI-led interviews receive transcript-quality ratings
+comparable to trained humans under constrained online conditions. But
+none of these findings supports a general conclusion that AI interviews
+are equivalent or superior to human interviews.</p>
+<p>Four conclusions emerge.</p>
+<p>First, machine framing can make disclosure feel safer. In a
+randomized virtual-human experiment, participants who believed the
+interviewer was computer-controlled reported less fear of
+self-disclosure and impression management, displayed more sadness, and
+were judged more willing to disclose. This is credible evidence for
+reduced evaluation apprehension as a mechanism. It is not evidence that
+the information disclosed was true or clinically valid.</p>
+<p>Second, adaptive probing improves particular dimensions of an answer
+rather than “quality” in general. LLM probes can increase specificity,
+explanation, word count, or reflection, but the effect varies with the
+purpose of the probe, the question, and the stage of research. Probing
+also increases time and can impose modest experience and attrition
+costs.</p>
+<p>Third, AI performance depends heavily on modality and autonomy.
+Expert evaluators rated voice AI interviews competitively in one small
+matched comparison, while an earlier automatic virtual interviewer lost
+listening quality, usability, and rapport relative to its human-guided
+predecessor. These findings describe different systems and designs, but
+together they rule out a simple equivalence claim.</p>
+<p>Fourth, the field must distinguish response production from
+measurement validity. Longer, richer, or more confidently expressed
+answers are not necessarily more accurate. The strongest included
+validity study uses a witnessed mock event with externally knowable
+details; most other studies rely on respondent judgments, human ratings,
+or textual proxies. The next research frontier is therefore not merely
+eliciting more text, but demonstrating that AI interviewing improves the
+evidence used for inference.</p>
+<h2 id="review-approach">Review approach</h2>
+<p>The review question asks how AI interviewers are designed and
+evaluated, and how they affect interview quality, respondent experience,
+and resulting data relative to human or conventional interviewing. The
+included evidence spans virtual-human health screening, LLM-assisted web
+surveys, child-witness questioning, qualitative interviewing, probe
+design, and chatbot acceptability.</p>
+<p>Each paper was separated into its constituent studies. Findings were
+extracted atomically with page, section, table, or figure locators.
+Authors’ claims, reported evidence, and reviewer interpretations were
+stored separately. Study appraisals considered internal validity,
+measurement validity, external validity, and applicability. Findings
+were then linked to claims as supporting, contradicting, or qualifying
+evidence. Confidence reflects the designs and appraisals, not a vote
+count across papers.</p>
+<h2 id="disclosure-reduced-judgment-is-a-real-but-bounded-advantage">1.
+Disclosure: reduced judgment is a real but bounded advantage</h2>
+<p>The clearest mechanism evidence comes from Lucas et al. (2014).
+Participants completed a health screening with the same visible virtual
+human but were randomly led to believe that it was controlled either by
+a person or by a computer. Computer framing reduced self-reported fear
+of disclosure and impression management. It also increased facial
+displays of sadness and blind-observer ratings of willingness to
+disclose (pp. 98–99).</p>
+<p>Holding the visible interviewer constant makes the result unusually
+informative. The operative factor was not the agent’s appearance, and
+not necessarily its actual autonomy, but the belief that a person was
+not immediately evaluating the respondent. The agreement among
+self-report, facial behavior, and transcript ratings supports moderate
+confidence that perceived automation can reduce evaluation apprehension
+in short, sensitive interviews.</p>
+<p>The boundary of that conclusion matters. More willingness to disclose
+does not demonstrate more truthful disclosure. Sadness is evidence of
+emotional expression, not diagnostic accuracy. Moreover, disclosure
+depends on trust as well as reduced judgment. Đuka and Njeguš’s
+descriptive Serbian survey found that although 87% of respondents knew
+what a chatbot was, only 44% had used one and 88% preferred waiting for
+a human service agent (pp. 325–326). That result concerns
+customer-service agents rather than research interviewers and receives
+low confidence for this review. It nevertheless shows that machine
+interaction can generate distrust rather than safety.</p>
+<p>SimSensei provides a further qualification. Participants in automatic
+and Wizard-of-Oz cohorts reported similar willingness and comfort
+sharing, but the cohorts were not randomized. The finding is consistent
+with automated interviewing being acceptable once respondents enter the
+interaction, yet it cannot establish causal equivalence.</p>
+<p>The evidence therefore supports a conditional claim: perceived
+automation can lower one social barrier to disclosure, but trust,
+context, and implementation determine whether that mechanism becomes an
+advantage. Researchers should measure truthful or externally validated
+reporting separately from comfort and willingness.</p>
+<h2 id="adaptive-probing-useful-because-it-is-selective-not-because-it-is-conversational">2.
+Adaptive probing: useful because it is selective, not because it is
+conversational</h2>
+<p>Barari et al. provide the strongest included experiment on
+LLM-assisted probing. Roughly 2,000 U.S. panel participants were
+assigned to standardized questions, confirmation probes, or
+elaboration/relevance probes across four survey modules. Elaboration and
+relevance probing increased specificity and explanation for opinion
+questions and increased word counts and Shannon entropy. It did not
+consistently improve completeness, relevance, lexical diversity, or KL
+divergence (Figures 2–3, pp. 16–18).</p>
+<p>This pattern is more useful than a blanket finding that the chatbot
+produced “better” answers. The system enriched some
+dimensions—especially detail and explanation—while leaving others
+unchanged. More words did not consistently introduce vocabulary that was
+more distinctive from the sample’s existing distribution. The result
+supports selective enrichment, not universal improvement in
+informational value.</p>
+<p>Jacobsen et al. make the selectivity explicit by comparing
+descriptive, idiographic, clarifying, and explanatory probes across
+exploration, requirements, and evaluation tasks. Across 1,287 responses
+from 64 participants, explanatory probes were often less relevant,
+specific, and clear than alternatives. Idiographic probes performed well
+across several stage-specific comparisons, while no overall difference
+in informativeness appeared among probe types (Tables 5–6 and Figures
+1–3, pp. 8–12).</p>
+<p>The implication is that “adaptive probing” is too coarse a system
+description. A clarifying probe attempts to recover meaning; an
+idiographic probe seeks a concrete personal instance; an explanatory
+probe asks for reasons. Their value depends on what the researcher needs
+to learn at that moment. Systems should identify the uncertainty that
+motivates each follow-up rather than generating another conversational
+turn by default.</p>
+<p>Probing also has costs. In Barari et al., elaboration/relevance
+probes approximately doubled average completed-interview time from three
+to six minutes, increased dropout by roughly two to three percentage
+points at the first question, and produced small declines in ease,
+frustration, and satisfaction. Confirmation probes imposed less burden
+(Figures 4–5, pp. 18–19). The practical objective should therefore be
+expected information gain per unit of respondent burden, not the maximum
+possible number of follow-ups.</p>
+<p>Overall confidence in this claim is moderate. Two experiments
+converge on conditional, multidimensional effects, but both involve
+short online tasks. Long qualitative interviews, repeated interviewing,
+mobile use, and high-stakes settings may produce different
+trade-offs.</p>
+<h2 id="human-comparison-competitive-performance-is-not-general-equivalence">3.
+Human comparison: competitive performance is not general
+equivalence</h2>
+<p>Geiecke and Jaravel compare AI and trained-human interviews across
+text, voice, and face-to-face modalities. Sociology PhD evaluators rated
+transcripts without being told which modality produced them. Against a
+hypothetical expert using online text chat, average grades were 3.93 for
+AI voice, 3.51 for human face-to-face, 2.98 for AI text, and 2.42 for
+human text. Against a face-to-face expert benchmark, grades were 3.50,
+3.53, 2.70, and 1.99 respectively, with 40 ratings per modality (Table
+II, pp. 16–18).</p>
+<p>These results demonstrate that an AI system—particularly one
+accepting voice input—can generate transcripts experts regard as
+competitive under specified conditions. They also illustrate why
+modality cannot be treated as incidental. AI voice and AI text differed
+substantially, and online human text interviews received lower ratings
+than face-to-face human interviews.</p>
+<p>The study does not justify a broad equivalence conclusion. Modality
+samples were small, topics varied, and the outcome was a subjective
+rating relative to a hypothetical benchmark. The evaluators assessed
+transcripts, not the full embodied experience or the correctness of what
+was learned. The appraisal consequently assigns low-to-moderate
+confidence to comparative performance claims.</p>
+<p>SimSensei supplies contrary design evidence. Its fully automatic
+system and human-guided Wizard-of-Oz predecessor elicited similar
+reported willingness to share, but the automatic version scored lower on
+being a good listener (3.56 versus 4.10, <em>d</em> = 0.61), usability
+(68.68 versus 74.37, <em>d</em> = 0.44), and rapport (75.43 versus
+80.71, <em>d</em> = 0.44; Table 2, p. 1067). Because cohorts were
+recruited separately, the comparison has high internal-validity concern.
+It remains useful engineering evidence: preserving the agent’s
+appearance and interview structure does not guarantee that automation
+preserves responsiveness.</p>
+<p>The best synthesis is asymmetric. AI systems can approach
+trained-human transcript quality in some short, constrained settings. At
+the same time, autonomy and modality can materially change rapport,
+listening, and usability. Evaluation must specify which human benchmark,
+interaction mode, interviewer expertise, and outcome are being
+compared.</p>
+<h2 id="validity-more-text-is-not-the-same-as-better-evidence">4.
+Validity: more text is not the same as better evidence</h2>
+<p>The review’s most consequential distinction is between elicitation
+success and measurement validity. Engagement, response length,
+specificity, perceived accuracy, and expert transcript ratings describe
+important properties of an interview. None alone shows that the
+resulting data correspond more closely to the construct or event the
+researcher wants to understand.</p>
+<p>Sun et al. offer the strongest included design for testing validity
+directly. Seventy-eight children aged six to eight viewed a mock-event
+video and were randomly assigned to questions formulated by ChatGPT-3.5
+or by naive student interviewers. Human assistants delivered the LLM
+questions, so this was a test of question formulation rather than
+autonomous delivery. The LLM condition asked 471 questions compared with
+872 in the human condition, elicited similar unique correct details
+(8.50 versus 7.50, <em>p</em> = .290), produced more unique correct
+information per question (0.90 versus 0.46, <em>p</em> &lt; .001), and
+elicited less false information overall (pp. 12–14).</p>
+<p>This finding receives moderate confidence because randomization and
+externally knowable event details support causal and measurement
+validity. Generalization is constrained by the young Mandarin-speaking
+sample, mock forensic setting, human delivery, and comparison with naive
+rather than trained forensic interviewers. Even so, the study
+demonstrates the right validation logic: measure correct and false
+content against a criterion, and assess efficiency per question.</p>
+<p>Barari et al.’s live-coding results show the danger of weaker
+validation. Respondent-confirmed coding accuracy ranged from 66.1% to
+96.2% across tasks. Independent human coders disagreed with the AI more
+often than respondents did for several questions, while respondents
+rarely selected “none of the above.” Confirmation appears vulnerable to
+acquiescence: presenting an AI interpretation can shape the response
+intended to validate that interpretation (Tables 2–3, pp. 14–15).</p>
+<p>Geiecke and Jaravel’s randomized meaning-in-life comparison
+identifies a different benefit. About 51.7% of AI-interview respondents
+reported being able to clearly pinpoint sources of meaning, compared
+with 41.2% in the open-text condition; fewer said their thoughts were
+still evolving (Table IV, pp. 24–27). This supports a reflective effect
+of conversation. It does not independently prove that the resulting
+accounts are more truthful or qualitatively deeper.</p>
+<p>The evidence supports a moderate-confidence conclusion: validity is
+task-specific and must be tested using independent or external criteria
+whenever possible. Richness and reflection should be reported as
+distinct outcomes rather than used as proxies for truth.</p>
+<h2 id="implications-for-research-and-system-design">Implications for
+research and system design</h2>
+<p>The findings suggest several design principles.</p>
+<ol type="1">
+<li><strong>Define the evidential objective before the
+conversation.</strong> A system designed to improve recall accuracy
+needs different probes and validation than one designed to discover
+themes or help respondents reflect.</li>
+<li><strong>Treat probe selection as a policy.</strong> Each follow-up
+should have an identified purpose and an expected information gain,
+balanced against time, fatigue, and attrition.</li>
+<li><strong>Avoid suggestive confirmation.</strong> Respondents should
+be able to correct or reject model interpretations without being
+anchored to a single proposed category.</li>
+<li><strong>Preserve provenance.</strong> Analysts should be able to
+distinguish seed answers from content elicited by particular AI probes
+and recover the exact system action behind each segment.</li>
+<li><strong>Benchmark the feasible alternative.</strong> “Human
+interviewer” must specify expertise, modality, time, and degree of
+standardization. Static open text, naive humans, online trained humans,
+and expert face-to-face interviews are not interchangeable
+controls.</li>
+<li><strong>Evaluate multiple outcome families.</strong> Disclosure,
+conversational quality, burden, coding performance, correctness, and
+construct validity should remain separate.</li>
+<li><strong>Use hybrid escalation where appropriate.</strong> AI may be
+valuable for routine, scalable, or low-uncertainty questioning while
+humans handle sensitive disclosures, unresolved ambiguity, or
+interpretation requiring contextual judgment.</li>
+</ol>
+<h2 id="what-remains-unknown">What remains unknown</h2>
+<p>The included studies leave several important gaps:</p>
+<ul>
+<li>whether increased disclosure is more truthful or merely more
+expressive;</li>
+<li>whether gains in short interviews persist in longitudinal or
+repeated deployments;</li>
+<li>how performance varies across language, culture, age, disability,
+and digital literacy;</li>
+<li>whether selective attrition offsets improvements among interview
+completers;</li>
+<li>how model, prompt, voice, latency, and interface independently
+affect outcomes;</li>
+<li>whether AI-collected qualitative material changes analysts’
+substantive conclusions;</li>
+<li>how current systems compare with trained experts in long-form
+interpretive interviews; and</li>
+<li>how rapidly findings become obsolete as models and product
+interfaces change.</li>
+</ul>
+<p>These are not reasons to dismiss AI interviewing. They define the
+studies needed to turn promising demonstrations into a mature
+measurement methodology.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>AI interviewers are best understood as configurable measurement
+systems. Their strongest documented advantages are reduced evaluation
+apprehension, scalable adaptive questioning, and the ability—under some
+conditions—to produce interviews judged competitive with human-led
+alternatives. Their risks are equally specific: loss of rapport under
+automation, poorly chosen or excessive probes, respondent burden,
+acquiescence in live coding, and confusion between verbosity and
+validity.</p>
+<p>The field should move beyond asking whether an AI can conduct an
+interview. The more useful question is whether a particular interviewer,
+probe policy, modality, and validation procedure produce better evidence
+for a specified research decision than the feasible alternative. On the
+current included evidence, the answer is sometimes yes—but only under
+conditions that need to be made explicit and tested directly.</p>
+<h2 id="references">References</h2>
+<p>Barari, S., Angbazo, J., Wang, N., Christian, L. M., Dean, E.,
+Slowinski, Z., &amp; Sepulvado, B. (2025). <em>AI-Assisted
+Conversational Interviewing: Effects on Data Quality and Respondent
+Experience</em>. https://doi.org/10.48550/arXiv.2504.13908</p>
+<p>DeVault, D., Artstein, R., Benn, G., Dey, T., Fast, E., Gainer, A.,
+Georgila, K., Gratch, J., Hartholt, A., Lhommet, M., et al. (2014).
+SimSensei Kiosk: A virtual human interviewer for healthcare decision
+support. <em>Proceedings of AAMAS</em>, 1061–1068.
+https://doi.org/10.5555/2615731.2617415</p>
+<p>Đuka, I., &amp; Njeguš, A. (2021). Conversational survey chatbot:
+User experience and perception. <em>Sinteza 2021</em>, 322–327.
+https://doi.org/10.15308/Sinteza-2021-322-327</p>
+<p>Geiecke, F., &amp; Jaravel, X. (2026). <em>Conversations at Scale:
+Robust AI-led Interviews</em>. https://doi.org/10.2139/ssrn.4974382</p>
+<p>Jacobsen, R. M., Cox, S. R., Griggio, C. F., &amp; van Berkel, N.
+(2025). Chatbots for data collection in surveys: A comparison of four
+theory-based interview probes. <em>CHI 2025</em>.
+https://doi.org/10.1145/3706598.3714128</p>
+<p>Lucas, G. M., Gratch, J., King, A., &amp; Morency, L.-P. (2014). It’s
+only a computer: Virtual humans increase willingness to disclose.
+<em>Computers in Human Behavior, 37</em>, 94–100.
+https://doi.org/10.1016/j.chb.2014.04.043</p>
+<p>Sun, Y., Pang, H., Järvilehto, L., Zhang, O., Shapiro, D., Korkman,
+J., Haginoya, S., &amp; Santtila, P. (2025). Comparing the performance
+of a large language model and naive human interviewers in interviewing
+children about a witnessed mock-event. <em>PLOS ONE, 20</em>(2),
+e0316317. https://doi.org/10.1371/journal.pone.0316317</p>
+<h2 id="reproducibility">Reproducibility</h2>
+<p>The machine-readable reporting context is stored at
+<code>.dewey/synthesis/report-context.json</code>. The inspectable claim
+scaffold is <code>reports/report-context.md</code>, and the evidence
+matrix is <code>evidence-matrix.csv</code>. Every empirical statement in
+this report derives from a structured finding with a source locator and
+study appraisal. <code>dewey report audit</code>,
+<code>dewey claim audit</code>, and <code>dewey doctor</code> report no
+structural issues for the included evidence.</p>
+</body>
+</html>

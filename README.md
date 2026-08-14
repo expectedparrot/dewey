@@ -62,4 +62,42 @@ dewey export html
 dewey export zip
 ```
 
+For synthesis, represent papers as studies and atomic, source-located findings. Keep the
+authors' claims separate from reported evidence and reviewer interpretation, add an
+explicit appraisal, and export a cross-study matrix:
+
+```bash
+dewey study create <source-id> --file study.json
+dewey finding add <study-id> --file finding.json
+dewey appraisal set <study-id> --file appraisal.json
+dewey matrix evidence --format csv --output evidence-matrix.csv
+dewey synthesis coverage
+```
+
+Generate starting files with `dewey study template --output study.json` (and the corresponding
+`finding` and `appraisal` commands). Study and finding records support `show`, `list`, `update`,
+and guarded `delete` workflows. The evidence matrix can be filtered by study, source, outcome,
+design, or appraisal judgment and exported as JSON, CSV, or Markdown.
+
+Once extraction is complete, `dewey theme` organizes the field and `dewey claim` records
+evidence-weighted synthesis statements. Claim evidence links are explicitly classified as
+supporting, contradicting, or qualifying. `dewey claim audit` flags unused findings, empty
+themes, and claims that contain no contrary or qualifying evidence.
+
+Reporting is Markdown first. Before drafting, create an article specification that records the
+substantive context, thesis, literature streams, role of each study, intellectual timeline, and
+section-level argument:
+
+```bash
+dewey report article-template --output article.json
+dewey report article-set --file article.json
+dewey report brief --output .dewey/synthesis/article-brief.md
+```
+
+The brief combines that editorial judgment with the reviewed claims, appraisals, and source
+locators. It is context for a writing agent, not manuscript prose. Write the actual article as
+Markdown, then use Pandoc through `dewey report render article.md --output article.html`.
+`dewey report context` remains the canonical structured evidence export, and `dewey report audit`
+checks whether the underlying synthesis is ready for drafting.
+
 Do not treat discovery candidates as evidence before screening them. Preserve uncertainty and provenance rather than inferring that unavailable evidence is negative evidence.

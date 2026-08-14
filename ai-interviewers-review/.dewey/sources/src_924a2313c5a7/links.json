@@ -1,3 +1,10 @@
 {
-  "outgoing": []
+  "outgoing": [
+    {
+      "target": "src_7184e8c3f9f7",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:14Z"
+    }
+  ]
 }

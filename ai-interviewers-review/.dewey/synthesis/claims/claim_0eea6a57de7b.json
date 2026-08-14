@@ -1,0 +1,31 @@
+{
+  "claim_id": "claim_0eea6a57de7b",
+  "theme_ids": [
+    "theme_7cecdb951a7e",
+    "theme_81234566d951"
+  ],
+  "statement": "AI interviewers can approach trained-human transcript quality under constrained online conditions, but autonomy and modality alter rapport and performance enough to preclude a general equivalence claim.",
+  "scope": "Short online or embodied interviews evaluated through transcript ratings and post-interview experience.",
+  "evidence": [
+    {
+      "finding_id": "finding_aae717fb0602",
+      "relationship": "supports",
+      "rationale": "Blinded sociology evaluators rated AI voice competitively with human face-to-face interviews under specified benchmarks."
+    },
+    {
+      "finding_id": "finding_1dcbe7299a29",
+      "relationship": "contradicts",
+      "rationale": "Fully automatic SimSensei underperformed its Wizard-of-Oz predecessor on listening, usability, and rapport."
+    },
+    {
+      "finding_id": "finding_9628531abdd5",
+      "relationship": "qualifies",
+      "rationale": "Willingness to share was retained even as interaction-quality measures declined."
+    }
+  ],
+  "confidence": "low to moderate",
+  "confidence_rationale": "Promising expert ratings and feasibility results are based on small, heterogeneous, or nonrandomized comparisons.",
+  "status": "reviewed",
+  "created_at": "2026-08-14T09:58:11Z",
+  "updated_at": "2026-08-14T09:58:11Z"
+}

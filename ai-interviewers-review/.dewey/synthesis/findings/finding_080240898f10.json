@@ -1,0 +1,28 @@
+{
+  "finding_id": "finding_080240898f10",
+  "study_id": "study_f3eac377b358",
+  "question_id": null,
+  "author_claim": "Computer framing increased behavioral indications of willingness to disclose.",
+  "evidence_statement": "Participants in the computer-framed condition displayed more intense sadness and received higher blind-observer ratings of willingness to disclose in interview transcripts.",
+  "reviewer_interpretation": "Converging behavioral and observer measures strengthen the mechanism result, but willingness and emotional display are not evidence that disclosures were accurate or clinically valid.",
+  "outcome": "behavioral willingness to disclose",
+  "direction": "positive",
+  "population": null,
+  "conditions": [
+    "computer-control framing versus human-control framing"
+  ],
+  "measure": "automated sadness detection and blind transcript ratings",
+  "timepoint": null,
+  "certainty": "moderate",
+  "locators": [
+    {
+      "page": "98-99",
+      "section": "Results",
+      "table": null,
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T02:04:22Z",
+  "updated_at": "2026-08-14T02:04:22Z"
+}

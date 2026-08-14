@@ -43,7 +43,57 @@ upload and `FIRECRAWL_API_KEY` is present, `--backend firecrawl` can use Firecra
 for OCR and layout-aware Markdown. A key's presence is not itself permission to disclose
 a document or incur credits.
 
-## 4. Traverse citations selectively
+## 4. Extract findings and appraise studies
+
+For included sources, represent each empirical study separately. Extract atomic findings
+with a page, section, table, figure, or passage locator. Keep the authors' claim, the
+reported evidence, and the reviewer's interpretation in separate fields. Appraise each
+study using an explicit framework, then inspect the cross-study evidence matrix.
+
+    dewey study create <source-id> --file study.json
+    dewey finding add <study-id> --file finding.json
+    dewey appraisal set <study-id> --file appraisal.json
+    dewey matrix evidence --format csv --output evidence-matrix.csv
+    dewey synthesis coverage
+
+One paper may report several studies, and one study may support several findings. Findings
+without locators are rejected so later synthesis can always be traced back to the source.
+Use `study template`, `finding template`, and `appraisal template` to create valid starting
+files. Records can be updated without changing their stable identifiers. Study deletion is
+guarded when findings or an appraisal exist; `--cascade` must be explicit to remove them too.
+
+After extraction coverage is complete, organize findings into themes and make bounded claims.
+Every claim must link to at least one supporting finding and should explicitly record evidence
+that contradicts or qualifies it. Confidence is a reviewer judgment with a written rationale,
+not an automatic count of papers.
+
+    dewey theme template --output theme.json
+    dewey theme create --file theme.json
+    dewey claim template --output claim.json
+    dewey claim create --file claim.json
+    dewey claim audit
+
+Themes organize the review; they do not contain evidence directly. Claims carry the argument,
+and their evidence links preserve the relationship of each finding as supporting,
+contradicting, or qualifying.
+
+When the claim audit is clean, position the review as an article before drafting. The article
+specification records context, thesis, literature streams, study roles, intellectual timeline,
+and section logic. This prevents an evidence inventory from masquerading as a literature review.
+
+    dewey report audit
+    dewey report article-template --output article.json
+    dewey report article-set --file article.json
+    dewey report context --output .dewey/synthesis/report-context.json
+    dewey report brief --output .dewey/synthesis/article-brief.md
+    # Write article.md from the brief, then:
+    dewey report render article.md --output article.html
+
+JSON is the canonical machine-readable evidence context. The Markdown brief expands every claim
+into findings, study details, appraisal, source metadata, and locators, but does not write prose
+on the agent's behalf. The manuscript is canonical Markdown; HTML is a Pandoc rendering.
+
+## 5. Traverse citations selectively
 
 After an anchor paper is judged relevant, inspect its bibliography. Citation traversal is
 high recall and low precision: fetch references into the discovery queue, rank them against
@@ -64,11 +114,12 @@ job separately. Inspect prompts, models, and estimated cost before any paid exec
 
     dewey discover export-triage --output triage.jsonl
 
-## 5. Iterate until saturation
+## 6. Iterate until saturation
 
 Use `dewey next` after each material stage. Continue keyword search and citation traversal
 while new candidates add concepts, methods, datasets, or contrary evidence. Slow down when
 several consecutive relevant papers yield no new useful leads. Before synthesis, resolve
-candidate decisions, summarize included sources, inspect contradictory links, and run
-`dewey doctor` plus `dewey index rebuild`.
+candidate decisions, summarize included sources, extract and appraise their studies,
+inspect contradictory links and the evidence matrix, and run `dewey doctor` plus
+`dewey index rebuild`.
 """

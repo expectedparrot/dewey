@@ -1,0 +1,271 @@
+{
+  "schema_version": "1",
+  "title": "Interviewing at the Marginal Cost of Computation",
+  "subtitle": "What AI Interviewers Change About Disclosure, Adaptivity, and Measurement",
+  "audience": "Economists, survey methodologists, and social scientists considering AI-mediated interviews",
+  "genre": "JEL-style economics literature review",
+  "abstract": "Adaptive interviewing has traditionally exchanged standardization and scale for interviewer judgment and conversational depth. AI interviewers relax that production constraint, but their value depends on whether conversational gains become valid measurements rather than merely longer transcripts. This review connects research on virtual humans, conversational surveys, adaptive probing, and criterion-based interview evaluation. Across seven studies, the evidence supports a conditional conclusion: automation can reduce evaluation apprehension and can improve selected dimensions of probing and transcript quality, yet effects depend on disclosure, trust, probe purpose, modality, and the availability of external validity criteria. The field has advanced faster on scalable elicitation than on measurement theory. Its central agenda is therefore to identify which interviewer decisions should be automated, for whom, and against which substantive benchmark.",
+  "keywords": [
+    "artificial intelligence",
+    "interview methods",
+    "survey methodology",
+    "measurement",
+    "qualitative research",
+    "disclosure"
+  ],
+  "jel_codes": [
+    "C83",
+    "C81",
+    "C93",
+    "D91"
+  ],
+  "motivation": [
+    "Interviews produce contextual and open-ended evidence that fixed questionnaires often miss, but trained interviewer time makes adaptive interviewing expensive and difficult to standardize.",
+    "Large language models make contingent follow-up questions cheap to produce at scale, potentially changing the feasible frontier between standardized measurement and conversational depth.",
+    "The resulting policy and research value depends on measurement, not fluency: longer or more natural conversations need not be more accurate, comparable, or decision-relevant."
+  ],
+  "field_context": [
+    "Interview design has long managed a tension between standardization, which supports comparability, and interviewer discretion, which supports clarification, rapport, and discovery.",
+    "Earlier virtual-human systems separated the social effects of perceived automation from the capabilities of generative language models; contemporary systems combine those channels.",
+    "The literature spans human-computer interaction, survey methodology, forensic interviewing, and applied economics, with different outcome standards and weak cross-field integration."
+  ],
+  "central_question": "When does AI-mediated adaptivity improve the economic production of interview evidence, and when does it merely change respondent behavior or transcript volume without improving measurement?",
+  "thesis": "AI interviewers relax the cost and standardization constraints on adaptive interviewing, but they do not remove the core measurement problem: benefits are conditional on respondent trust, the purpose and timing of probes, and validation against outcomes beyond transcript length or user preference.",
+  "contribution": [
+    "Recasts AI interviewing as a change in the production technology of measurement rather than as a contest between humans and machines.",
+    "Connects the disclosure mechanism identified in virtual-human research to modern evidence on adaptive probing and interview quality.",
+    "Separates conversational output, respondent experience, and criterion validity, which the emerging literature often treats as interchangeable indicators of success.",
+    "Develops a research agenda centered on task allocation, heterogeneous effects, and external validation."
+  ],
+  "scope_includes": [
+    "Empirical studies in which an automated conversational system conducts or materially adapts an interview or open-ended survey interaction.",
+    "Evidence on disclosure, rapport, probing behavior, respondent burden, transcript quality, factual accuracy, and comparisons with human or conventional modes.",
+    "Foundational virtual-human studies needed to identify mechanisms as well as recent generative-AI evaluations."
+  ],
+  "scope_excludes": [
+    "AI used only to code or summarize interviews conducted by humans.",
+    "Generic customer-service chatbots without a data-elicitation objective.",
+    "Claims about population representativeness, downstream causal inference, or truthful reporting that the included designs do not directly test."
+  ],
+  "literatures": [
+    {
+      "stream_id": "virtual_humans",
+      "label": "Virtual humans and disclosure",
+      "description": "Early embodied-agent studies ask how perceived automation, social presence, and evaluation apprehension change what respondents reveal.",
+      "source_ids": [
+        "src_ca3e033a6b39",
+        "src_418b4c4f1a21"
+      ],
+      "relationship_to_review": "Provides the behavioral mechanism behind potential disclosure gains and distinguishes automation effects from language-model capability."
+    },
+    {
+      "stream_id": "conversational_surveys",
+      "label": "Conversational surveys and adaptive probes",
+      "description": "Survey and HCI studies evaluate whether conversational interfaces and theoretically motivated probes improve open-ended answers and respondent experience.",
+      "source_ids": [
+        "src_db7efbce68d9",
+        "src_2a843bf69441",
+        "src_af8750017209"
+      ],
+      "relationship_to_review": "Identifies design margins and shows that adaptivity has selective benefits and measurable burden costs."
+    },
+    {
+      "stream_id": "scaled_qualitative",
+      "label": "Qualitative evidence at scale",
+      "description": "Recent economics work treats AI-led conversation as infrastructure for producing rich qualitative data at survey-like scale.",
+      "source_ids": [
+        "src_6541b25ef96e"
+      ],
+      "relationship_to_review": "Shows the frontier application and motivates the production-technology framing."
+    },
+    {
+      "stream_id": "criterion_validity",
+      "label": "Criterion-based interview validity",
+      "description": "Forensic-style experiments compare elicited accounts against events known to the researcher rather than treating verbosity as quality.",
+      "source_ids": [
+        "src_5e242e942988"
+      ],
+      "relationship_to_review": "Supplies the strongest warning against equating more conversational output with better measurement."
+    }
+  ],
+  "source_positions": [
+    {
+      "source_id": "src_ca3e033a6b39",
+      "role": "foundational",
+      "contribution": "Establishes the virtual-human system lineage and feasibility of semi-automated sensitive interviewing.",
+      "claim_ids": [
+        "claim_0eea6a57de7b"
+      ],
+      "caveat": "A specialized multimodal system, not a modern autonomous language-model interviewer."
+    },
+    {
+      "source_id": "src_418b4c4f1a21",
+      "role": "foundational",
+      "contribution": "Isolates perceived automation and evaluation apprehension as mechanisms affecting disclosure.",
+      "claim_ids": [
+        "claim_61ea2c6b6b95"
+      ],
+      "caveat": "Disclosure willingness is not equivalent to factual accuracy or population-level validity."
+    },
+    {
+      "source_id": "src_db7efbce68d9",
+      "role": "bridge",
+      "contribution": "Connects embodied virtual humans to accessible survey chatbots and foregrounds user experience and trust.",
+      "claim_ids": [
+        "claim_61ea2c6b6b95",
+        "claim_0eea6a57de7b"
+      ],
+      "caveat": "Small and context-specific evaluation with limited causal leverage."
+    },
+    {
+      "source_id": "src_2a843bf69441",
+      "role": "evaluation",
+      "contribution": "Provides a broad contemporary experiment on conversational interviewing, data quality, and respondent experience.",
+      "claim_ids": [
+        "claim_afb1fe75ab9d",
+        "claim_0eea6a57de7b",
+        "claim_5e6f2020b1ed"
+      ],
+      "caveat": "Online tasks and study-specific quality measures bound generalization to field interviews."
+    },
+    {
+      "source_id": "src_af8750017209",
+      "role": "evaluation",
+      "contribution": "Decomposes adaptive interviewing into theory-based probe types rather than evaluating a monolithic chatbot treatment.",
+      "claim_ids": [
+        "claim_afb1fe75ab9d"
+      ],
+      "caveat": "Probe effects depend on question and stage; no universal optimal probe follows."
+    },
+    {
+      "source_id": "src_5e242e942988",
+      "role": "counterpoint",
+      "contribution": "Evaluates factual interview performance against a witnessed event and demonstrates the importance of criterion validity.",
+      "claim_ids": [
+        "claim_5e6f2020b1ed",
+        "claim_0eea6a57de7b"
+      ],
+      "caveat": "A child-witness mock event is unusually structured and high stakes."
+    },
+    {
+      "source_id": "src_6541b25ef96e",
+      "role": "frontier",
+      "contribution": "Shows how AI-led interviews can scale qualitative elicitation and benchmark transcript quality against trained humans.",
+      "claim_ids": [
+        "claim_0eea6a57de7b",
+        "claim_afb1fe75ab9d",
+        "claim_5e6f2020b1ed"
+      ],
+      "caveat": "Transcript-quality benchmarks do not by themselves establish construct or predictive validity."
+    }
+  ],
+  "timeline": [
+    {
+      "year": 2014,
+      "label": "Virtual-human interviewing separates automation from human evaluation",
+      "significance": "The first wave establishes feasibility and a disclosure mechanism before general-purpose generative models.",
+      "source_ids": [
+        "src_ca3e033a6b39",
+        "src_418b4c4f1a21"
+      ]
+    },
+    {
+      "year": 2021,
+      "label": "Conversational survey chatbots move into ordinary data collection",
+      "significance": "The interface becomes cheaper and more familiar, shifting attention toward usability and trust.",
+      "source_ids": [
+        "src_db7efbce68d9"
+      ]
+    },
+    {
+      "year": 2025,
+      "label": "Generative systems enable randomized tests of adaptivity and probe design",
+      "significance": "Studies begin to compare conversational treatments, isolate probe types, and test performance against external criteria.",
+      "source_ids": [
+        "src_2a843bf69441",
+        "src_af8750017209",
+        "src_5e242e942988"
+      ]
+    },
+    {
+      "year": 2026,
+      "label": "AI-led interviews become infrastructure for qualitative evidence at scale",
+      "significance": "The research question shifts from technical feasibility to optimal deployment and measurement validity.",
+      "source_ids": [
+        "src_6541b25ef96e"
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "heading": "Introduction: Interviewing as a Production Technology",
+      "purpose": "Begin with the economics of producing adaptive evidence, state the thesis, define scope, and preview the article.",
+      "theme_ids": [],
+      "claim_ids": []
+    },
+    {
+      "heading": "From Virtual Humans to Generative Interviewers",
+      "purpose": "Trace the intellectual lineage and distinguish the behavioral effect of automation from advances in conversational capability.",
+      "theme_ids": [
+        "theme_5f67dab8af47"
+      ],
+      "claim_ids": [
+        "claim_61ea2c6b6b95"
+      ]
+    },
+    {
+      "heading": "What Adaptivity Produces",
+      "purpose": "Evaluate whether adaptive probes improve answer content, where they work, and what burden they impose.",
+      "theme_ids": [
+        "theme_7cecdb951a7e",
+        "theme_81234566d951"
+      ],
+      "claim_ids": [
+        "claim_afb1fe75ab9d"
+      ]
+    },
+    {
+      "heading": "Humans, Machines, and the Quality Frontier",
+      "purpose": "Synthesize comparative performance without collapsing different modalities, tasks, and notions of quality into a single ranking.",
+      "theme_ids": [
+        "theme_7cecdb951a7e",
+        "theme_81234566d951"
+      ],
+      "claim_ids": [
+        "claim_0eea6a57de7b"
+      ]
+    },
+    {
+      "heading": "The Measurement Problem",
+      "purpose": "Separate disclosure, verbosity, transcript ratings, and respondent experience from criterion and construct validity.",
+      "theme_ids": [
+        "theme_e645f959df68",
+        "theme_5f67dab8af47"
+      ],
+      "claim_ids": [
+        "claim_5e6f2020b1ed"
+      ]
+    },
+    {
+      "heading": "An Economics Research Agenda",
+      "purpose": "Frame open questions as optimal task allocation, heterogeneous treatment effects, equilibrium respondent adaptation, validation, and total data-production cost.",
+      "theme_ids": [
+        "theme_81234566d951",
+        "theme_e645f959df68"
+      ],
+      "claim_ids": []
+    },
+    {
+      "heading": "Conclusion",
+      "purpose": "Return to the conditional thesis and identify what evidence would change it.",
+      "theme_ids": [],
+      "claim_ids": []
+    }
+  ],
+  "conclusion": [
+    "AI changes the feasible set of interview designs by making standardized adaptivity inexpensive, not by making interviewer judgment or measurement error disappear.",
+    "The most defensible current result is conditional: automation can improve disclosure and selected forms of probing, while trust, burden, task, and modality determine whether those gains survive.",
+    "The next generation of studies should pre-specify the measurement target, benchmark against external criteria, report heterogeneous effects, and compare total production costs rather than transcript volume alone."
+  ],
+  "updated_at": "2026-08-14T11:01:45Z"
+}

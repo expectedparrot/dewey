@@ -1,0 +1,28 @@
+{
+  "finding_id": "finding_75b8455efd88",
+  "study_id": "study_c52b507173f3",
+  "question_id": null,
+  "author_claim": "Users in the Serbian sample remained unfamiliar with and distrustful of chatbots relative to human agents.",
+  "evidence_statement": "Although 87% knew what a chatbot was, only 44% had used one; 88% preferred waiting for a human service agent, while 48% said they would use a brand lacking a human agent and 35% were unsure.",
+  "reviewer_interpretation": "The study identifies a trust and familiarity barrier, but service-agent preference is not a direct test of research-interview preference and the descriptive sample offers no chatbot-versus-survey outcome comparison.",
+  "outcome": "chatbot familiarity and human-agent preference",
+  "direction": "negative toward chatbot",
+  "population": null,
+  "conditions": [
+    "rule-based WhatsApp survey"
+  ],
+  "measure": "descriptive self-report percentages",
+  "timepoint": null,
+  "certainty": "low",
+  "locators": [
+    {
+      "page": "325-326",
+      "section": "4.2 Data Collection and 4.3 Result Analysis",
+      "table": null,
+      "figure": "Figures 2-5",
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T09:54:23Z",
+  "updated_at": "2026-08-14T09:54:23Z"
+}

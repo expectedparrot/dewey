@@ -1,0 +1,19 @@
+{
+  "label": "SimSensei automatic-versus-Wizard-of-Oz evaluation",
+  "design": "comparative user study across separately recruited system cohorts",
+  "population": "adult volunteers recruited through Craigslist and flyers",
+  "sample_size": 231,
+  "setting": "15-25 minute semi-structured health interview with the Ellie virtual human",
+  "intervention": "fully automatic SimSensei Kiosk interviewer",
+  "comparator": "Wizard-of-Oz virtual interviewer",
+  "methods": [
+    "comparison of 91 automatic-system interviews with 140 Wizard-of-Oz interviews",
+    "post-interview self-report measures"
+  ],
+  "measures": [
+    "willingness and comfort sharing",
+    "perceived listening and body-language sensitivity",
+    "system usability",
+    "rapport"
+  ]
+}

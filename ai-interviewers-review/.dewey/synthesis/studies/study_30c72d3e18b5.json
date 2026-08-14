@@ -1,0 +1,30 @@
+{
+  "study_id": "study_30c72d3e18b5",
+  "source_ids": [
+    "src_af8750017209"
+  ],
+  "label": "Jacobsen et al. theory-based probe experiment",
+  "design": "split-plot comparison of four probe types across three research stages",
+  "population": "64 U.S.-based English-speaking Prolific participants using desktop computers",
+  "sample_size": 64,
+  "setting": "online HCI survey interviews about technology stress",
+  "intervention": "descriptive, idiographic, clarifying, or explanatory LLM probes",
+  "comparator": "other randomized probe groups across exploration, requirements, and evaluation tasks",
+  "methods": [
+    "16 participants per probe group",
+    "three repeated research-stage tasks",
+    "mixed models with participant random effects"
+  ],
+  "measures": [
+    "informativeness",
+    "relevance",
+    "specificity",
+    "clarity",
+    "smoothness",
+    "helpfulness",
+    "repetitiveness",
+    "perceived accuracy"
+  ],
+  "created_at": "2026-08-14T09:53:21Z",
+  "updated_at": "2026-08-14T09:53:21Z"
+}

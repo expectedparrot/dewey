@@ -1,0 +1,55 @@
+{
+  "appraisal_id": "appraisal_0e29eb15456c",
+  "study_id": "study_30c72d3e18b5",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "internal validity",
+      "judgment": "moderate concern",
+      "rationale": "Probe groups were separately sampled with repeated stages and participant random effects, but only 16 participants contributed to each probe group.",
+      "locators": [
+        {
+          "page": "5-8",
+          "section": "4 Method",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "measurement validity",
+      "judgment": "moderate concern",
+      "rationale": "Human-coded Gricean outcomes and participant experience are relevant proxies but not external validity criteria.",
+      "locators": [
+        {
+          "page": "6-8",
+          "section": "4.4 Measures",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "external validity",
+      "judgment": "high concern",
+      "rationale": "Desktop-only U.S. Prolific participants completed HCI tasks about technology stress.",
+      "locators": [
+        {
+          "page": "5",
+          "section": "4.3 Participants",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "low-to-moderate confidence",
+  "applicability": "Strong design evidence for selecting probes; limited generalization beyond short online HCI survey tasks.",
+  "reviewer": "Dewey structured extraction",
+  "created_at": "2026-08-14T09:54:23Z",
+  "updated_at": "2026-08-14T09:54:23Z"
+}

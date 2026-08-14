@@ -29,6 +29,24 @@
       "type": "cites",
       "note": "Resolved from bibliography",
       "created_at": "2026-08-12T12:39:08Z"
+    },
+    {
+      "target": "src_739cdd18c885",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:12Z"
+    },
+    {
+      "target": "src_4138c6e41b39",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:12Z"
+    },
+    {
+      "target": "src_b89de9909212",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:12Z"
     }
   ]
 }

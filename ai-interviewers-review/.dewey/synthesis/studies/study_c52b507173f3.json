@@ -1,0 +1,25 @@
+{
+  "study_id": "study_c52b507173f3",
+  "source_ids": [
+    "src_db7efbce68d9"
+  ],
+  "label": "\u0110uka and Njegu\u0161 conversational survey perception study",
+  "design": "descriptive cross-sectional chatbot survey",
+  "population": "200 Serbian students and employees aged 18-55",
+  "sample_size": 200,
+  "setting": "12-question rule-based Landbot survey distributed through WhatsApp",
+  "intervention": "completion of a conversational survey chatbot",
+  "comparator": null,
+  "methods": [
+    "descriptive percentages",
+    "self-reported chatbot familiarity, experience, and service-agent preference"
+  ],
+  "measures": [
+    "chatbot awareness",
+    "prior chatbot use",
+    "preference for chatbot versus human service agent",
+    "willingness to use a brand without a human agent"
+  ],
+  "created_at": "2026-08-14T09:53:21Z",
+  "updated_at": "2026-08-14T09:53:21Z"
+}

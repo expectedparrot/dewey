@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-08-14" />
+  <title>AI Interviewers: From Conversational Surveys to Scalable Qualitative Research</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root { color-scheme: light; }
+html { background: #f3f0e8; }
+body {
+max-width: 820px;
+margin: 0 auto;
+padding: 64px 72px 96px;
+color: #25312c;
+background: #fffdf8;
+font: 17px/1.68 Georgia, "Times New Roman", serif;
+box-shadow: 0 0 45px rgba(37, 49, 44, .09);
+}
+h1, h2, h3 { color: #173f35; line-height: 1.2; }
+h1 { font-size: 2.5rem; margin-bottom: .15em; letter-spacing: -.025em; }
+h2 { margin-top: 2.3em; padding-top: .35em; border-top: 1px solid #d8d2c5; }
+h3 { margin-top: 1.7em; }
+.subtitle { color: #607068; font-size: 1.25rem; margin-top: 0; }
+.date { color: #748078; font-size: .95rem; }
+blockquote {
+margin: 2em 0;
+padding: .8em 1.2em;
+border-left: 4px solid #bf7a40;
+background: #f7efe3;
+color: #394a43;
+}
+blockquote p { margin: 0; }
+a { color: #94602f; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+li { margin: .45em 0; }
+nav#TOC {
+margin: 2.5em 0;
+padding: 1.2em 1.5em;
+background: #edf2ee;
+border-radius: 8px;
+}
+nav#TOC:before { content: "Contents"; font: bold 1.05rem system-ui, sans-serif; }
+nav#TOC ul { margin-bottom: 0; }
+@media (max-width: 760px) {
+body { padding: 32px 24px 64px; box-shadow: none; }
+h1 { font-size: 2rem; }
+}
+@media print {
+html, body { background: white; }
+body { padding: 0; box-shadow: none; font-size: 11pt; }
+nav#TOC { break-after: page; }
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AI Interviewers: From Conversational Surveys to
+Scalable Qualitative Research</h1>
+<p class="subtitle">A preliminary field synthesis across the reviewed
+Dewey corpus</p>
+<p class="date">August 14, 2026</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#executive-summary" id="toc-executive-summary">Executive
+summary</a></li>
+<li><a href="#scope-and-evidence-tiers" id="toc-scope-and-evidence-tiers">Scope and evidence tiers</a></li>
+<li><a href="#the-field-has-evolved-from-interface-comparisons-to-adaptive-interviewing" id="toc-the-field-has-evolved-from-interface-comparisons-to-adaptive-interviewing">1.
+The field has evolved from interface comparisons to adaptive
+interviewing</a></li>
+<li><a href="#good-automated-interviewing-is-a-bundle-of-conversational-skills" id="toc-good-automated-interviewing-is-a-bundle-of-conversational-skills">2.
+Good automated interviewing is a bundle of conversational
+skills</a></li>
+<li><a href="#can-ai-led-interviews-produce-qualitative-depth-at-scale" id="toc-can-ai-led-interviews-produce-qualitative-depth-at-scale">3. Can
+AI-led interviews produce qualitative depth at scale?</a></li>
+<li><a href="#ai-versus-human-comparisons-reveal-different-failure-modes" id="toc-ai-versus-human-comparisons-reveal-different-failure-modes">4.
+AI-versus-human comparisons reveal different failure modes</a></li>
+<li><a href="#objective-accuracy-evidence-changes-the-evaluation-standard" id="toc-objective-accuracy-evidence-changes-the-evaluation-standard">5.
+Objective accuracy evidence changes the evaluation standard</a></li>
+<li><a href="#burden-longitudinal-use-and-selection-can-reverse-short-session-gains" id="toc-burden-longitudinal-use-and-selection-can-reverse-short-session-gains">6.
+Burden, longitudinal use, and selection can reverse short-session
+gains</a></li>
+<li><a href="#what-is-settled-contested-and-missing" id="toc-what-is-settled-contested-and-missing">7. What is settled,
+contested, and missing?</a></li>
+<li><a href="#implications-for-designing-ai-interviewers" id="toc-implications-for-designing-ai-interviewers">Implications for
+designing AI interviewers</a></li>
+<li><a href="#conclusion" id="toc-conclusion">Conclusion</a></li>
+<li><a href="#evidence-map" id="toc-evidence-map">Evidence map</a></li>
+<li><a href="#reproducibility-and-next-step" id="toc-reproducibility-and-next-step">Reproducibility and next
+step</a></li>
+</ul>
+</nav>
+<blockquote>
+<p><strong>Review status.</strong> Dewey contains 57 sources discovered
+through direct search and citation traversal, with 839 screened-out
+candidates and 913 recorded discovery sightings. Eighteen sources have
+been substantively summarized: seven are currently included, nine remain
+queued for final inclusion decisions, and two are excluded or duplicate
+analytic versions. This report synthesizes all 16 distinct,
+substantively relevant summarized studies while preserving those status
+differences. Three studies currently have finding-level extraction and
+formal appraisal.</p>
+</blockquote>
+<h2 id="executive-summary">Executive summary</h2>
+<p>The AI-interviewer literature has moved through three overlapping
+stages. Early work asked whether a conversational interface could
+administer surveys or health screenings acceptably. The next wave
+decomposed interviewer behavior into design features such as
+conversational style, active listening, multiple agent roles, and
+different kinds of probes. Recent LLM systems make a larger claim: that
+adaptive interviews can provide qualitative depth at survey scale and,
+in some settings, approach human interviewers.</p>
+<p>Taken together, the reviewed studies support four conclusions.</p>
+<p>First, conversational systems often—but not always—elicit longer,
+more specific, or more engaging responses than static forms. Xiao et
+al. report strong gains over a conventional web survey; Barari et
+al. find improvements concentrated in specificity and explanation;
+Chopra and Haaland and Geiecke and Jaravel argue that LLM-led interviews
+reveal richer themes than open-text alternatives. Yet Cuevas et al. find
+that apparently fluent interviews often fail to elicit the motives and
+individualized examples that constitute qualitative richness, and
+Zarouali et al. find no general chatbot advantage in a 14-day
+longitudinal study.</p>
+<p>Second, interviewer behavior matters more than the chatbot label.
+Active listening, probe type, tone, timing, and division of labor across
+agents change response quality and experience. Conversationality is
+therefore not a single treatment. Systems that ask many generic
+follow-ups can produce more text without producing better evidence.</p>
+<p>Third, AI and human interviewers have different—not uniformly
+ordered—failure modes. AI systems offer consistency, speed, and reduced
+evaluation apprehension, but can miss appropriate follow-ups, give
+evaluative encouragement, over-classify answers, or lose rapport. Humans
+can suggest answers, omit active-listening behaviors, and vary across
+interviewers. The relevant question is which error profile is acceptable
+for a particular research purpose.</p>
+<p>Fourth, the field’s largest unresolved issue is validity. Disclosure,
+engagement, response length, thematic breadth, and linguistic richness
+are useful intermediate outcomes, but they do not establish truth or
+construct validity. A notable exception is Sun et al.’s child-witness
+experiment, which evaluates objectively correct and false information.
+More work needs similarly external criteria and downstream behavioral
+validation.</p>
+<p>The resulting throughline is that AI interviewers should be
+understood as configurable measurement systems, not generic substitutes
+for human interviewers. Their value depends on the match among interview
+purpose, probe policy, respondent population, comparison condition, and
+validation criterion.</p>
+<h2 id="scope-and-evidence-tiers">Scope and evidence tiers</h2>
+<p>The corpus spans generative and pre-LLM systems, text and embodied
+interfaces, surveys and semi-structured interviews, and populations
+ranging from online adults to children recalling a witnessed event.
+Because these designs answer different questions, this review organizes
+the literature by claims and mechanisms rather than calculating a pooled
+average.</p>
+<p>Three evidence tiers are used:</p>
+<ol type="1">
+<li><strong>Included and structured:</strong> Barari et al., DeVault et
+al., and Lucas et al. have atomic findings, locators, and study
+appraisals.</li>
+<li><strong>Included and summarized:</strong> Sun et al., Geiecke and
+Jaravel, Jacobsen et al., and Đuka and Njeguš are accepted into the
+review but await finding-level extraction.</li>
+<li><strong>Queued and summarized:</strong> nine directly relevant
+studies have been read sufficiently for a concise summary but await
+final inclusion and detailed appraisal. They inform the map of the field
+but should carry less weight in definitive conclusions.</li>
+</ol>
+<p>The published 2026 Barari article is retained as a version of the
+already-counted preprint, not as independent evidence. The child-avatar
+training study is excluded because the AI serves as interviewee and
+coach rather than interviewer.</p>
+<h2 id="the-field-has-evolved-from-interface-comparisons-to-adaptive-interviewing">1.
+The field has evolved from interface comparisons to adaptive
+interviewing</h2>
+<p>Early conversational survey studies mainly tested whether a chatbot
+interface changed response behavior. Kim et al.’s 2-by-2 experiment
+separated platform from conversational style, finding more
+differentiated responses and less satisficing in chatbot conditions,
+with casual style helping only inside the chatbot interface. Xiao et
+al.’s larger field study compared an AI-powered conversational survey
+with Qualtrics across more than 5,200 free-text answers. The chatbot
+increased engagement and produced responses rated more informative,
+relevant, specific, and clear, including a reported 39% increase in
+information and 25.7% gain in aggregate response quality.</p>
+<p>These results established that delivery format could affect response
+production, but neither system resembles today’s open-ended LLM
+interviewer. Both relied on bounded, pre-LLM behavior and quality
+criteria derived largely from conversational maxims. Their historical
+importance is to show that some apparent “AI effect” predates generative
+models: interface pacing, social cues, and conversational framing
+already changed respondent behavior.</p>
+<p>Đuka and Njeguš provide a useful trust counterpoint. Their
+descriptive Serbian study documents familiarity with chatbots but
+substantial preference for waiting for a human service agent. It does
+not directly measure research-interview preference and lacks a
+conventional-survey control, so it should not be read as evidence that
+people reject AI interviews. It does show why general chatbot
+familiarity cannot substitute for task-specific acceptability.</p>
+<h2 id="good-automated-interviewing-is-a-bundle-of-conversational-skills">2.
+Good automated interviewing is a bundle of conversational skills</h2>
+<p>Later systems began isolating components of interview conduct. Xiao
+et al.’s active-listening chatbot combined acknowledgment,
+comprehension, and adaptive follow-up behaviors. In a study of 206 users
+across four topics, active listening improved engagement and response
+quality relative to a baseline chatbot. The result suggests that the
+value of conversation lies partly in showing that prior content was
+heard and used, rather than merely presenting one question at a
+time.</p>
+<p>CommunityBots extends this logic from skills to roles. Its
+multi-agent platform divided public input elicitation across agents and,
+in a 96-person evaluation, improved engagement and response quality
+while reducing conversational interruptions relative to a single-agent
+baseline. The study predates modern LLMs, but it raises a still-relevant
+design possibility: planning, rapport-building, clarification, and
+domain questioning need not all be performed by one agent.</p>
+<p>Jacobsen et al. offer the clearest recent decomposition of probing.
+Their split-plot experiment compares descriptive, idiographic,
+clarifying, and explanatory LLM probes across exploration, requirements,
+and evaluation tasks. Both probe type and research stage affect
+response-quality and experience measures. This makes indiscriminate
+“adaptive follow-up” an inadequate description of a system. A probe
+designed to recover meaning, elicit a personal example, or explain a
+cause is a different intervention, and its usefulness depends on the
+research stage.</p>
+<p>Barari et al. reinforce that conclusion experimentally. Their LLM
+elaboration/relevance probes increased specificity and explanation for
+opinion questions as well as word count and Shannon entropy, but did not
+consistently improve completeness, relevance, lexical diversity, or KL
+divergence. The benefit was selective enrichment, not universal quality
+improvement. Moreover, probes were triggered for nearly all seed
+responses in several modules, implying that current systems may probe
+far more often than the marginal value of information warrants.</p>
+<h2 id="can-ai-led-interviews-produce-qualitative-depth-at-scale">3. Can
+AI-led interviews produce qualitative depth at scale?</h2>
+<p>The strongest contemporary claim is that LLMs can occupy the space
+between open-text survey boxes and labor-intensive human interviews.
+Three major studies define this debate.</p>
+<p>Chopra and Haaland evaluate AI-led qualitative interviews across
+economic applications and argue that dynamic probing generates richer
+themes than scalable survey alternatives, reveals themes researchers did
+not prespecify, relates responses to later behavior, and supports
+hypothesis generation and thematic saturation. Geiecke and Jaravel
+develop a simple text-and-voice system and compare it with trained human
+interviewers, respondent assessments, open-text responses, and
+content-quality measures across questions about meaning in life,
+politics, education, occupations, and policy mental models. They report
+that short AI interviews approach average trained-human quality under
+comparable online conditions and substantially outperform open-text
+fields in richness.</p>
+<p>Cuevas et al. provide the essential counterargument. Across 399
+participants and three systems, including two LLM interviewers,
+conventional engagement and communication scores looked good, but the
+systems rarely elicited the specific motives and personalized examples
+associated with genuinely rich qualitative material. Human and LLM
+quality ratings also agreed poorly. The disagreement is not merely that
+one study is positive and another negative. They operationalize richness
+differently. One emphasizes thematic breadth, scalable discovery, and
+comparative content measures; the other asks whether interviews recover
+situated motives and examples that qualitative researchers consider
+evidentially important.</p>
+<p>Guven et al.’s small same-interface comparison sharpens the issue.
+Human interviewers elicited longer answers per question, while the AI
+asked questions faster and therefore conducted longer interviews
+overall; coded specificity and relevance did not significantly differ.
+An AI can increase total interaction by moving quickly without matching
+the depth achieved at each turn. Turn-level and interview-level richness
+should therefore be reported separately.</p>
+<p>The current synthesis cannot declare the scalability claim settled.
+It can identify the decisive question: whether increased thematic
+coverage and response volume preserve the contextual, motivational, and
+interpretive detail needed for the intended qualitative analysis.</p>
+<h2 id="ai-versus-human-comparisons-reveal-different-failure-modes">4.
+AI-versus-human comparisons reveal different failure modes</h2>
+<p>Several studies directly or indirectly benchmark humans. Wuttke et
+al.’s small student study finds broadly comparable response quality and
+overall adherence under AI and human interviewing, but divergent errors.
+The AI misses appropriate follow-up opportunities and sometimes provides
+evaluative encouragement; humans more often omit active listening or
+suggest answers. Guven et al. similarly hold chat modality constant and
+find a speed–depth trade-off rather than a clear winner. Geiecke and
+Jaravel report that short AI interviews approach the average quality of
+trained humans under matched online conditions, a more demanding
+benchmark that warrants full finding-level extraction.</p>
+<p>DeVault et al.’s SimSensei work examines a different transition: from
+a human-controlled Wizard-of-Oz virtual interviewer to a fully automatic
+one. The automatic cohort remained willing to share, but rated the
+system lower as a listener and lower on usability and rapport. The
+effect sizes for listening, usability, and rapport were moderate,
+although the separately recruited cohorts prevent a clean causal
+interpretation. This study shows that retaining the same embodied agent
+does not ensure that automation retains conversational quality.</p>
+<p>Lucas et al. isolate a psychological benefit humans cannot easily
+reproduce: participants who believed the visually identical interviewer
+was computer-controlled reported less disclosure fear and impression
+management, displayed more sadness, and were judged more willing to
+disclose. The randomized framing supports reduced evaluation
+apprehension as a mechanism. However, perceived automation says little
+about whether the system asks good questions or correctly interprets
+answers.</p>
+<p>Together, these studies reject a one-dimensional ranking. AI may be
+less socially threatening and more consistent, while humans may be more
+contextually responsive. Humans introduce their own variability and
+suggestiveness; AI introduces systematic omissions, inappropriate
+encouragement, and model-specific behavior. Evaluation should compare
+error types, not just average quality scores.</p>
+<h2 id="objective-accuracy-evidence-changes-the-evaluation-standard">5.
+Objective accuracy evidence changes the evaluation standard</h2>
+<p>Most studies assess engagement, respondent preference, response
+length, coder-rated quality, or thematic content. Sun et al. stand out
+by using a witnessed mock event with externally knowable details.
+Seventy-eight children aged six to eight were randomly assigned to
+questions formulated by ChatGPT or naive human interviewers, though
+humans delivered both sets of questions. The LLM-formulated condition
+used fewer questions, elicited similar total unique correct information,
+more correct information per question, and less false information
+overall; false information per question did not differ.</p>
+<p>The specialized forensic context and human delivery limit
+generalization to autonomous AI interviewers. Even so, the study
+demonstrates a stronger validation architecture: specify a ground truth,
+distinguish correct from false elicitation, and measure efficiency per
+question. Comparable designs are needed in other domains using
+administrative records, known events, subsequent behavior, expert
+adjudication, or experimentally assigned experiences.</p>
+<p>Barari et al.’s live-coding experiment shows why external validation
+matters. Respondents often confirmed AI categories more readily than
+independent coders did, with evidence consistent with acquiescence.
+Asking respondents to confirm the model’s interpretation can alter the
+response it is meant to validate. Accuracy ranged widely across tasks,
+with news-source coding substantially weaker than economic-sentiment
+coding. Validation must therefore be outcome- and task-specific, not
+inferred from overall conversational fluency.</p>
+<h2 id="burden-longitudinal-use-and-selection-can-reverse-short-session-gains">6.
+Burden, longitudinal use, and selection can reverse short-session
+gains</h2>
+<p>Positive findings largely come from short, bounded encounters. Barari
+et al. show that elaboration/relevance probing doubled average
+completed-interview time from about three to six minutes, increased
+dropout by roughly two to three percentage points at the first question,
+and slightly reduced ease and satisfaction. Confirmation probes imposed
+less burden. More probing can improve the answers of those who stay
+while changing who completes the interview.</p>
+<p>Zarouali et al.’s preregistered 14-day comparison is therefore
+especially valuable. Among 304 Dutch participants, web surveys often
+produced better response characteristics and data quality; chatbot users
+supplied fewer words over time and rated the chatbot lower on enjoyment,
+usefulness, and security, although chatbot users performed better on
+attention checks. The contrast with one-session studies suggests novelty
+decay, privacy perception, and repeated-use friction as moderators.</p>
+<p>These findings favor selective probing and adaptive stopping over
+maximizing conversational turns. Systems should estimate the expected
+value of a follow-up against respondent burden and the risk of
+attrition, especially on mobile devices and in longitudinal designs.</p>
+<h2 id="what-is-settled-contested-and-missing">7. What is settled,
+contested, and missing?</h2>
+<h3 id="relatively-well-supported">Relatively well supported</h3>
+<ul>
+<li>Conversational presentation and adaptive behavior can change
+response production relative to static forms.</li>
+<li>Active listening and probe design materially affect outcomes;
+“chatbot” is too coarse a treatment label.</li>
+<li>Machine framing can reduce evaluation apprehension in sensitive
+interviewing.</li>
+<li>AI systems can conduct coherent, scalable interviews, but
+feasibility alone does not establish qualitative or measurement
+validity.</li>
+<li>Benefits and costs vary by question type, task, interface,
+comparison condition, and duration.</li>
+</ul>
+<h3 id="still-contested">Still contested</h3>
+<ul>
+<li>Whether LLM interviews approach trained-human qualitative depth
+rather than merely open-text survey quality.</li>
+<li>Whether greater length, specificity, and thematic breadth constitute
+more informative evidence.</li>
+<li>Whether AI’s consistency offsets missed probes, evaluative feedback,
+or systematic coding bias.</li>
+<li>Whether short-session engagement gains survive repeated or
+longitudinal use.</li>
+</ul>
+<h3 id="critical-gaps">Critical gaps</h3>
+<ul>
+<li>External validation of truth, construct measurement, and downstream
+decisions.</li>
+<li>Larger matched comparisons with trained human interviewers and
+blinded outcome coding.</li>
+<li>Factorial tests separating machine identity, interface, model,
+prompt, probe policy, and voice.</li>
+<li>Population heterogeneity, accessibility, privacy, language, culture,
+and digital literacy.</li>
+<li>Selective attrition analyzed jointly with improvements among
+interview completers.</li>
+<li>Long-form, interpretive, expert, and longitudinal qualitative
+interviews.</li>
+<li>Reproducible reporting of models, prompts, sampling parameters,
+latency, failures, and version changes.</li>
+<li>Evidence about how analysts use AI-collected material and whether
+different collection modes lead to different substantive
+conclusions.</li>
+</ul>
+<h2 id="implications-for-designing-ai-interviewers">Implications for
+designing AI interviewers</h2>
+<p>A defensible AI interviewer should be designed around the inferential
+task rather than generic conversation quality. It should:</p>
+<ul>
+<li>define which uncertainty each probe is intended to resolve;</li>
+<li>distinguish clarification, elaboration, explanation, and
+personal-example probes;</li>
+<li>use respondent confirmations that permit correction without
+anchoring them to one suggested interpretation;</li>
+<li>preserve turn-level provenance so analysts can separate seed answers
+from AI-elicited content;</li>
+<li>monitor burden and stop when expected informational gain is
+low;</li>
+<li>report disclosure, conversational quality, burden, coding accuracy,
+and construct validity as separate outcomes;</li>
+<li>expose model and prompt configurations for replication; and</li>
+<li>escalate or hand off when sensitive content, ambiguity, or
+conversational failure exceeds the system’s validated scope.</li>
+</ul>
+<p>The most promising architecture may be hybrid rather than
+substitutive: AI can provide scalable first-pass interviewing, identify
+ambiguity, and standardize routine probes, while humans handle
+interpretive depth, sensitive follow-up, and cases where contextual
+judgment matters most.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The reviewed literature has progressed well beyond the question of
+whether people will answer a chatbot. It now demonstrates that AI
+systems can shape disclosure, deploy different interviewing skills,
+collect large volumes of open-ended material, and in some contexts
+approach human or outperform static-form benchmarks. It also shows that
+apparent success depends heavily on what is counted as quality.</p>
+<p>The field’s central tension is between scale and evidential depth. AI
+interviewers make adaptive conversation cheap enough to deploy widely,
+but scale does not guarantee that interviews recover truth, causal
+explanation, personal context, or valid constructs. The next generation
+of studies must make those inferential targets explicit. The right
+question is no longer simply whether AI can conduct an interview. It is
+when a particular AI interviewing policy produces evidence that is more
+valid, useful, and ethically collected than the feasible
+alternative.</p>
+<h2 id="evidence-map">Evidence map</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Study</th>
+<th>Current Dewey status</th>
+<th>Main contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Barari et al. (2025/2026)</td>
+<td>Included; structured</td>
+<td>Randomized evidence on coding, probing, quality, and burden</td>
+</tr>
+<tr>
+<td>DeVault et al. (2014)</td>
+<td>Included; structured</td>
+<td>Automatic virtual interviewer feasibility and rapport
+trade-offs</td>
+</tr>
+<tr>
+<td>Lucas et al. (2014)</td>
+<td>Included; structured</td>
+<td>Reduced evaluation apprehension under machine framing</td>
+</tr>
+<tr>
+<td>Sun et al. (2025)</td>
+<td>Included</td>
+<td>Objective correct/false recall under LLM- versus human-formulated
+questions</td>
+</tr>
+<tr>
+<td>Geiecke &amp; Jaravel (2026)</td>
+<td>Included</td>
+<td>AI-led interviews compared with trained humans and open text across
+domains</td>
+</tr>
+<tr>
+<td>Jacobsen et al. (2025)</td>
+<td>Included</td>
+<td>Experimental comparison of four theory-based probe types</td>
+</tr>
+<tr>
+<td>Đuka &amp; Njeguš (2021)</td>
+<td>Included</td>
+<td>Early rule-based implementation and trust/UX evidence</td>
+</tr>
+<tr>
+<td>Chopra &amp; Haaland (2023/2026)</td>
+<td>Queued</td>
+<td>Qualitative richness, behavioral association, and saturation
+claims</td>
+</tr>
+<tr>
+<td>Cuevas et al. (2025)</td>
+<td>Queued</td>
+<td>Caution that engagement metrics can mask weak qualitative
+richness</td>
+</tr>
+<tr>
+<td>Xiao et al. (2020), conversational surveys</td>
+<td>Queued</td>
+<td>Large field comparison with conventional web surveys</td>
+</tr>
+<tr>
+<td>Xiao et al. (2020), active listening</td>
+<td>Queued</td>
+<td>Isolates active-listening behaviors as a design mechanism</td>
+</tr>
+<tr>
+<td>Zarouali et al. (2024)</td>
+<td>Queued</td>
+<td>Longitudinal counterevidence on quality, experience, and
+security</td>
+</tr>
+<tr>
+<td>Guven et al. (2025)</td>
+<td>Queued</td>
+<td>Same-interface AI versus human speed/depth comparison</td>
+</tr>
+<tr>
+<td>Wuttke et al. (2024)</td>
+<td>Queued</td>
+<td>AI and human interviewer failure modes</td>
+</tr>
+<tr>
+<td>Kim et al. (2019)</td>
+<td>Queued</td>
+<td>Separates chatbot platform from conversational style</td>
+</tr>
+<tr>
+<td>Jiang et al. (2023)</td>
+<td>Queued</td>
+<td>Multi-agent division of interviewing roles</td>
+</tr>
+</tbody>
+</table>
+<h2 id="reproducibility-and-next-step">Reproducibility and next
+step</h2>
+<p>The structured evidence records are under
+<code>.dewey/synthesis/</code>, and the current seven-finding export is
+<code>evidence-matrix.csv</code>. Source-level summaries and detailed
+notes remain separate. The next step is not more discovery: it is to
+resolve the nine queued summarized studies, promote or reject them
+explicitly, and extend finding-level extraction and appraisal across the
+studies that drive the field-level claims above.</p>
+</body>
+</html>

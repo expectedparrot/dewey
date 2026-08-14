@@ -1,0 +1,55 @@
+{
+  "appraisal_id": "appraisal_f05214f22a0c",
+  "study_id": "study_a998602f1419",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "internal validity",
+      "judgment": "high concern",
+      "rationale": "The automatic and Wizard-of-Oz samples were separately recruited cohorts rather than randomized concurrent conditions.",
+      "locators": [
+        {
+          "page": "1066-1067",
+          "section": "6 Evaluation",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "measurement validity",
+      "judgment": "moderate concern",
+      "rationale": "Established usability and rapport measures complement direct sharing items, but the evidence is predominantly post-interview self-report.",
+      "locators": [
+        {
+          "page": "1067",
+          "section": null,
+          "table": "Table 2",
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "external validity",
+      "judgment": "moderate-to-high concern",
+      "rationale": "Volunteer recruitment and a single health-interview prototype constrain population and platform generalization.",
+      "locators": [
+        {
+          "page": "1066",
+          "section": "6.1 Participants",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "low confidence for causal effects; moderate confidence for feasibility",
+  "applicability": "Directly relevant to embodied automated health interviewers and system-design tradeoffs.",
+  "reviewer": "Dewey structured extraction",
+  "created_at": "2026-08-14T02:04:22Z",
+  "updated_at": "2026-08-14T02:04:22Z"
+}

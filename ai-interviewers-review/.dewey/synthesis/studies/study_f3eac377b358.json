@@ -1,0 +1,26 @@
+{
+  "study_id": "study_f3eac377b358",
+  "source_ids": [
+    "src_418b4c4f1a21"
+  ],
+  "label": "Lucas et al. perceived automation experiment",
+  "design": "2 x 2 experiment varying automation framing and actual control method",
+  "population": "adult participants in a virtual-human health-screening interview",
+  "sample_size": 239,
+  "setting": "semi-structured interview with the visually constant Ellie virtual human",
+  "intervention": "told that the interviewer was fully computer-controlled",
+  "comparator": "told that the interviewer was tele-operated by a human",
+  "methods": [
+    "random assignment of computer-versus-human framing",
+    "crossed manipulation of framing with actual automatic-versus-tele-operated method",
+    "self-report, automated facial-expression analysis, and blind transcript ratings"
+  ],
+  "measures": [
+    "fear of self-disclosure",
+    "impression management",
+    "facial sadness intensity",
+    "observer-rated willingness to disclose"
+  ],
+  "created_at": "2026-08-14T02:03:20Z",
+  "updated_at": "2026-08-14T02:03:20Z"
+}

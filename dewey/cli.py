@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import csv
+import io
 import json
 import shutil
 import sqlite3
@@ -12,6 +14,7 @@ from dotenv import load_dotenv
 
 from dewey.archive import write_project_archive
 from dewey.bibtex import BibTeXError, dump_entry
+from dewey.evidence import EvidenceStore
 from dewey.discovery import (
     candidate_from_citation,
     candidate_id,
@@ -42,6 +45,7 @@ from dewey.repo import (
     sha256_file,
     utc_now,
 )
+from dewey.reporting import article_brief, render_with_pandoc
 
 app = typer.Typer(no_args_is_help=True)
 load_dotenv()
@@ -61,6 +65,14 @@ discover_app = typer.Typer(no_args_is_help=True)
 screen_app = typer.Typer(no_args_is_help=True)
 traverse_app = typer.Typer(no_args_is_help=True)
 export_app = typer.Typer(no_args_is_help=True)
+study_app = typer.Typer(no_args_is_help=True)
+finding_app = typer.Typer(no_args_is_help=True)
+appraisal_app = typer.Typer(no_args_is_help=True)
+matrix_app = typer.Typer(no_args_is_help=True)
+synthesis_app = typer.Typer(no_args_is_help=True)
+theme_app = typer.Typer(no_args_is_help=True)
+claim_app = typer.Typer(no_args_is_help=True)
+report_app = typer.Typer(no_args_is_help=True)
 
 app.add_typer(add_app, name="add")
 app.add_typer(remove_app, name="remove")
@@ -78,6 +90,14 @@ app.add_typer(discover_app, name="discover")
 app.add_typer(screen_app, name="screen")
 app.add_typer(traverse_app, name="traverse")
 app.add_typer(export_app, name="export")
+app.add_typer(study_app, name="study")
+app.add_typer(finding_app, name="finding")
+app.add_typer(appraisal_app, name="appraisal")
+app.add_typer(matrix_app, name="matrix")
+app.add_typer(synthesis_app, name="synthesis")
+app.add_typer(theme_app, name="theme")
+app.add_typer(claim_app, name="claim")
+app.add_typer(report_app, name="report")
 
 
 def wants_json(json_output: bool = False) -> bool:
@@ -109,6 +129,18 @@ def load_repo(action: str, json_output: bool = False) -> DeweyRepo:
     except DeweyError as exc:
         fail(action, exc.code, exc.message, exc.exit_code, json_output)
     raise AssertionError("unreachable")
+
+
+def load_json_object(path: Path, action: str, json_output: bool = False) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        fail(action, "file_not_found", f"No file exists at {path}", 4, json_output)
+    except json.JSONDecodeError as exc:
+        fail(action, "invalid_json", f"Invalid JSON in {path}: {exc}", 2, json_output)
+    if not isinstance(payload, dict):
+        fail(action, "invalid_json", f"Expected a JSON object in {path}", 2, json_output)
+    return payload
 
 
 def update_source_index(repo: DeweyRepo, source_id: str) -> None:
@@ -310,6 +342,50 @@ def doctor(json_output: bool = typer.Option(False, "--json")) -> None:
             issues.append({"code": "missing_order_source", "source_id": source_id})
     for group in repo.duplicate_candidate_groups():
         issues.append({"code": "duplicate_candidates", **group})
+    evidence = EvidenceStore(repo.root)
+    try:
+        studies = evidence.studies()
+        findings = evidence.findings()
+        appraisals = evidence.appraisals()
+        themes = evidence.themes()
+        claims = evidence.claims()
+    except DeweyError as exc:
+        issues.append({"code": exc.code, "message": exc.message})
+        studies, findings, appraisals, themes, claims = [], [], [], [], []
+    study_ids = {study.study_id for study in studies}
+    for study in studies:
+        for source_id in study.source_ids:
+            if source_id not in source_ids:
+                issues.append({"code": "missing_study_source", "study_id": study.study_id, "source_id": source_id})
+    for finding in findings:
+        if finding.study_id not in study_ids:
+            issues.append(
+                {"code": "missing_finding_study", "finding_id": finding.finding_id, "study_id": finding.study_id}
+            )
+    appraisal_study_ids: set[str] = set()
+    for appraisal in appraisals:
+        if appraisal.study_id not in study_ids:
+            issues.append(
+                {
+                    "code": "missing_appraisal_study",
+                    "appraisal_id": appraisal.appraisal_id,
+                    "study_id": appraisal.study_id,
+                }
+            )
+        if appraisal.study_id in appraisal_study_ids:
+            issues.append({"code": "duplicate_study_appraisal", "study_id": appraisal.study_id})
+        appraisal_study_ids.add(appraisal.study_id)
+    theme_ids = {theme.theme_id for theme in themes}
+    finding_ids = {finding.finding_id for finding in findings}
+    for claim in claims:
+        for theme_id in claim.theme_ids:
+            if theme_id not in theme_ids:
+                issues.append({"code": "missing_claim_theme", "claim_id": claim.claim_id, "theme_id": theme_id})
+        for link in claim.evidence:
+            if link.finding_id not in finding_ids:
+                issues.append(
+                    {"code": "missing_claim_finding", "claim_id": claim.claim_id, "finding_id": link.finding_id}
+                )
     try:
         repo.init_index()
         repo.stats()
@@ -327,6 +403,48 @@ def guide_command() -> None:
     typer.echo(GUIDE, nl=False)
 
 
+def synthesis_coverage(repo: DeweyRepo) -> dict[str, Any]:
+    store = EvidenceStore(repo.root)
+    studies = store.studies()
+    findings = store.findings()
+    appraisals = store.appraisals()
+    themes = store.themes()
+    claims = store.claims()
+    included_source_ids = {
+        source_id
+        for source_id in repo.list_source_ids()
+        if repo.load_state(source_id).status == SourceStatus.included
+    }
+    represented_source_ids = {source_id for study in studies for source_id in study.source_ids}
+    study_ids_with_findings = {finding.study_id for finding in findings}
+    study_ids_with_appraisals = {appraisal.study_id for appraisal in appraisals}
+    missing_study_sources = sorted(included_source_ids - represented_source_ids)
+    missing_finding_studies = sorted(
+        study.study_id for study in studies if study.study_id not in study_ids_with_findings
+    )
+    missing_appraisal_studies = sorted(
+        study.study_id for study in studies if study.study_id not in study_ids_with_appraisals
+    )
+    used_finding_ids = {link.finding_id for claim in claims for link in claim.evidence}
+    unused_findings = sorted(finding.finding_id for finding in findings if finding.finding_id not in used_finding_ids)
+    used_theme_ids = {theme_id for claim in claims for theme_id in claim.theme_ids}
+    themes_without_claims = sorted(theme.theme_id for theme in themes if theme.theme_id not in used_theme_ids)
+    return {
+        "included_sources": len(included_source_ids),
+        "studies": len(studies),
+        "findings": len(findings),
+        "appraisals": len(appraisals),
+        "themes": len(themes),
+        "claims": len(claims),
+        "represented_included_sources": len(included_source_ids & represented_source_ids),
+        "missing_study_sources": missing_study_sources,
+        "missing_finding_studies": missing_finding_studies,
+        "missing_appraisal_studies": missing_appraisal_studies,
+        "unused_findings": unused_findings,
+        "themes_without_claims": themes_without_claims,
+    }
+
+
 @app.command("next")
 def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
     action = "workflow.next"
@@ -340,6 +458,10 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
         source_id
         for source_id in source_ids
         if not (repo.source_dir(source_id) / "summary.txt").read_text(encoding="utf-8").strip()
+    ]
+    coverage = synthesis_coverage(repo)
+    included_unsummarized = [
+        source_id for source_id in unsummarized if repo.load_state(source_id).status == SourceStatus.included
     ]
     if not config.topic or not config.research_question:
         phase = "frame"
@@ -359,11 +481,73 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
     elif not source_ids:
         phase = "seed"
         recommendations = ["The last candidate set yielded no sources; broaden or revise the search"]
+    elif included_unsummarized:
+        phase = "read"
+        recommendations = [
+            f"dewey summary set {included_unsummarized[0]} --text <summary>",
+            f"Summarize {len(included_unsummarized)} included source(s)",
+        ]
+    elif coverage["missing_study_sources"]:
+        phase = "extract"
+        recommendations = [
+            f"dewey study template --output study.json",
+            f"dewey study create {coverage['missing_study_sources'][0]} --file study.json",
+            f"Create study records for {len(coverage['missing_study_sources'])} included source(s)",
+        ]
+    elif coverage["missing_finding_studies"]:
+        phase = "extract"
+        recommendations = [
+            "dewey finding template --output finding.json",
+            f"dewey finding add {coverage['missing_finding_studies'][0]} --file finding.json",
+            f"Extract findings for {len(coverage['missing_finding_studies'])} study record(s)",
+        ]
+    elif coverage["missing_appraisal_studies"]:
+        phase = "appraise"
+        recommendations = [
+            "dewey appraisal template --output appraisal.json",
+            f"dewey appraisal set {coverage['missing_appraisal_studies'][0]} --file appraisal.json",
+            f"Appraise {len(coverage['missing_appraisal_studies'])} study record(s)",
+        ]
+    elif coverage["findings"] and not coverage["themes"]:
+        phase = "synthesize"
+        recommendations = [
+            "dewey theme template --output theme.json",
+            "dewey theme create --file theme.json",
+            "Create themes that organize the extracted findings",
+        ]
+    elif coverage["unused_findings"]:
+        phase = "synthesize"
+        recommendations = [
+            "dewey claim template --output claim.json",
+            "dewey claim create --file claim.json",
+            f"Connect {len(coverage['unused_findings'])} unused finding(s) to evidence-weighted claims",
+        ]
+    elif coverage["claims"] and EvidenceStore(repo.root).article_spec() is None:
+        phase = "position"
+        recommendations = [
+            "dewey report article-template --output article.json",
+            "Curate the field context, thesis, literature streams, study roles, timeline, and section logic",
+            "dewey report article-set --file article.json",
+        ]
+    elif coverage["claims"] and not (repo.root / ".dewey" / "synthesis" / "article-brief.md").exists():
+        phase = "report"
+        recommendations = [
+            "dewey report audit",
+            "dewey report brief --output .dewey/synthesis/article-brief.md",
+            "Use the brief to write the substantive Markdown article, then render it with Pandoc",
+        ]
+    elif coverage["claims"] and not (repo.root / ".dewey" / "synthesis" / "report-context.json").exists():
+        phase = "report"
+        recommendations = [
+            "dewey report audit",
+            "dewey report context --output .dewey/synthesis/report-context.json",
+            "Use the report bundle to draft a traceable thematic report",
+        ]
     elif unsummarized:
         phase = "read"
         recommendations = [
             f"dewey summary set {unsummarized[0]} --text <summary>",
-            f"Summarize {len(unsummarized)} source(s)",
+            f"Summarize {len(unsummarized)} remaining source(s)",
         ]
     else:
         phase = "expand"
@@ -1977,6 +2161,935 @@ def index_stats(json_output: bool = typer.Option(False, "--json")) -> None:
     action = "index.stats"
     repo = load_repo(action, json_output)
     emit({"ok": True, "action": action, "stats": repo.stats(), "text": json.dumps(repo.stats(), indent=2)}, json_output)
+
+
+def emit_template(action: str, template: dict[str, Any], output: Path | None, json_output: bool) -> None:
+    rendered = json.dumps(template, indent=2) + "\n"
+    if output:
+        atomic_write_text(output, rendered)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "template": template,
+            "output": str(output) if output else None,
+            "text": f"Wrote template to {output}" if output else rendered.rstrip(),
+        },
+        json_output,
+    )
+
+
+@study_app.command("template")
+def study_template(
+    output: Path | None = typer.Option(None, "--output"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    emit_template(
+        "study.template",
+        {
+            "label": "Short study label",
+            "design": "Study design",
+            "population": "Population",
+            "sample_size": 0,
+            "setting": "Setting",
+            "intervention": "Intervention or exposure",
+            "comparator": "Comparator",
+            "methods": ["Method detail"],
+            "measures": ["Outcome measure"],
+        },
+        output,
+        json_output,
+    )
+
+
+@study_app.command("create")
+def study_create(
+    source_id: str,
+    file: Path = typer.Option(..., "--file"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "study.create"
+    repo = load_repo(action, json_output)
+    ensure_source_exists(repo, source_id, action, json_output)
+    try:
+        record = EvidenceStore(repo.root).create_study(load_json_object(file, action, json_output), source_id)
+    except (ValueError, DeweyError) as exc:
+        fail(action, getattr(exc, "code", "invalid_study"), str(exc), getattr(exc, "exit_code", 2), json_output)
+    repo.append_log(action, study_id=record.study_id, source_ids=record.source_ids)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "study": record.model_dump(mode="json"),
+            "text": f"Created {record.study_id}: {record.label}",
+        },
+        json_output,
+    )
+
+
+@study_app.command("list")
+def study_list(json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "study.list"
+    repo = load_repo(action, json_output)
+    records = EvidenceStore(repo.root).studies()
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "studies": [record.model_dump(mode="json") for record in records],
+            "text": "\n".join(f"{record.study_id}\t{record.design}\t{record.label}" for record in records),
+        },
+        json_output,
+    )
+
+
+@study_app.command("show")
+def study_show(study_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "study.show"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).study(study_id)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    emit({"ok": True, "action": action, "study": record.model_dump(mode="json"), "text": record.model_dump_json(indent=2)}, json_output)
+
+
+@study_app.command("update")
+def study_update(
+    study_id: str,
+    file: Path = typer.Option(..., "--file"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "study.update"
+    repo = load_repo(action, json_output)
+    try:
+        payload = load_json_object(file, action, json_output)
+        source_ids = payload.get("source_ids")
+        if source_ids is not None:
+            for source_id in source_ids:
+                ensure_source_exists(repo, source_id, action, json_output)
+        record = EvidenceStore(repo.root).update_study(study_id, payload)
+    except (TypeError, ValueError, DeweyError) as exc:
+        fail(action, getattr(exc, "code", "invalid_study"), str(exc), getattr(exc, "exit_code", 2), json_output)
+    repo.append_log(action, study_id=study_id)
+    emit({"ok": True, "action": action, "study": record.model_dump(mode="json"), "text": f"Updated {study_id}"}, json_output)
+
+
+@study_app.command("delete")
+def study_delete(
+    study_id: str,
+    cascade: bool = typer.Option(False, "--cascade"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "study.delete"
+    repo = load_repo(action, json_output)
+    try:
+        deleted = EvidenceStore(repo.root).delete_study(study_id, cascade=cascade)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    repo.append_log(action, study_id=study_id, cascade=cascade, deleted=deleted)
+    emit({"ok": True, "action": action, "deleted": deleted, "text": f"Deleted {study_id}"}, json_output)
+
+
+@finding_app.command("template")
+def finding_template(
+    output: Path | None = typer.Option(None, "--output"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    emit_template(
+        "finding.template",
+        {
+            "author_claim": "Authors' claim",
+            "evidence_statement": "Result actually reported",
+            "reviewer_interpretation": "Reviewer's bounded interpretation",
+            "outcome": "Outcome",
+            "direction": "positive, negative, mixed, or null",
+            "population": "Population if finding-specific",
+            "conditions": ["Relevant condition"],
+            "measure": "Measure",
+            "timepoint": "Timepoint",
+            "certainty": "not-assessed",
+            "locators": [{"page": "1", "section": "Results", "table": "Table 1"}],
+        },
+        output,
+        json_output,
+    )
+
+
+@finding_app.command("add")
+def finding_add(
+    study_id: str,
+    file: Path = typer.Option(..., "--file"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "finding.add"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).create_finding(load_json_object(file, action, json_output), study_id)
+    except (ValueError, DeweyError) as exc:
+        fail(action, getattr(exc, "code", "invalid_finding"), str(exc), getattr(exc, "exit_code", 2), json_output)
+    repo.append_log(action, finding_id=record.finding_id, study_id=study_id)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "finding": record.model_dump(mode="json"),
+            "text": f"Created {record.finding_id}: {record.outcome}",
+        },
+        json_output,
+    )
+
+
+@finding_app.command("list")
+def finding_list(
+    study_id: str | None = typer.Option(None, "--study"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "finding.list"
+    repo = load_repo(action, json_output)
+    records = [item for item in EvidenceStore(repo.root).findings() if study_id is None or item.study_id == study_id]
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "findings": [record.model_dump(mode="json") for record in records],
+            "text": "\n".join(f"{record.finding_id}\t{record.study_id}\t{record.outcome}" for record in records),
+        },
+        json_output,
+    )
+
+
+@finding_app.command("show")
+def finding_show(finding_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "finding.show"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).finding(finding_id)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    emit({"ok": True, "action": action, "finding": record.model_dump(mode="json"), "text": record.model_dump_json(indent=2)}, json_output)
+
+
+@finding_app.command("update")
+def finding_update(
+    finding_id: str,
+    file: Path = typer.Option(..., "--file"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "finding.update"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).update_finding(
+            finding_id, load_json_object(file, action, json_output)
+        )
+    except (ValueError, DeweyError) as exc:
+        fail(action, getattr(exc, "code", "invalid_finding"), str(exc), getattr(exc, "exit_code", 2), json_output)
+    repo.append_log(action, finding_id=finding_id)
+    emit({"ok": True, "action": action, "finding": record.model_dump(mode="json"), "text": f"Updated {finding_id}"}, json_output)
+
+
+@finding_app.command("delete")
+def finding_delete(finding_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "finding.delete"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).delete_finding(finding_id)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    repo.append_log(action, finding_id=finding_id, study_id=record.study_id)
+    emit({"ok": True, "action": action, "finding_id": finding_id, "text": f"Deleted {finding_id}"}, json_output)
+
+
+@appraisal_app.command("template")
+def appraisal_template(
+    output: Path | None = typer.Option(None, "--output"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    emit_template(
+        "appraisal.template",
+        {
+            "framework": "Appraisal framework",
+            "framework_version": "1",
+            "dimensions": [
+                {
+                    "name": "internal validity",
+                    "judgment": "low, moderate, or high concern",
+                    "rationale": "Reason for judgment",
+                    "locators": [{"page": "1", "section": "Methods"}],
+                }
+            ],
+            "overall_judgment": "Overall confidence",
+            "applicability": "Applicability to the review question",
+            "reviewer": "Reviewer name or process",
+        },
+        output,
+        json_output,
+    )
+
+
+@appraisal_app.command("set")
+def appraisal_set(
+    study_id: str,
+    file: Path = typer.Option(..., "--file"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "appraisal.set"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).set_appraisal(load_json_object(file, action, json_output), study_id)
+    except (ValueError, DeweyError) as exc:
+        fail(action, getattr(exc, "code", "invalid_appraisal"), str(exc), getattr(exc, "exit_code", 2), json_output)
+    repo.append_log(action, appraisal_id=record.appraisal_id, study_id=study_id)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "appraisal": record.model_dump(mode="json"),
+            "text": f"Set appraisal for {study_id}: {record.overall_judgment}",
+        },
+        json_output,
+    )
+
+
+@appraisal_app.command("show")
+def appraisal_show(study_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "appraisal.show"
+    repo = load_repo(action, json_output)
+    record = EvidenceStore(repo.root).appraisal_for(study_id)
+    if record is None:
+        fail(action, "appraisal_not_found", f"No appraisal exists for {study_id}", 4, json_output)
+    emit({"ok": True, "action": action, "appraisal": record.model_dump(mode="json"), "text": record.model_dump_json(indent=2)}, json_output)
+
+
+@appraisal_app.command("list")
+def appraisal_list(json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "appraisal.list"
+    repo = load_repo(action, json_output)
+    records = EvidenceStore(repo.root).appraisals()
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "appraisals": [record.model_dump(mode="json") for record in records],
+            "text": "\n".join(
+                f"{record.study_id}\t{record.overall_judgment}\t{record.framework}" for record in records
+            ),
+        },
+        json_output,
+    )
+
+
+@appraisal_app.command("delete")
+def appraisal_delete(study_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "appraisal.delete"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).delete_appraisal(study_id)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    repo.append_log(action, appraisal_id=record.appraisal_id, study_id=study_id)
+    emit({"ok": True, "action": action, "study_id": study_id, "text": f"Deleted appraisal for {study_id}"}, json_output)
+
+
+@synthesis_app.command("coverage")
+def synthesis_coverage_command(json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "synthesis.coverage"
+    repo = load_repo(action, json_output)
+    coverage = synthesis_coverage(repo)
+    gaps = (
+        len(coverage["missing_study_sources"])
+        + len(coverage["missing_finding_studies"])
+        + len(coverage["missing_appraisal_studies"])
+    )
+    text = (
+        f"Included sources: {coverage['included_sources']} | represented: "
+        f"{coverage['represented_included_sources']} | studies: {coverage['studies']} | "
+        f"findings: {coverage['findings']} | appraisals: {coverage['appraisals']}\n"
+        f"Missing study records: {len(coverage['missing_study_sources'])} | "
+        f"studies without findings: {len(coverage['missing_finding_studies'])} | "
+        f"studies without appraisals: {len(coverage['missing_appraisal_studies'])}"
+    )
+    emit({"ok": gaps == 0, "action": action, "coverage": coverage, "text": text}, json_output)
+
+
+@theme_app.command("template")
+def theme_template(output: Path | None = typer.Option(None, "--output"), json_output: bool = typer.Option(False, "--json")) -> None:
+    emit_template(
+        "theme.template",
+        {"label": "Theme label", "description": "What this theme includes and excludes", "question_id": None},
+        output,
+        json_output,
+    )
+
+
+@theme_app.command("create")
+def theme_create(file: Path = typer.Option(..., "--file"), json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "theme.create"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).create_theme(load_json_object(file, action, json_output))
+    except (ValueError, DeweyError) as exc:
+        fail(action, getattr(exc, "code", "invalid_theme"), str(exc), getattr(exc, "exit_code", 2), json_output)
+    repo.append_log(action, theme_id=record.theme_id)
+    emit({"ok": True, "action": action, "theme": record.model_dump(mode="json"), "text": f"Created {record.theme_id}: {record.label}"}, json_output)
+
+
+@theme_app.command("list")
+def theme_list(json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "theme.list"
+    repo = load_repo(action, json_output)
+    records = EvidenceStore(repo.root).themes()
+    emit({"ok": True, "action": action, "themes": [item.model_dump(mode="json") for item in records], "text": "\n".join(f"{item.theme_id}\t{item.label}" for item in records)}, json_output)
+
+
+@theme_app.command("show")
+def theme_show(theme_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "theme.show"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).theme(theme_id)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    emit({"ok": True, "action": action, "theme": record.model_dump(mode="json"), "text": record.model_dump_json(indent=2)}, json_output)
+
+
+@theme_app.command("update")
+def theme_update(theme_id: str, file: Path = typer.Option(..., "--file"), json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "theme.update"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).update_theme(theme_id, load_json_object(file, action, json_output))
+    except (ValueError, DeweyError) as exc:
+        fail(action, getattr(exc, "code", "invalid_theme"), str(exc), getattr(exc, "exit_code", 2), json_output)
+    repo.append_log(action, theme_id=theme_id)
+    emit({"ok": True, "action": action, "theme": record.model_dump(mode="json"), "text": f"Updated {theme_id}"}, json_output)
+
+
+@theme_app.command("delete")
+def theme_delete(theme_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "theme.delete"
+    repo = load_repo(action, json_output)
+    try:
+        EvidenceStore(repo.root).delete_theme(theme_id)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    repo.append_log(action, theme_id=theme_id)
+    emit({"ok": True, "action": action, "theme_id": theme_id, "text": f"Deleted {theme_id}"}, json_output)
+
+
+@claim_app.command("template")
+def claim_template(output: Path | None = typer.Option(None, "--output"), json_output: bool = typer.Option(False, "--json")) -> None:
+    emit_template(
+        "claim.template",
+        {
+            "theme_ids": ["theme_id"],
+            "statement": "Bounded synthesis claim",
+            "scope": "Population, setting, intervention, and limits",
+            "evidence": [
+                {"finding_id": "finding_id", "relationship": "supports", "rationale": "Why this finding bears on the claim"}
+            ],
+            "confidence": "low, moderate, or high",
+            "confidence_rationale": "Evidence-weighted reason for confidence",
+            "status": "draft",
+        },
+        output,
+        json_output,
+    )
+
+
+@claim_app.command("create")
+def claim_create(file: Path = typer.Option(..., "--file"), json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "claim.create"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).create_claim(load_json_object(file, action, json_output))
+    except (ValueError, DeweyError) as exc:
+        fail(action, getattr(exc, "code", "invalid_claim"), str(exc), getattr(exc, "exit_code", 2), json_output)
+    repo.append_log(action, claim_id=record.claim_id, theme_ids=record.theme_ids)
+    emit({"ok": True, "action": action, "claim": record.model_dump(mode="json"), "text": f"Created {record.claim_id}: {record.statement}"}, json_output)
+
+
+@claim_app.command("list")
+def claim_list(theme_id: str | None = typer.Option(None, "--theme"), json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "claim.list"
+    repo = load_repo(action, json_output)
+    records = [item for item in EvidenceStore(repo.root).claims() if theme_id is None or theme_id in item.theme_ids]
+    emit({"ok": True, "action": action, "claims": [item.model_dump(mode="json") for item in records], "text": "\n".join(f"{item.claim_id}\t{item.confidence}\t{item.statement}" for item in records)}, json_output)
+
+
+@claim_app.command("show")
+def claim_show(claim_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "claim.show"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).claim(claim_id)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    emit({"ok": True, "action": action, "claim": record.model_dump(mode="json"), "text": record.model_dump_json(indent=2)}, json_output)
+
+
+@claim_app.command("update")
+def claim_update(claim_id: str, file: Path = typer.Option(..., "--file"), json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "claim.update"
+    repo = load_repo(action, json_output)
+    try:
+        record = EvidenceStore(repo.root).update_claim(claim_id, load_json_object(file, action, json_output))
+    except (ValueError, DeweyError) as exc:
+        fail(action, getattr(exc, "code", "invalid_claim"), str(exc), getattr(exc, "exit_code", 2), json_output)
+    repo.append_log(action, claim_id=claim_id)
+    emit({"ok": True, "action": action, "claim": record.model_dump(mode="json"), "text": f"Updated {claim_id}"}, json_output)
+
+
+@claim_app.command("delete")
+def claim_delete(claim_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "claim.delete"
+    repo = load_repo(action, json_output)
+    try:
+        EvidenceStore(repo.root).delete_claim(claim_id)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    repo.append_log(action, claim_id=claim_id)
+    emit({"ok": True, "action": action, "claim_id": claim_id, "text": f"Deleted {claim_id}"}, json_output)
+
+
+@claim_app.command("audit")
+def claim_audit(json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "claim.audit"
+    repo = load_repo(action, json_output)
+    coverage = synthesis_coverage(repo)
+    claims = EvidenceStore(repo.root).claims()
+    issues: list[dict[str, Any]] = []
+    for claim in claims:
+        relationships = {link.relationship for link in claim.evidence}
+        if "contradicts" not in relationships and "qualifies" not in relationships:
+            issues.append({"code": "unqualified_claim", "claim_id": claim.claim_id})
+    for finding_id in coverage["unused_findings"]:
+        issues.append({"code": "unused_finding", "finding_id": finding_id})
+    for theme_id in coverage["themes_without_claims"]:
+        issues.append({"code": "theme_without_claims", "theme_id": theme_id})
+    emit({"ok": not issues, "action": action, "issues": issues, "text": f"Claim audit found {len(issues)} issue(s)"}, json_output)
+
+
+def report_readiness_issues(repo: DeweyRepo) -> list[dict[str, Any]]:
+    store = EvidenceStore(repo.root)
+    coverage = synthesis_coverage(repo)
+    issues: list[dict[str, Any]] = []
+    for source_id in coverage["missing_study_sources"]:
+        issues.append({"code": "included_source_without_study", "source_id": source_id})
+    for study_id in coverage["missing_finding_studies"]:
+        issues.append({"code": "study_without_findings", "study_id": study_id})
+    for study_id in coverage["missing_appraisal_studies"]:
+        issues.append({"code": "study_without_appraisal", "study_id": study_id})
+    for finding_id in coverage["unused_findings"]:
+        issues.append({"code": "unused_finding", "finding_id": finding_id})
+    for theme_id in coverage["themes_without_claims"]:
+        issues.append({"code": "theme_without_claims", "theme_id": theme_id})
+    for claim in store.claims():
+        if claim.status != "reviewed":
+            issues.append({"code": "draft_claim", "claim_id": claim.claim_id})
+        relationships = {link.relationship for link in claim.evidence}
+        if "contradicts" not in relationships and "qualifies" not in relationships:
+            issues.append({"code": "unqualified_claim", "claim_id": claim.claim_id})
+    return issues
+
+
+def report_context_bundle(repo: DeweyRepo) -> dict[str, Any]:
+    store = EvidenceStore(repo.root)
+    config = repo.load_config()
+    studies = {item.study_id: item for item in store.studies()}
+    findings = {item.finding_id: item for item in store.findings()}
+    appraisals = {item.study_id: item for item in store.appraisals()}
+    claims = store.claims()
+    source_ids = sorted({source_id for study in studies.values() for source_id in study.source_ids})
+    sources: dict[str, dict[str, Any]] = {}
+    for source_id in source_ids:
+        entry = repo.load_entry(source_id)
+        state = repo.load_state(source_id)
+        sources[source_id] = {
+            "source_id": source_id,
+            "bibtex_key": entry.key,
+            "title": entry.title(),
+            "author": entry.fields.get("author"),
+            "year": entry.year(),
+            "doi": entry.fields.get("doi"),
+            "url": entry.fields.get("url"),
+            "status": state.status.value,
+        }
+
+    expanded_claims: dict[str, dict[str, Any]] = {}
+    for claim in claims:
+        evidence: list[dict[str, Any]] = []
+        for link in claim.evidence:
+            finding = findings[link.finding_id]
+            study = studies[finding.study_id]
+            appraisal = appraisals.get(study.study_id)
+            evidence.append(
+                {
+                    "relationship": link.relationship,
+                    "rationale": link.rationale,
+                    "finding": finding.model_dump(mode="json"),
+                    "study": study.model_dump(mode="json"),
+                    "appraisal": appraisal.model_dump(mode="json") if appraisal else None,
+                    "sources": [sources[source_id] for source_id in study.source_ids],
+                }
+            )
+        expanded_claims[claim.claim_id] = {**claim.model_dump(mode="json"), "evidence": evidence}
+
+    themes = []
+    for theme in store.themes():
+        themes.append(
+            {
+                **theme.model_dump(mode="json"),
+                "claim_ids": [claim.claim_id for claim in claims if theme.theme_id in claim.theme_ids],
+            }
+        )
+    issues = report_readiness_issues(repo)
+    article = store.article_spec()
+    return {
+        "schema_version": "1",
+        "generated_at": utc_now(),
+        "review": {"topic": config.topic, "research_question": config.research_question},
+        "readiness": {"ready": not issues, "issues": issues},
+        "coverage": synthesis_coverage(repo),
+        "writing_instructions": [
+            "Organize the report by themes and claims, not by paper.",
+            "Treat claim statements as bounded synthesis propositions, not immutable conclusions.",
+            "Weight evidence using appraisal and applicability; do not count findings as equal votes.",
+            "Represent supporting, contradicting, and qualifying evidence fairly.",
+            "Preserve source locators for every substantive empirical statement.",
+            "Do not infer that unused or unavailable evidence is negative evidence.",
+        ],
+        "themes": themes,
+        "claims": [expanded_claims[claim.claim_id] for claim in claims],
+        "sources": list(sources.values()),
+        "article": article.model_dump(mode="json") if article else None,
+    }
+
+
+def validate_article_references(repo: DeweyRepo, payload: dict[str, Any]) -> None:
+    store = EvidenceStore(repo.root)
+    source_ids = set(repo.list_source_ids())
+    theme_ids = {item.theme_id for item in store.themes()}
+    claim_ids = {item.claim_id for item in store.claims()}
+    referenced_sources = {
+        source_id
+        for group in payload.get("literatures", [])
+        for source_id in group.get("source_ids", [])
+    }
+    referenced_sources.update(
+        source_id for item in payload.get("timeline", []) for source_id in item.get("source_ids", [])
+    )
+    referenced_sources.update(item.get("source_id") for item in payload.get("source_positions", []))
+    referenced_themes = {
+        theme_id for section in payload.get("sections", []) for theme_id in section.get("theme_ids", [])
+    }
+    referenced_claims = {
+        claim_id for section in payload.get("sections", []) for claim_id in section.get("claim_ids", [])
+    }
+    referenced_claims.update(
+        claim_id for item in payload.get("source_positions", []) for claim_id in item.get("claim_ids", [])
+    )
+    missing = {
+        "sources": sorted(referenced_sources - source_ids),
+        "themes": sorted(referenced_themes - theme_ids),
+        "claims": sorted(referenced_claims - claim_ids),
+    }
+    if any(missing.values()):
+        raise DeweyError("invalid_article_references", f"Unknown article references: {json.dumps(missing)}", exit_code=2)
+
+
+def render_report_markdown(bundle: dict[str, Any]) -> str:
+    review = bundle["review"]
+    lines = [
+        f"# {review['topic'] or 'Literature review'}",
+        "",
+        f"**Research question:** {review['research_question'] or 'Not specified'}",
+        "",
+        "## Evidence status",
+        "",
+        f"Report-ready: **{'yes' if bundle['readiness']['ready'] else 'no'}**  ",
+        f"Studies: {bundle['coverage']['studies']} · Findings: {bundle['coverage']['findings']} · "
+        f"Appraisals: {bundle['coverage']['appraisals']} · Claims: {bundle['coverage']['claims']}",
+        "",
+        "## Drafting instructions",
+        "",
+    ]
+    lines.extend(f"- {item}" for item in bundle["writing_instructions"])
+    claims = {claim["claim_id"]: claim for claim in bundle["claims"]}
+    rendered_claim_ids: set[str] = set()
+    for theme in bundle["themes"]:
+        lines.extend(["", f"## {theme['label']}", "", theme["description"]])
+        for claim_id in theme["claim_ids"]:
+            if claim_id in rendered_claim_ids:
+                lines.extend(["", f"_Cross-theme claim: see `{claim_id}` above._"])
+                continue
+            rendered_claim_ids.add(claim_id)
+            claim = claims[claim_id]
+            lines.extend(
+                [
+                    "",
+                    f"### Claim: {claim['statement']}",
+                    "",
+                    f"- **Scope:** {claim['scope']}",
+                    f"- **Confidence:** {claim['confidence']}",
+                    f"- **Rationale:** {claim['confidence_rationale']}",
+                    "",
+                    "| Relationship | Study | Finding | Locator | Appraisal |",
+                    "|---|---|---|---|---|",
+                ]
+            )
+            for item in claim["evidence"]:
+                finding = item["finding"]
+                study = item["study"]
+                locators = "; ".join(
+                    ", ".join(f"{key}: {value}" for key, value in locator.items() if value)
+                    for locator in finding["locators"]
+                )
+                appraisal = item["appraisal"]["overall_judgment"] if item["appraisal"] else "not appraised"
+                values = [item["relationship"], study["label"], finding["evidence_statement"], locators, appraisal]
+                lines.append("| " + " | ".join(str(value).replace("|", "\\|") for value in values) + " |")
+    lines.extend(["", "## Reporting gaps", ""])
+    if bundle["readiness"]["issues"]:
+        lines.extend(f"- `{item['code']}`: {json.dumps(item, ensure_ascii=False)}" for item in bundle["readiness"]["issues"])
+    else:
+        lines.append("- No structural reporting gaps detected.")
+    lines.extend(["", "## Sources", ""])
+    for source in bundle["sources"]:
+        citation = ", ".join(str(value) for value in (source["author"], source["year"], source["title"]) if value)
+        lines.append(f"- `{source['source_id']}` — {citation}")
+    return "\n".join(lines) + "\n"
+
+
+@report_app.command("context")
+def report_context(
+    output: Path | None = typer.Option(None, "--output"),
+    format: str = typer.Option("json", "--format"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "report.context"
+    repo = load_repo(action, json_output)
+    bundle = report_context_bundle(repo)
+    if format == "json":
+        rendered = json.dumps(bundle, indent=2, ensure_ascii=False) + "\n"
+    elif format == "markdown":
+        rendered = render_report_markdown(bundle)
+    else:
+        fail(action, "invalid_format", "--format must be json or markdown", 2, json_output)
+    if output:
+        atomic_write_text(output, rendered)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "bundle": bundle,
+            "output": str(output) if output else None,
+            "format": format,
+            "text": f"Wrote report context to {output}" if output else rendered.rstrip(),
+        },
+        json_output,
+    )
+
+
+@report_app.command("audit")
+def report_audit(json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "report.audit"
+    repo = load_repo(action, json_output)
+    issues = report_readiness_issues(repo)
+    emit({"ok": not issues, "action": action, "issues": issues, "text": f"Report audit found {len(issues)} issue(s)"}, json_output)
+
+
+@report_app.command("article-template")
+def report_article_template(
+    output: Path = typer.Option(Path("article.json"), "--output"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "report.article-template"
+    payload = {
+        "title": "Article title",
+        "subtitle": None,
+        "audience": "Economists and adjacent social scientists",
+        "genre": "economics literature review",
+        "abstract": "One-paragraph statement of the question, synthesis, and contribution.",
+        "keywords": ["keyword"],
+        "jel_codes": ["C83"],
+        "motivation": ["Why the topic matters before discussing individual studies."],
+        "field_context": ["The established tradeoff or intellectual problem that organizes the field."],
+        "central_question": "What does this literature establish, and what remains unresolved?",
+        "thesis": "The review's bounded answer to the central question.",
+        "contribution": ["How this review reorganizes or connects existing literatures."],
+        "scope_includes": ["Included populations, technologies, outcomes, or periods."],
+        "scope_excludes": ["Adjacent evidence outside the review's inferential scope."],
+        "literatures": [{"stream_id": "stream_1", "label": "Literature stream", "description": "Its question and methods.", "source_ids": ["src_id"], "relationship_to_review": "How it contributes to the article's argument."}],
+        "source_positions": [{"source_id": "src_id", "role": "foundational", "contribution": "What this study adds.", "claim_ids": ["claim_id"], "caveat": "What it cannot establish."}],
+        "timeline": [{"year": 2020, "label": "Intellectual or empirical development", "significance": "Why this changes the field.", "source_ids": ["src_id"]}],
+        "sections": [{"heading": "Introduction", "purpose": "Motivate the problem, state the thesis, and preview the argument.", "theme_ids": [], "claim_ids": []}],
+        "conclusion": ["The main implication and research agenda."],
+    }
+    atomic_write_text(output, json.dumps(payload, indent=2) + "\n")
+    emit({"ok": True, "action": action, "output": str(output), "text": f"Wrote article template to {output}"}, json_output)
+
+
+@report_app.command("article-set")
+def report_article_set(
+    file: Path = typer.Option(..., "--file"), json_output: bool = typer.Option(False, "--json")
+) -> None:
+    action = "report.article-set"
+    repo = load_repo(action, json_output)
+    payload = load_json_object(file, action, json_output)
+    try:
+        validate_article_references(repo, payload)
+        record = EvidenceStore(repo.root).set_article_spec(payload)
+    except (ValueError, DeweyError) as exc:
+        fail(action, getattr(exc, "code", "invalid_article_spec"), str(exc), getattr(exc, "exit_code", 2), json_output)
+    repo.append_log(action, title=record.title)
+    emit({"ok": True, "action": action, "article": record.model_dump(mode="json"), "text": f"Set article specification: {record.title}"}, json_output)
+
+
+@report_app.command("article-show")
+def report_article_show(json_output: bool = typer.Option(False, "--json")) -> None:
+    action = "report.article-show"
+    repo = load_repo(action, json_output)
+    record = EvidenceStore(repo.root).article_spec()
+    if record is None:
+        fail(action, "article_spec_not_found", "No article specification exists; run report article-template and article-set", 4, json_output)
+    emit({"ok": True, "action": action, "article": record.model_dump(mode="json"), "text": json.dumps(record.model_dump(mode="json"), indent=2)}, json_output)
+
+
+@report_app.command("brief")
+def report_brief(
+    output: Path = typer.Option(Path("article-brief.md"), "--output"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "report.brief"
+    repo = load_repo(action, json_output)
+    spec = EvidenceStore(repo.root).article_spec()
+    if spec is None:
+        fail(action, "article_spec_not_found", "No article specification exists; run report article-template and article-set", 4, json_output)
+    rendered = article_brief(spec, report_context_bundle(repo))
+    atomic_write_text(output, rendered)
+    emit({"ok": True, "action": action, "output": str(output), "text": f"Wrote article brief to {output}"}, json_output)
+
+
+@report_app.command("render")
+def report_render(
+    markdown: Path,
+    output: Path = typer.Option(..., "--output"),
+    css: Path | None = typer.Option(None, "--css"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "report.render"
+    load_repo(action, json_output)
+    if not markdown.exists():
+        fail(action, "file_not_found", f"No file exists at {markdown}", 4, json_output)
+    try:
+        render_with_pandoc(markdown, output, css)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    emit({"ok": True, "action": action, "input": str(markdown), "output": str(output), "text": f"Rendered {output} from {markdown}"}, json_output)
+
+
+def evidence_matrix_rows(repo: DeweyRepo) -> list[dict[str, Any]]:
+    store = EvidenceStore(repo.root)
+    studies = {item.study_id: item for item in store.studies()}
+    appraisals = {item.study_id: item for item in store.appraisals()}
+    rows: list[dict[str, Any]] = []
+    for finding in store.findings():
+        study = studies.get(finding.study_id)
+        if study is None:
+            continue
+        appraisal = appraisals.get(study.study_id)
+        rows.append(
+            {
+                "study_id": study.study_id,
+                "finding_id": finding.finding_id,
+                "source_ids": study.source_ids,
+                "study": study.label,
+                "design": study.design,
+                "population": finding.population or study.population,
+                "sample_size": study.sample_size,
+                "setting": study.setting,
+                "intervention": study.intervention,
+                "comparator": study.comparator,
+                "outcome": finding.outcome,
+                "direction": finding.direction,
+                "measure": finding.measure,
+                "author_claim": finding.author_claim,
+                "evidence_statement": finding.evidence_statement,
+                "reviewer_interpretation": finding.reviewer_interpretation,
+                "certainty": finding.certainty,
+                "locators": [item.model_dump(mode="json", exclude_none=True) for item in finding.locators],
+                "appraisal_framework": appraisal.framework if appraisal else None,
+                "overall_judgment": appraisal.overall_judgment if appraisal else None,
+                "applicability": appraisal.applicability if appraisal else None,
+            }
+        )
+    return rows
+
+
+@matrix_app.command("evidence")
+def matrix_evidence(
+    output: Path | None = typer.Option(None, "--output"),
+    format: str = typer.Option("json", "--format"),
+    study_id: str | None = typer.Option(None, "--study"),
+    source_id: str | None = typer.Option(None, "--source"),
+    outcome: str | None = typer.Option(None, "--outcome"),
+    design: str | None = typer.Option(None, "--design"),
+    judgment: str | None = typer.Option(None, "--judgment"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    action = "matrix.evidence"
+    repo = load_repo(action, json_output)
+    rows = evidence_matrix_rows(repo)
+    if study_id:
+        rows = [row for row in rows if row["study_id"] == study_id]
+    if source_id:
+        rows = [row for row in rows if source_id in row["source_ids"]]
+    if outcome:
+        rows = [row for row in rows if outcome.lower() in row["outcome"].lower()]
+    if design:
+        rows = [row for row in rows if design.lower() in row["design"].lower()]
+    if judgment:
+        rows = [
+            row
+            for row in rows
+            if row["overall_judgment"] and judgment.lower() in row["overall_judgment"].lower()
+        ]
+    if format not in {"json", "csv", "markdown"}:
+        fail(action, "invalid_format", "--format must be json, csv, or markdown", 2, json_output)
+    if format == "json":
+        rendered = json.dumps(rows, indent=2) + "\n"
+    elif format == "csv":
+        buffer = io.StringIO()
+        fieldnames = list(rows[0]) if rows else ["study_id", "finding_id"]
+        writer = csv.DictWriter(buffer, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(
+                {
+                    key: json.dumps(value, ensure_ascii=False) if isinstance(value, (list, dict)) else value
+                    for key, value in row.items()
+                }
+            )
+        rendered = buffer.getvalue()
+    else:
+        fields = ("study", "outcome", "direction", "certainty", "overall_judgment")
+        rendered = "| " + " | ".join(fields) + " |\n"
+        rendered += "| " + " | ".join("---" for _ in fields) + " |\n"
+        for row in rows:
+            rendered += "| " + " | ".join(str(row[field] or "").replace("|", "\\|") for field in fields) + " |\n"
+    if output:
+        atomic_write_text(output, rendered)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "rows": rows,
+            "output": str(output) if output else None,
+            "format": format,
+            "text": f"Wrote {len(rows)} evidence row(s) to {output}" if output else rendered.rstrip(),
+        },
+        json_output,
+    )
 
 
 def main() -> None:

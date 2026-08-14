@@ -1,0 +1,21 @@
+{
+  "label": "Barari et al. four-module conversational survey experiment",
+  "design": "three-arm randomized web-survey experiment with four embedded question modules",
+  "population": "U.S. adults recruited from a proprietary non-probability panel and quota-sampled on age, gender, and education",
+  "sample_size": 1998,
+  "setting": "Inca web conversational survey, fielded July 15-17, 2024",
+  "intervention": "LLM-generated confirmation probes or elaboration/relevance probes, with live zero-shot coding",
+  "comparator": "standardized questions without probes",
+  "methods": [
+    "participant-level random assignment to three conditions",
+    "four question-level experiments on national issues, economic conditions, news sources, and occupation",
+    "OLS estimates with and without covariates and BHq-adjusted confidence intervals",
+    "blind human coding of response-quality criteria"
+  ],
+  "measures": [
+    "live-coding accuracy, precision, and recall",
+    "specificity, explanation, relevance, completeness, comprehensibility, and concision",
+    "word count, lexical diversity, Shannon entropy, and KL divergence",
+    "attrition, duration, ease, frustration, satisfaction, and perceived quality"
+  ]
+}

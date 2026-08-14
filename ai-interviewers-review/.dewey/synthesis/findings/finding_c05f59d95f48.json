@@ -1,0 +1,29 @@
+{
+  "finding_id": "finding_c05f59d95f48",
+  "study_id": "study_43f7aee20aee",
+  "question_id": null,
+  "author_claim": "Elaboration and relevance probes improved some dimensions of response quality but not others.",
+  "evidence_statement": "Probing increased specificity and explanation for the two opinion questions and increased word count and Shannon entropy, but did not improve completeness, relevance, lexical diversity, or KL divergence consistently.",
+  "reviewer_interpretation": "The experiment supports a selective enrichment effect\u2014more detail and explanation\u2014not a general improvement in informational novelty or every quality dimension.",
+  "outcome": "open-ended response quality",
+  "direction": "mixed positive",
+  "population": null,
+  "conditions": [
+    "elaboration/relevance probing versus no probes",
+    "four question modules"
+  ],
+  "measure": "blind qualitative coding and textual information measures",
+  "timepoint": null,
+  "certainty": "moderate",
+  "locators": [
+    {
+      "page": "16-18",
+      "section": "5.3 Effects of Elaboration and Relevance Probing",
+      "table": null,
+      "figure": "Figures 2-3",
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T02:04:21Z",
+  "updated_at": "2026-08-14T02:04:21Z"
+}

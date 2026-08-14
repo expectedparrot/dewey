@@ -1,3 +1,46 @@
 {
-  "outgoing": []
+  "outgoing": [
+    {
+      "target": "src_f8a555b7b104",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:18Z"
+    },
+    {
+      "target": "src_2b7c8decaed6",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:18Z"
+    },
+    {
+      "target": "src_7996bad9a2b0",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:18Z"
+    },
+    {
+      "target": "src_7caf049a4f79",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:19Z"
+    },
+    {
+      "target": "src_c2945b90f91f",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:19Z"
+    },
+    {
+      "target": "src_e177acfe952e",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:19Z"
+    },
+    {
+      "target": "src_a0684e69b7b0",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:19Z"
+    }
+  ]
 }

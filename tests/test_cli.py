@@ -650,6 +650,8 @@ Body.
         payload = json.loads(result.stdout)
         self.assertEqual(payload["sources"], 1)
         explorer = (self.root / "report" / "explorer.html").read_text(encoding="utf-8")
+        self.assertIn("new URLSearchParams(location.hash.slice(1))", explorer)
+        self.assertIn("sourceLink", explorer)
         self.assertIn("AI Interview Explorer", explorer)
         self.assertIn("Interview Evidence", explorer)
         self.assertIn("Candidate Study", explorer)
@@ -703,11 +705,230 @@ Body.
         from dewey.html_export import citation_label
 
         self.assertEqual(citation_label("Horton, John", "2026"), "Horton (2026)")
+        self.assertEqual(citation_label("", "", "A Useful Unresolved Citation"), "A Useful Unresolved Citation")
         self.assertEqual(citation_label("Horton, John and Smith, Ada", "2026"), "Horton & Smith (2026)")
         self.assertEqual(
             citation_label("Horton, John and Smith, Ada and Jones, Lin", "2026"),
             "Horton et al. (2026)",
         )
+
+    def test_study_finding_appraisal_matrix_and_next_workflow(self) -> None:
+        self.init_repo()
+        self.invoke(["topic", "set", "--topic", "AI interviews", "--question", "What improves disclosure?"])
+        source_id = self.add_bib_source(
+            "study.bib", "@article{study2026, title={Interview Study}, author={Smith, A.}, year={2026}}\n"
+        )
+        self.invoke(["summary", "set", source_id, "--text", "A randomized interview experiment."])
+        self.invoke(["state", "set", source_id, "included"])
+        self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "extract")
+
+        study_file = self.write_file(
+            "study.json",
+            json.dumps(
+                {
+                    "label": "Disclosure experiment",
+                    "design": "randomized experiment",
+                    "population": "online adults",
+                    "sample_size": 120,
+                    "intervention": "AI interviewer",
+                    "comparator": "human interviewer framing",
+                    "methods": ["between-subject randomization"],
+                    "measures": ["disclosure score"],
+                }
+            ),
+        )
+        result = self.invoke(["study", "create", source_id, "--file", str(study_file), "--json"])
+        self.assertEqual(result.exit_code, 0)
+        study_id = json.loads(result.stdout)["study"]["study_id"]
+        self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "extract")
+
+        invalid_finding = self.write_file(
+            "invalid-finding.json",
+            json.dumps(
+                {
+                    "author_claim": "Disclosure increased.",
+                    "evidence_statement": "The treatment mean was higher.",
+                    "reviewer_interpretation": "Suggestive experimental evidence.",
+                    "outcome": "disclosure",
+                    "locators": [],
+                }
+            ),
+        )
+        self.assertEqual(
+            self.invoke(["finding", "add", study_id, "--file", str(invalid_finding)]).exit_code,
+            2,
+        )
+        finding_file = self.write_file(
+            "finding.json",
+            json.dumps(
+                {
+                    "author_claim": "Disclosure increased.",
+                    "evidence_statement": "The treatment mean was higher.",
+                    "reviewer_interpretation": "Suggestive experimental evidence.",
+                    "outcome": "disclosure",
+                    "direction": "positive",
+                    "certainty": "moderate",
+                    "locators": [{"page": "7", "table": "2"}],
+                }
+            ),
+        )
+        result = self.invoke(["finding", "add", study_id, "--file", str(finding_file), "--json"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "appraise")
+
+        appraisal_file = self.write_file(
+            "appraisal.json",
+            json.dumps(
+                {
+                    "framework": "review-specific risk of bias",
+                    "dimensions": [
+                        {
+                            "name": "internal validity",
+                            "judgment": "low concern",
+                            "rationale": "Random assignment was reported.",
+                            "locators": [{"page": "4"}],
+                        }
+                    ],
+                    "overall_judgment": "moderate confidence",
+                    "applicability": "Directly applicable to AI-mediated interviews.",
+                    "reviewer": "test reviewer",
+                }
+            ),
+        )
+        result = self.invoke(["appraisal", "set", study_id, "--file", str(appraisal_file), "--json"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "synthesize")
+
+        result = self.invoke(["matrix", "evidence", "--format", "csv", "--output", "matrix.csv", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(len(json.loads(result.stdout)["rows"]), 1)
+        matrix = (self.root / "matrix.csv").read_text(encoding="utf-8")
+        self.assertIn("author_claim,evidence_statement,reviewer_interpretation", matrix)
+        self.assertIn("Disclosure increased.", matrix)
+        self.assertEqual(self.invoke(["doctor", "--json"]).exit_code, 0)
+
+        coverage = json.loads(self.invoke(["synthesis", "coverage", "--json"]).stdout)
+        self.assertTrue(coverage["ok"])
+        self.assertEqual(coverage["coverage"]["represented_included_sources"], 1)
+
+        update = self.write_file("study-update.json", json.dumps({"sample_size": 125, "setting": "updated setting"}))
+        result = self.invoke(["study", "update", study_id, "--file", str(update), "--json"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(json.loads(result.stdout)["study"]["sample_size"], 125)
+
+        finding_id = json.loads(
+            self.invoke(["finding", "list", "--study", study_id, "--json"]).stdout
+        )["findings"][0]["finding_id"]
+        finding_update = self.write_file(
+            "finding-update.json", json.dumps({"reviewer_interpretation": "Updated interpretation."})
+        )
+        result = self.invoke(["finding", "update", finding_id, "--file", str(finding_update), "--json"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(json.loads(result.stdout)["finding"]["reviewer_interpretation"], "Updated interpretation.")
+
+        result = self.invoke(["matrix", "evidence", "--outcome", "disclosure", "--format", "markdown"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("| study | outcome | direction |", result.stdout)
+        self.assertEqual(len(json.loads(self.invoke(["appraisal", "list", "--json"]).stdout)["appraisals"]), 1)
+
+        theme_file = self.write_file(
+            "theme.json", json.dumps({"label": "Disclosure", "description": "Evidence about disclosure outcomes."})
+        )
+        theme = json.loads(self.invoke(["theme", "create", "--file", str(theme_file), "--json"]).stdout)["theme"]
+        claim_file = self.write_file(
+            "claim.json",
+            json.dumps(
+                {
+                    "theme_ids": [theme["theme_id"]],
+                    "statement": "AI framing may increase disclosure.",
+                    "scope": "Short online interviews.",
+                    "evidence": [
+                        {"finding_id": finding_id, "relationship": "supports", "rationale": "Direct experiment."}
+                    ],
+                    "confidence": "moderate",
+                    "confidence_rationale": "One randomized study.",
+                }
+            ),
+        )
+        claim = json.loads(self.invoke(["claim", "create", "--file", str(claim_file), "--json"]).stdout)["claim"]
+        self.assertEqual(len(json.loads(self.invoke(["claim", "list", "--theme", theme["theme_id"], "--json"]).stdout)["claims"]), 1)
+        audit = json.loads(self.invoke(["claim", "audit", "--json"]).stdout)
+        self.assertEqual(audit["issues"], [{"code": "unqualified_claim", "claim_id": claim["claim_id"]}])
+        report = json.loads(self.invoke(["report", "context", "--json"]).stdout)
+        self.assertEqual(report["bundle"]["review"]["topic"], "AI interviews")
+        self.assertEqual(report["bundle"]["themes"][0]["claim_ids"], [claim["claim_id"]])
+        self.assertEqual(report["bundle"]["claims"][0]["evidence"][0]["finding"]["finding_id"], finding_id)
+        self.assertFalse(report["bundle"]["readiness"]["ready"])
+        result = self.invoke(
+            ["report", "context", "--format", "markdown", "--output", "report-context.md", "--json"]
+        )
+        self.assertEqual(result.exit_code, 0)
+        scaffold = (self.root / "report-context.md").read_text(encoding="utf-8")
+        self.assertIn("### Claim: AI framing may increase disclosure.", scaffold)
+        self.assertIn("| Relationship | Study | Finding | Locator | Appraisal |", scaffold)
+        self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "position")
+        article_file = self.write_file(
+            "article.json",
+            json.dumps(
+                {
+                    "title": "Interviewing at Scale",
+                    "audience": "Economists",
+                    "abstract": "A synthesis of the evidence.",
+                    "motivation": ["Adaptive interviews are costly."],
+                    "field_context": ["Interviewing trades standardization against depth."],
+                    "central_question": "When does automation improve interview evidence?",
+                    "thesis": "Automation changes costs but does not ensure validity.",
+                    "contribution": ["Connects design choices to measurement."],
+                    "scope_includes": ["Automated research interviews."],
+                    "scope_excludes": ["Customer service."],
+                    "literatures": [{"stream_id": "disclosure", "label": "Disclosure", "description": "Evaluation apprehension.", "source_ids": [source_id], "relationship_to_review": "Supplies a mechanism."}],
+                    "source_positions": [{"source_id": source_id, "role": "foundational", "contribution": "Identifies the mechanism.", "claim_ids": [claim["claim_id"]], "caveat": "One setting."}],
+                    "timeline": [{"year": 2024, "label": "Experimental test", "significance": "Tests the mechanism.", "source_ids": [source_id]}],
+                    "sections": [{"heading": "Disclosure", "purpose": "Synthesize the mechanism.", "theme_ids": [theme["theme_id"]], "claim_ids": [claim["claim_id"]]}],
+                    "conclusion": ["Validate against independent criteria."],
+                }
+            ),
+        )
+        result = self.invoke(["report", "article-set", "--file", str(article_file), "--json"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(json.loads(result.stdout)["article"]["title"], "Interviewing at Scale")
+        result = self.invoke(["report", "brief", "--output", ".dewey/synthesis/article-brief.md", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        brief = (self.root / ".dewey/synthesis/article-brief.md").read_text(encoding="utf-8")
+        self.assertIn("## Study map", brief)
+        self.assertIn("## Timeline", brief)
+        self.assertIn("Automation changes costs but does not ensure validity.", brief)
+        guarded_theme = self.invoke(["theme", "delete", theme["theme_id"], "--json"])
+        self.assertEqual(json.loads(guarded_theme.stdout)["error"]["code"], "theme_has_claims")
+        self.assertEqual(self.invoke(["claim", "delete", claim["claim_id"]]).exit_code, 0)
+        self.assertEqual(self.invoke(["theme", "delete", theme["theme_id"]]).exit_code, 0)
+
+        guarded = self.invoke(["study", "delete", study_id, "--json"])
+        self.assertEqual(guarded.exit_code, 2)
+        self.assertEqual(json.loads(guarded.stdout)["error"]["code"], "study_has_evidence")
+        deleted = self.invoke(["study", "delete", study_id, "--cascade", "--json"])
+        self.assertEqual(deleted.exit_code, 0)
+        self.assertEqual(json.loads(deleted.stdout)["deleted"], {"studies": 1, "findings": 1, "appraisals": 1})
+
+    def test_evidence_templates_are_writable_json(self) -> None:
+        self.init_repo()
+        for group in ("study", "finding", "appraisal", "theme", "claim"):
+            output = f"templates/{group}.json"
+            result = self.invoke([group, "template", "--output", output, "--json"])
+            self.assertEqual(result.exit_code, 0)
+            payload = json.loads((self.root / output).read_text(encoding="utf-8"))
+            self.assertIsInstance(payload, dict)
+        result = self.invoke(["report", "article-template", "--output", "templates/article.json", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("source_positions", json.loads((self.root / "templates/article.json").read_text()))
+
+    def test_report_render_is_markdown_first(self) -> None:
+        self.init_repo()
+        markdown = self.write_file("article.md", "# Article\n\nSubstantive prose.\n")
+        with patch("dewey.cli.render_with_pandoc") as render:
+            result = self.invoke(["report", "render", str(markdown), "--output", "article.html", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        render.assert_called_once_with(markdown, Path("article.html"), None)
 
 
 if __name__ == "__main__":

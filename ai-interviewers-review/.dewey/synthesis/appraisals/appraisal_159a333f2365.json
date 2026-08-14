@@ -1,0 +1,55 @@
+{
+  "appraisal_id": "appraisal_159a333f2365",
+  "study_id": "study_050d438c230f",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "internal validity",
+      "judgment": "low-to-moderate concern",
+      "rationale": "Children were randomly assigned and answers were reliability-coded, but scheduling mechanics implemented assignment and human assistants delivered LLM questions.",
+      "locators": [
+        {
+          "page": "6-8",
+          "section": "Participants and Procedure",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "measurement validity",
+      "judgment": "low concern",
+      "rationale": "Mock-event videos provide externally knowable correct and false details.",
+      "locators": [
+        {
+          "page": "8-10",
+          "section": "Coding",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "external validity",
+      "judgment": "high concern",
+      "rationale": "Young Mandarin-speaking children, naive human comparators, and a forensic mock-event constrain generalization.",
+      "locators": [
+        {
+          "page": "15-17",
+          "section": "Limitations",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "moderate confidence",
+  "applicability": "Strong evidence about question formulation and objective recall; indirect for autonomous adult qualitative interviewing.",
+  "reviewer": "Dewey structured extraction",
+  "created_at": "2026-08-14T09:54:23Z",
+  "updated_at": "2026-08-14T09:54:23Z"
+}

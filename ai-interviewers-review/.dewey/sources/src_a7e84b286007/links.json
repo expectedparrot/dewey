@@ -1,3 +1,16 @@
 {
-  "outgoing": []
+  "outgoing": [
+    {
+      "target": "src_ce54284fde6a",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:13Z"
+    },
+    {
+      "target": "src_af67c544634d",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:13Z"
+    }
+  ]
 }

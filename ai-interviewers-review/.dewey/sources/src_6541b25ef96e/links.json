@@ -23,6 +23,30 @@
       "type": "cites",
       "note": "Resolved from bibliography",
       "created_at": "2026-08-12T12:15:07Z"
+    },
+    {
+      "target": "src_9eefd27c9a05",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:11Z"
+    },
+    {
+      "target": "src_5a146ea15a70",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:11Z"
+    },
+    {
+      "target": "src_7b09034590da",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:11Z"
+    },
+    {
+      "target": "src_ec1f9053688e",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:12Z"
     }
   ]
 }

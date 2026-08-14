@@ -1,0 +1,28 @@
+{
+  "finding_id": "finding_4de562b0429d",
+  "study_id": "study_050d438c230f",
+  "question_id": null,
+  "author_claim": "LLM-formulated interviews elicited information more efficiently and with less false information than naive human interviewers.",
+  "evidence_statement": "LLM interviews elicited similar unique correct details (8.50 vs 7.50, p=.290), more unique correct information per question (0.90 vs 0.46, p<.001), and less false information overall, while asking 471 questions versus 872 in the human condition.",
+  "reviewer_interpretation": "This is unusually direct validity evidence, but it evaluates LLM-formulated questions read by a human and compares against naive\u2014not trained forensic\u2014interviewers.",
+  "outcome": "correct and false witnessed-event information",
+  "direction": "mixed positive",
+  "population": null,
+  "conditions": [
+    "LLM-formulated versus naive-human-formulated questions"
+  ],
+  "measure": "blind-coded unique correct details, false details, and information per question",
+  "timepoint": null,
+  "certainty": "moderate",
+  "locators": [
+    {
+      "page": "12-14",
+      "section": "Hypothesis 2 and exploratory analyses",
+      "table": null,
+      "figure": "Figure 2",
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T09:54:22Z",
+  "updated_at": "2026-08-14T09:54:22Z"
+}

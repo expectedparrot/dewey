@@ -1,0 +1,55 @@
+{
+  "appraisal_id": "appraisal_912b681549b9",
+  "study_id": "study_f3eac377b358",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "internal validity",
+      "judgment": "low-to-moderate concern",
+      "rationale": "Random framing and the crossed actual-control manipulation isolate perceived automation, though 21 compromised tele-operated sessions were excluded.",
+      "locators": [
+        {
+          "page": "96-98",
+          "section": "2 Material and methods",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "measurement validity",
+      "judgment": "moderate concern",
+      "rationale": "Self-report, automated facial behavior, and blind transcript ratings converge, but none verifies truth or clinical accuracy of disclosure.",
+      "locators": [
+        {
+          "page": "96-99",
+          "section": "Measures and Results",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "external validity",
+      "judgment": "moderate concern",
+      "rationale": "A single virtual human and health-screening setting may not generalize to text-only, field, or high-stakes interviews.",
+      "locators": [
+        {
+          "page": "94-100",
+          "section": "Study setting and Discussion",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "moderate confidence",
+  "applicability": "Strong mechanism evidence about perceived automation; indirect evidence about autonomous interviewer performance.",
+  "reviewer": "Dewey structured extraction",
+  "created_at": "2026-08-14T02:04:22Z",
+  "updated_at": "2026-08-14T02:04:22Z"
+}

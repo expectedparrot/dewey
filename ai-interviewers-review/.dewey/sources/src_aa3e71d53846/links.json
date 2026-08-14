@@ -1,3 +1,28 @@
 {
-  "outgoing": []
+  "outgoing": [
+    {
+      "target": "src_418b4c4f1a21",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:13Z"
+    },
+    {
+      "target": "src_750c0daa3bd6",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:14Z"
+    },
+    {
+      "target": "src_f272c4c7ba5e",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:15Z"
+    },
+    {
+      "target": "src_e4cb6bc416b1",
+      "type": "cites",
+      "note": "Discovered from bibliography",
+      "created_at": "2026-08-14T00:15:15Z"
+    }
+  ]
 }

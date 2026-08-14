@@ -1,0 +1,29 @@
+{
+  "finding_id": "finding_2a2ec15b6671",
+  "study_id": "study_43f7aee20aee",
+  "question_id": null,
+  "author_claim": "Off-the-shelf live coding performed moderately well but produced inflated false positives.",
+  "evidence_statement": "Respondent-confirmed accuracy ranged from 66.1% to 96.2% across tasks; agreement with independent human coding was lower for several tasks, and respondents selected 'none of the above' less often.",
+  "reviewer_interpretation": "Live coding is task-dependent and respondent confirmation is not a neutral gold standard because the confirmation interaction itself can induce acquiescence.",
+  "outcome": "live coding validity",
+  "direction": "mixed",
+  "population": null,
+  "conditions": [
+    "confirmation probing",
+    "zero-shot coding"
+  ],
+  "measure": "accuracy, precision, and recall against respondent confirmation and human coding",
+  "timepoint": null,
+  "certainty": "moderate",
+  "locators": [
+    {
+      "page": "14-15",
+      "section": "5.1 Live Coding and Confirmation Probing",
+      "table": "Tables 2-3",
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T02:04:20Z",
+  "updated_at": "2026-08-14T02:04:20Z"
+}

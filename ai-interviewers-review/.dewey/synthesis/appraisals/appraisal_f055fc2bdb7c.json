@@ -1,0 +1,55 @@
+{
+  "appraisal_id": "appraisal_f055fc2bdb7c",
+  "study_id": "study_c52b507173f3",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "internal validity",
+      "judgment": "high concern",
+      "rationale": "Descriptive survey with no comparison group and unclear random-selection procedure.",
+      "locators": [
+        {
+          "page": "325-326",
+          "section": "4.2 Data Collection",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "measurement validity",
+      "judgment": "high concern",
+      "rationale": "Preference for human customer-service agents is not equivalent to preference or performance in research interviews.",
+      "locators": [
+        {
+          "page": "326",
+          "section": "4.3 Result Analysis",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "external validity",
+      "judgment": "high concern",
+      "rationale": "Single Serbian convenience-like sample and rule-based 2021 chatbot.",
+      "locators": [
+        {
+          "page": "325-327",
+          "section": "Study Method and Conclusion",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "low confidence",
+  "applicability": "Contextual trust and adoption evidence only; not an interviewer-effect estimate.",
+  "reviewer": "Dewey structured extraction",
+  "created_at": "2026-08-14T09:54:24Z",
+  "updated_at": "2026-08-14T09:54:24Z"
+}

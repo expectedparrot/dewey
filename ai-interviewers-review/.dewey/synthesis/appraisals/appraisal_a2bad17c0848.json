@@ -1,0 +1,55 @@
+{
+  "appraisal_id": "appraisal_a2bad17c0848",
+  "study_id": "study_9518cfba465b",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "internal validity",
+      "judgment": "moderate-to-high concern",
+      "rationale": "Graders were blinded to modality, but the small modality samples and differences in input mode and topic complicate causal attribution.",
+      "locators": [
+        {
+          "page": "16-18",
+          "section": "2.2.1",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "measurement validity",
+      "judgment": "moderate concern",
+      "rationale": "Expert transcript ratings are directly relevant but subjective and benchmark a hypothetical expert.",
+      "locators": [
+        {
+          "page": "16-18",
+          "section": null,
+          "table": "Table II",
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "external validity",
+      "judgment": "moderate concern",
+      "rationale": "Multiple topics help, but interviews were short and conducted in constrained behavioral-lab or online settings.",
+      "locators": [
+        {
+          "page": "16-18",
+          "section": "2.2.1",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "low-to-moderate confidence",
+  "applicability": "Direct comparison of AI and trained-human qualitative interview transcripts under online constraints.",
+  "reviewer": "Dewey structured extraction",
+  "created_at": "2026-08-14T09:54:23Z",
+  "updated_at": "2026-08-14T09:54:23Z"
+}

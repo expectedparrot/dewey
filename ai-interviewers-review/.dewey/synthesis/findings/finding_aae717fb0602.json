@@ -1,0 +1,31 @@
+{
+  "finding_id": "finding_aae717fb0602",
+  "study_id": "study_9518cfba465b",
+  "question_id": null,
+  "author_claim": "Short AI-led interviews approached or exceeded trained-human interview quality under matched online constraints, especially with voice input.",
+  "evidence_statement": "Against an online-text expert benchmark, mean grades were 3.93 for AI voice, 3.51 for human face-to-face, 2.98 for AI text, and 2.42 for human text; against a face-to-face benchmark they were 3.50, 3.53, 2.70, and 1.99 respectively, with 40 ratings per modality.",
+  "reviewer_interpretation": "Blinded expert ratings support competitive transcript quality, but small modality cells, heterogeneous topics, and subjective benchmarks limit claims of equivalence.",
+  "outcome": "expert-rated interview transcript quality",
+  "direction": "AI voice comparable; AI text mixed",
+  "population": null,
+  "conditions": [
+    "AI voice",
+    "AI text",
+    "human face-to-face",
+    "human online text"
+  ],
+  "measure": "sociology PhD ratings relative to hypothetical expert benchmarks",
+  "timepoint": null,
+  "certainty": "low to moderate",
+  "locators": [
+    {
+      "page": "16-18",
+      "section": "2.2.1 Comparison to human experts",
+      "table": "Table II",
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T09:54:22Z",
+  "updated_at": "2026-08-14T09:54:22Z"
+}

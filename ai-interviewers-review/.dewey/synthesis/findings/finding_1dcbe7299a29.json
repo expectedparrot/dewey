@@ -1,0 +1,28 @@
+{
+  "finding_id": "finding_1dcbe7299a29",
+  "study_id": "study_a998602f1419",
+  "question_id": null,
+  "author_claim": "Automation still lagged the Wizard-of-Oz system on important interaction-quality measures.",
+  "evidence_statement": "The automatic system scored lower for being a good listener (3.56 vs 4.10, d=0.61), system usability (68.68 vs 74.37, d=0.44), and rapport (75.43 vs 80.71, d=0.44), with differences marked p<.05.",
+  "reviewer_interpretation": "A system can sustain interviews while still losing meaningful conversational quality when human control is removed.",
+  "outcome": "rapport, listening, and usability",
+  "direction": "negative",
+  "population": null,
+  "conditions": [
+    "fully automatic versus Wizard-of-Oz Ellie"
+  ],
+  "measure": "post-interview listener item, System Usability Scale, and rapport measure",
+  "timepoint": null,
+  "certainty": "low to moderate",
+  "locators": [
+    {
+      "page": "1067",
+      "section": "Evaluation",
+      "table": "Table 2",
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T02:04:21Z",
+  "updated_at": "2026-08-14T02:04:21Z"
+}

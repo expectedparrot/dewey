@@ -1,0 +1,55 @@
+{
+  "appraisal_id": "appraisal_5e9ad5f7e865",
+  "study_id": "study_43f7aee20aee",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "internal validity",
+      "judgment": "low-to-moderate concern",
+      "rationale": "Participant-level random assignment, blinded response coding, covariate checks, and multiplicity adjustment support causal comparisons; relevance and elaboration probes were bundled.",
+      "locators": [
+        {
+          "page": "8-13",
+          "section": "4 Methodology",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "measurement validity",
+      "judgment": "moderate concern",
+      "rationale": "Multiple quality measures and human coders are strengths, but respondent confirmations are vulnerable to acquiescence and several text metrics are indirect proxies for information quality.",
+      "locators": [
+        {
+          "page": "11-15",
+          "section": null,
+          "table": "Tables 2-3",
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "external validity",
+      "judgment": "moderate concern",
+      "rationale": "A quota-sampled proprietary non-probability U.S. panel and one 2024 platform/model limit generalization.",
+      "locators": [
+        {
+          "page": "10, 21",
+          "section": "4.3 Fielding; 6.2 Study Limitations",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "moderate confidence",
+  "applicability": "Directly applicable to LLM-assisted web survey interviewing; less direct for long-form qualitative or clinical interviews.",
+  "reviewer": "Dewey structured extraction",
+  "created_at": "2026-08-14T02:04:22Z",
+  "updated_at": "2026-08-14T02:04:22Z"
+}

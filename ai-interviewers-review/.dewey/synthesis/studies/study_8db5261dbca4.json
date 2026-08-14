@@ -1,0 +1,27 @@
+{
+  "study_id": "study_8db5261dbca4",
+  "source_ids": [
+    "src_6541b25ef96e"
+  ],
+  "label": "Geiecke and Jaravel meaning-in-life randomized comparison",
+  "design": "randomized AI-led interview versus open-text survey comparison",
+  "population": "U.S. adults recruited on Prolific with quotas for population representation",
+  "sample_size": 462,
+  "setting": "online study about sources of meaning in life",
+  "intervention": "AI-led qualitative interview",
+  "comparator": "three open-text survey questions covering the interview outline",
+  "methods": [
+    "random allocation",
+    "respondent-rated content measures",
+    "word-count and thematic analyses"
+  ],
+  "measures": [
+    "perceived accuracy",
+    "clarity of thought",
+    "learning",
+    "response length",
+    "themes elicited"
+  ],
+  "created_at": "2026-08-14T09:53:20Z",
+  "updated_at": "2026-08-14T09:53:20Z"
+}

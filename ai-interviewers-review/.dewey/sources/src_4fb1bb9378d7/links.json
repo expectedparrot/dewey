@@ -1,0 +1,10 @@
+{
+  "outgoing": [
+    {
+      "target": "src_2a843bf69441",
+      "type": "version_of",
+      "note": "Published 2026 Survey Research Methods version of the 2025 arXiv study; do not double-count experiments.",
+      "created_at": "2026-08-13T23:23:29Z"
+    }
+  ]
+}

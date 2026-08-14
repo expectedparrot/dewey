@@ -1,0 +1,55 @@
+{
+  "appraisal_id": "appraisal_5caf81110537",
+  "study_id": "study_8db5261dbca4",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "internal validity",
+      "judgment": "low-to-moderate concern",
+      "rationale": "Random allocation supports comparison with open-text responses.",
+      "locators": [
+        {
+          "page": "23-24",
+          "section": "3.1 Sample and prompt",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "measurement validity",
+      "judgment": "moderate-to-high concern",
+      "rationale": "Self-reported clarity and richness proxies do not independently establish truth or interpretive depth.",
+      "locators": [
+        {
+          "page": "24-27",
+          "section": null,
+          "table": "Table IV",
+          "figure": null,
+          "passage": null
+        }
+      ]
+    },
+    {
+      "name": "external validity",
+      "judgment": "moderate concern",
+      "rationale": "A quota-balanced Prolific sample covers U.S. adults but only one reflective topic and online setting.",
+      "locators": [
+        {
+          "page": "23-27",
+          "section": "3.1",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "moderate confidence for reflective effects",
+  "applicability": "Direct for short online reflective interviews compared with open-text survey questions.",
+  "reviewer": "Dewey structured extraction",
+  "created_at": "2026-08-14T09:54:23Z",
+  "updated_at": "2026-08-14T09:54:23Z"
+}
