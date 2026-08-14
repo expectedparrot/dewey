@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import html
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -167,3 +169,45 @@ def render_with_pandoc(markdown_path: Path, output_path: Path, css_path: Path | 
     completed = subprocess.run(command, text=True, capture_output=True)
     if completed.returncode != 0:
         raise DeweyError("pandoc_failed", completed.stderr.strip() or "pandoc rendering failed", exit_code=3)
+
+
+def embed_explorer(output_path: Path, explorer_path: Path) -> None:
+    if not explorer_path.exists():
+        raise DeweyError("file_not_found", f"No explorer exists at {explorer_path}", exit_code=4)
+    report = output_path.read_text(encoding="utf-8")
+    explorer = explorer_path.read_text(encoding="utf-8")
+    iframe_pattern = re.compile(
+        r'<iframe(?P<attrs>[^>]*\bid="literature-explorer"[^>]*)\bsrc="[^"]+"(?P<rest>[^>]*)>.*?</iframe>',
+        re.DOTALL,
+    )
+    match = iframe_pattern.search(report)
+    if match is None:
+        raise DeweyError(
+            "explorer_iframe_not_found",
+            'The rendered report requires an iframe with id="literature-explorer"',
+            exit_code=3,
+        )
+    embedded_iframe = (
+        f'<iframe{match.group("attrs")} srcdoc="{html.escape(explorer, quote=True)}"'
+        f'{match.group("rest")}></iframe>'
+    )
+    report = report[: match.start()] + embedded_iframe + report[match.end() :]
+    report = re.sub(
+        r'href="\.\./ai-interviewers-explorer\.html#source=([^"]+)"',
+        r'href="#explorer-embed" data-explorer-source="\1"',
+        report,
+    )
+    report = report.replace(
+        "</body>",
+        """<script>
+document.querySelectorAll('[data-explorer-source]').forEach(link => {
+  link.addEventListener('click', event => {
+    event.preventDefault();
+    const frame = document.getElementById('literature-explorer');
+    frame.contentWindow.showSource(link.dataset.explorerSource);
+    document.getElementById('explorer-embed').scrollIntoView({behavior: 'smooth'});
+  });
+});
+</script></body>""",
+    )
+    atomic_write_text(output_path, report)

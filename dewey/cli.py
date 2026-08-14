@@ -45,7 +45,7 @@ from dewey.repo import (
     sha256_file,
     utc_now,
 )
-from dewey.reporting import article_brief, render_with_pandoc
+from dewey.reporting import article_brief, embed_explorer, render_with_pandoc
 
 app = typer.Typer(no_args_is_help=True)
 load_dotenv()
@@ -2975,6 +2975,7 @@ def report_render(
     markdown: Path,
     output: Path = typer.Option(..., "--output"),
     css: Path | None = typer.Option(None, "--css"),
+    embed_explorer_path: Path | None = typer.Option(None, "--embed-explorer"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     action = "report.render"
@@ -2983,6 +2984,8 @@ def report_render(
         fail(action, "file_not_found", f"No file exists at {markdown}", 4, json_output)
     try:
         render_with_pandoc(markdown, output, css)
+        if embed_explorer_path is not None:
+            embed_explorer(output, embed_explorer_path)
     except DeweyError as exc:
         fail(action, exc.code, exc.message, exc.exit_code, json_output)
     emit({"ok": True, "action": action, "input": str(markdown), "output": str(output), "text": f"Rendered {output} from {markdown}"}, json_output)

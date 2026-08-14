@@ -11,6 +11,7 @@ from unittest.mock import patch
 from typer.testing import CliRunner
 
 from dewey.cli import app
+from dewey.reporting import embed_explorer
 from dewey.repo import convert_pdf_with_paper2md
 
 
@@ -929,6 +930,18 @@ Body.
             result = self.invoke(["report", "render", str(markdown), "--output", "article.html", "--json"])
         self.assertEqual(result.exit_code, 0)
         render.assert_called_once_with(markdown, Path("article.html"), None)
+
+    def test_embed_explorer_creates_single_html_document(self) -> None:
+        report = self.write_file(
+            "report.html",
+            '<html><body><figure id="explorer-embed"><iframe id="literature-explorer" src="explorer.html"></iframe></figure><a href="../ai-interviewers-explorer.html#source=src_test">Explorer record</a></body></html>',
+        )
+        explorer = self.write_file("explorer.html", "<html><body><script>function showSource(id){}</script></body></html>")
+        embed_explorer(report, explorer)
+        rendered = report.read_text(encoding="utf-8")
+        self.assertIn("srcdoc=", rendered)
+        self.assertIn("data-explorer-source=\"src_test\"", rendered)
+        self.assertNotIn('src="explorer.html"', rendered)
 
 
 if __name__ == "__main__":

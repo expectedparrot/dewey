@@ -16,8 +16,8 @@ lang: en
 **Explore the evidence behind the review.** Use the interactive dashboard below to inspect paper-level metadata, summaries, notes, and citation relationships. [Open the literature explorer full screen](../ai-interviewers-explorer.html).
 :::
 
-<figure class="explorer-panel">
-<iframe src="../ai-interviewers-explorer.html" title="Interactive explorer for the AI interviewer literature" loading="lazy"></iframe>
+<figure id="explorer-embed" class="explorer-panel">
+<iframe id="literature-explorer" src="../ai-interviewers-explorer.html" title="Interactive explorer for the AI interviewer literature" loading="lazy"></iframe>
 <figcaption>Interactive literature explorer. Select a paper to inspect its summary and source record, or open the dashboard full screen for a larger workspace.</figcaption>
 </figure>
 
