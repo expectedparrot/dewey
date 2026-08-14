@@ -127,6 +127,52 @@ class DeweyCliTests(unittest.TestCase):
         self.assertEqual(metadata["markdown_generator"]["name"], "paper2md")
         self.assertEqual(metadata["markdown_generator"]["version"], "test-version")
 
+    def test_attach_document_to_metadata_only_source(self) -> None:
+        self.init_repo()
+        source_id = self.add_bib_source(
+            "metadata-only.bib",
+            """@article{smith2024metadata,
+  title={Metadata Only Paper},
+  author={Smith, Jane},
+  year={2024}
+}
+""",
+        )
+        pdf = self.write_file("retrieved.pdf", "%PDF-1.4\nretrieved\n")
+
+        result = self.invoke(["add", "document", source_id, str(pdf), "--json"])
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["source_id"], source_id)
+
+        source_dir = self.root / ".dewey" / "sources" / source_id
+        metadata = json.loads((source_dir / "metadata.json").read_text(encoding="utf-8"))
+        self.assertEqual(metadata["managed_pdf_path"], f".dewey/sources/{source_id}/source.pdf")
+        self.assertEqual((source_dir / "source.pdf").read_text(encoding="utf-8"), "%PDF-1.4\nretrieved\n")
+
+        duplicate = self.invoke(["add", "document", source_id, str(pdf), "--json"])
+        self.assertEqual(duplicate.exit_code, 2)
+        self.assertEqual(json.loads(duplicate.stdout)["error"]["code"], "document_exists")
+
+    def test_next_requests_document_before_summary(self) -> None:
+        self.init_repo()
+        self.invoke(["topic", "set", "--topic", "Interviews", "--question", "What works?"])
+        source_id = self.add_bib_source(
+            "lead.bib",
+            """@article{smith2024lead,
+  title={A Relevant Lead},
+  author={Smith, Jane},
+  year={2024}
+}
+""",
+        )
+
+        result = self.invoke(["next", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["phase"], "retrieve")
+        self.assertIn(f"dewey add document {source_id}", payload["next_steps"][0])
+
     def test_render_md_can_use_firecrawl_backend(self) -> None:
         pdf = self.write_file("cloud-paper.pdf", "%PDF-1.4\nfake pdf\n")
         self.init_repo()

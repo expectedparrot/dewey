@@ -21,11 +21,51 @@
       "finding_id": "finding_9628531abdd5",
       "relationship": "qualifies",
       "rationale": "Willingness to share was retained even as interaction-quality measures declined."
+    },
+    {
+      "finding_id": "finding_7e39509deda6",
+      "relationship": "supports",
+      "rationale": "Full-text evidence added in the expanded reviewed tranche."
+    },
+    {
+      "finding_id": "finding_5cd4384055e2",
+      "relationship": "contradicts",
+      "rationale": "Full-text evidence added in the expanded reviewed tranche."
+    },
+    {
+      "finding_id": "finding_2c7b181eb6f7",
+      "relationship": "supports",
+      "rationale": "Full-text evidence added in the expanded reviewed tranche."
+    },
+    {
+      "finding_id": "finding_5497c4032775",
+      "relationship": "qualifies",
+      "rationale": "Full-text evidence added in the expanded reviewed tranche."
+    },
+    {
+      "finding_id": "finding_d5235f8ab82d",
+      "relationship": "supports",
+      "rationale": "Full-text evidence added in the expanded reviewed tranche."
+    },
+    {
+      "finding_id": "finding_85673405f4c3",
+      "relationship": "supports",
+      "rationale": "Full-text evidence added in the expanded reviewed tranche."
+    },
+    {
+      "finding_id": "finding_2356641420a1",
+      "relationship": "qualifies",
+      "rationale": "Full-text evidence added in the expanded reviewed tranche."
+    },
+    {
+      "finding_id": "finding_d8050d6897ef",
+      "relationship": "supports",
+      "rationale": "Full-text evidence added in the expanded reviewed tranche."
     }
   ],
   "confidence": "low to moderate",
   "confidence_rationale": "Promising expert ratings and feasibility results are based on small, heterogeneous, or nonrandomized comparisons.",
   "status": "reviewed",
   "created_at": "2026-08-14T09:58:11Z",
-  "updated_at": "2026-08-14T09:58:11Z"
+  "updated_at": "2026-08-14T12:54:22Z"
 }

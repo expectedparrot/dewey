@@ -88,13 +88,14 @@ dewey add source citation.bib</code></pre>
 
 <section id="render"><h2><span class="chapter">05</span> Read, render, and summarize</h2>
   <p>Render PDF text before searching it or extracting references. Local conversion is the default.</p>
-  <pre><code>dewey render md &lt;source-id&gt;
+  <pre><code>dewey add document &lt;source-id&gt; retrieved-paper.pdf
+dewey render md &lt;source-id&gt;
 dewey cat &lt;source-id&gt; --representation md
 dewey summary set &lt;source-id&gt; --text \
   "Randomized comparison of adaptive LLM probes and standardized questions. Reports richer answers with a modest experience cost."
 dewey notes edit &lt;source-id&gt; --append \
   "Inspect appendix for exact group statistics."</code></pre>
-  <p>A short summary should cover the question, method or evidence, main finding, and relevance. Put interpretation, quotations, caveats, and follow-up work in notes.</p>
+  <p>For a metadata-only lead, attach the retrieved PDF with <code>add document</code> before rendering. This preserves its source identifier and discovery trail. A short summary should cover the question, method or evidence, main finding, and relevance. Put interpretation, quotations, caveats, and follow-up work in notes.</p>
   <pre><code>dewey render md &lt;source-id&gt; --backend firecrawl</code></pre>
   <p>Use the cloud backend only when upload has been authorized.</p>
 </section>

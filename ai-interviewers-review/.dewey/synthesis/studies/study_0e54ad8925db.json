@@ -1,0 +1,25 @@
+{
+  "study_id": "study_0e54ad8925db",
+  "source_ids": [
+    "src_8f39b52d2f72"
+  ],
+  "label": "Guven et al. matched text AI-human comparison",
+  "design": "randomized synchronous text interview comparison",
+  "population": "adult study participants",
+  "sample_size": 40,
+  "setting": "chat interviews using an identical guide and interface",
+  "intervention": "locally hosted OpenHermes 2.5 Mistral 7B interviewer",
+  "comparator": "non-expert human interviewers",
+  "methods": [
+    "random assignment",
+    "coded transcript comparison"
+  ],
+  "measures": [
+    "response length",
+    "specificity",
+    "relevance",
+    "interview pace"
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

@@ -1,0 +1,25 @@
+{
+  "study_id": "study_3a94b867fb29",
+  "source_ids": [
+    "src_924a2313c5a7"
+  ],
+  "label": "Xiao et al. active-listening chatbot evaluation",
+  "design": "live randomized chatbot feature comparison",
+  "population": "U.S. and Canadian MTurk adults",
+  "sample_size": 206,
+  "setting": "four common interview topics",
+  "intervention": "chatbot with comprehension and active-listening skills",
+  "comparator": "baseline interview chatbot",
+  "methods": [
+    "live user experiment",
+    "manual coding of 824 responses"
+  ],
+  "measures": [
+    "response quality",
+    "engagement",
+    "agent comprehension",
+    "user interest and experience"
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

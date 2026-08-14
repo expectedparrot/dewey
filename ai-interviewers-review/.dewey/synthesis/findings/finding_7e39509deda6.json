@@ -1,0 +1,26 @@
+{
+  "finding_id": "finding_7e39509deda6",
+  "study_id": "study_cc345802522e",
+  "question_id": null,
+  "author_claim": "AI interviews can sustain effort and reveal explanations hidden beneath one-shot answers.",
+  "evidence_statement": "More than 95% completed the interview; the median interview lasted 27 minutes and produced about 610 respondent words, while probing revealed risk beliefs and investing misconceptions obscured by initial low-income explanations.",
+  "reviewer_interpretation": "This is strong feasibility and discovery evidence, although the value of emergent themes is not equivalent to criterion validity.",
+  "outcome": "engagement and thematic depth",
+  "direction": "positive",
+  "population": null,
+  "conditions": [],
+  "measure": "completion, duration, text volume, and inductive themes",
+  "timepoint": null,
+  "certainty": "moderate",
+  "locators": [
+    {
+      "page": "15-18",
+      "section": "3.3 Results",
+      "table": null,
+      "figure": "Figures 3-4",
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

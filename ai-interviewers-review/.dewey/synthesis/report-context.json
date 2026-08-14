@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated_at": "2026-08-14T11:01:45Z",
+  "generated_at": "2026-08-14T13:03:58Z",
   "review": {
     "topic": "AI interviewers",
     "research_question": "How are AI interviewers designed and evaluated, and how do they affect interview quality, respondent experience, and resulting data compared with human or conventional interviewing?"
@@ -10,13 +10,13 @@
     "issues": []
   },
   "coverage": {
-    "included_sources": 7,
-    "studies": 8,
-    "findings": 12,
-    "appraisals": 8,
+    "included_sources": 17,
+    "studies": 18,
+    "findings": 22,
+    "appraisals": 18,
     "themes": 4,
     "claims": 4,
-    "represented_included_sources": 7,
+    "represented_included_sources": 17,
     "missing_study_sources": [],
     "missing_finding_studies": [],
     "missing_appraisal_studies": [],
@@ -462,13 +462,769 @@
               "status": "included"
             }
           ]
+        },
+        {
+          "relationship": "supports",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_7e39509deda6",
+            "study_id": "study_cc345802522e",
+            "question_id": null,
+            "author_claim": "AI interviews can sustain effort and reveal explanations hidden beneath one-shot answers.",
+            "evidence_statement": "More than 95% completed the interview; the median interview lasted 27 minutes and produced about 610 respondent words, while probing revealed risk beliefs and investing misconceptions obscured by initial low-income explanations.",
+            "reviewer_interpretation": "This is strong feasibility and discovery evidence, although the value of emergent themes is not equivalent to criterion validity.",
+            "outcome": "engagement and thematic depth",
+            "direction": "positive",
+            "population": null,
+            "conditions": [],
+            "measure": "completion, duration, text volume, and inductive themes",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": "15-18",
+                "section": "3.3 Results",
+                "table": null,
+                "figure": "Figures 3-4",
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_cc345802522e",
+            "source_ids": [
+              "src_2fc31ffa6791"
+            ],
+            "label": "Chopra and Haaland AI qualitative interview study",
+            "design": "large online AI-led qualitative interview with mixed qualitative and quantitative validation",
+            "population": "U.S. stock-market nonparticipants able to save",
+            "sample_size": 395,
+            "setting": "roughly 30-minute online text interviews",
+            "intervention": "adaptive AI qualitative interviewer",
+            "comparator": "closed-ended and one-shot open-ended survey measures",
+            "methods": [
+              "inductive coding",
+              "respondent evaluation",
+              "quantitative coding"
+            ],
+            "measures": [
+              "completion",
+              "effort",
+              "naturalness",
+              "themes and behavioral associations"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_e841dad08d7a",
+            "study_id": "study_cc345802522e",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "This is strong feasibility and discovery evidence, although the value of emergent themes is not equivalent to criterion validity.",
+                "locators": [
+                  {
+                    "page": "15-18",
+                    "section": "3.3 Results",
+                    "table": null,
+                    "figure": "Figures 3-4",
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Highly relevant economics application, with validation bounded by one focal population and interview purpose.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_2fc31ffa6791",
+              "bibtex_key": "chopra2023qualitative",
+              "title": "Conducting Qualitative Interviews with AI",
+              "author": "Chopra, Felix and Haaland, Ingar",
+              "year": "2023",
+              "doi": "10.2139/ssrn.4572954",
+              "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4572954",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "contradicts",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_5cd4384055e2",
+            "study_id": "study_90a042fe8231",
+            "question_id": null,
+            "author_claim": "Chatbot collection did not provide a general longitudinal data-quality or experience advantage.",
+            "evidence_statement": "Web surveys often had more favorable response characteristics and quality, chatbot respondents supplied fewer words over time, and chatbot ratings of enjoyment, usefulness, and security were lower, although attention-check performance favored the chatbot.",
+            "reviewer_interpretation": "Conversational interfaces can underperform conventional forms when repeated use and privacy perceptions matter; effects depend on metric and deployment horizon.",
+            "outcome": "longitudinal data quality and experience",
+            "direction": "mixed negative",
+            "population": null,
+            "conditions": [],
+            "measure": "response behavior, attention checks, and user ratings",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": "12-17",
+                "section": "Results and General discussion",
+                "table": null,
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_90a042fe8231",
+            "source_ids": [
+              "src_43270b46dc12"
+            ],
+            "label": "Zarouali et al. longitudinal chatbot survey comparison",
+            "design": "preregistered longitudinal chatbot-versus-web-survey comparison",
+            "population": "Dutch adult participants",
+            "sample_size": 304,
+            "setting": "14-day repeated data collection",
+            "intervention": "messaging-platform chatbot survey",
+            "comparator": "conventional web survey",
+            "methods": [
+              "longitudinal response analysis",
+              "user evaluation"
+            ],
+            "measures": [
+              "response characteristics",
+              "data quality",
+              "enjoyment",
+              "usefulness",
+              "security"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_c5611c8cca28",
+            "study_id": "study_90a042fe8231",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "Conversational interfaces can underperform conventional forms when repeated use and privacy perceptions matter; effects depend on metric and deployment horizon.",
+                "locators": [
+                  {
+                    "page": "12-17",
+                    "section": "Results and General discussion",
+                    "table": null,
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Direct mode comparison for repeated chatbot surveys, less direct for generative long-form interviewing.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_43270b46dc12",
+              "bibtex_key": "zarouali2024comparing",
+              "title": "Comparing Chatbots and Online Surveys for (Longitudinal) Data Collection: An Investigation of Response Characteristics, Data Quality, and User Evaluation",
+              "author": "Zarouali, Brahim and Araujo, Theo and Ohme, Jakob and de Vreese, Claes",
+              "year": "2024",
+              "doi": "10.1080/19312458.2022.2156489",
+              "url": "https://www.dare.uva.nl/id/8d1a3d3a-31ff-4fcf-9dd5-614e9e37efed",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "supports",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_2c7b181eb6f7",
+            "study_id": "study_2df036585384",
+            "question_id": null,
+            "author_claim": "The conversational survey increased engagement and response quality.",
+            "evidence_statement": "The chatbot elicited 39% more information and 25.7% higher aggregate response quality across informativeness, relevance, specificity, and clarity than the conventional survey.",
+            "reviewer_interpretation": "A bounded pre-LLM adaptive system can improve coded open-response quality at scale, though Gricean metrics do not establish broader validity.",
+            "outcome": "open-ended response quality",
+            "direction": "positive",
+            "population": null,
+            "conditions": [],
+            "measure": "human-coded Gricean response quality",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": null,
+                "section": "4.4 Summary of Findings",
+                "table": null,
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_2df036585384",
+            "source_ids": [
+              "src_645a7d05436c"
+            ],
+            "label": "Xiao et al. conversational survey field study",
+            "design": "large field comparison of conversational and conventional open-ended surveys",
+            "population": "online survey participants",
+            "sample_size": 600,
+            "setting": "mostly open-ended survey with more than 5,200 responses",
+            "intervention": "AI-powered conversational survey chatbot",
+            "comparator": "Qualtrics online survey",
+            "methods": [
+              "between-mode field comparison",
+              "human response coding"
+            ],
+            "measures": [
+              "engagement",
+              "informativeness",
+              "relevance",
+              "specificity",
+              "clarity"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_f5ba6dc9a8e7",
+            "study_id": "study_2df036585384",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "A bounded pre-LLM adaptive system can improve coded open-response quality at scale, though Gricean metrics do not establish broader validity.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "4.4 Summary of Findings",
+                    "table": null,
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Foundational comparative evidence for conversational surveys; technology predates general-purpose LLMs.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_645a7d05436c",
+              "bibtex_key": "xiao2020tell",
+              "title": "Tell Me About Yourself: Using an AI-Powered Chatbot to Conduct Conversational Surveys with Open-ended Questions",
+              "author": "Xiao, Ziang and Zhou, Michelle X. and Liao, Q. Vera and Mark, Gloria and Chi, Changyan and Chen, Wenxi and Yang, Huahai",
+              "year": "2020",
+              "doi": "10.1145/3381804",
+              "url": "https://arxiv.org/abs/1905.10700",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "qualifies",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_5497c4032775",
+            "study_id": "study_0e54ad8925db",
+            "question_id": null,
+            "author_claim": "AI and human text interviews showed different pacing but similar coded specificity and relevance.",
+            "evidence_statement": "Humans elicited longer responses per question, while the AI asked questions faster and produced longer interviews overall; coded specificity and relevance did not differ significantly.",
+            "reviewer_interpretation": "Holding text modality constant narrows the comparison, but the small sample and non-expert human benchmark preclude an equivalence conclusion.",
+            "outcome": "human-AI transcript performance",
+            "direction": "mixed",
+            "population": null,
+            "conditions": [],
+            "measure": "response length and coded specificity and relevance",
+            "timepoint": null,
+            "certainty": "low",
+            "locators": [
+              {
+                "page": null,
+                "section": "4 Results",
+                "table": null,
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_0e54ad8925db",
+            "source_ids": [
+              "src_8f39b52d2f72"
+            ],
+            "label": "Guven et al. matched text AI-human comparison",
+            "design": "randomized synchronous text interview comparison",
+            "population": "adult study participants",
+            "sample_size": 40,
+            "setting": "chat interviews using an identical guide and interface",
+            "intervention": "locally hosted OpenHermes 2.5 Mistral 7B interviewer",
+            "comparator": "non-expert human interviewers",
+            "methods": [
+              "random assignment",
+              "coded transcript comparison"
+            ],
+            "measures": [
+              "response length",
+              "specificity",
+              "relevance",
+              "interview pace"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_8008db880b18",
+            "study_id": "study_0e54ad8925db",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "low confidence",
+                "rationale": "Holding text modality constant narrows the comparison, but the small sample and non-expert human benchmark preclude an equivalence conclusion.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "4 Results",
+                    "table": null,
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "low confidence",
+            "applicability": "Direct modality-matched comparison, limited by sample size, interviewer expertise, and an older local model.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_8f39b52d2f72",
+              "bibtex_key": "guven2025comparison",
+              "title": "Comparing AI-led to Human-led Chat-based Interviews: Motivations, Initial Results, and Challenges",
+              "author": "Guven, Semra Yuksel and Gårdhus, Tobias and Bjerre-Nielsen, Andreas and Carlsen, Hjalmar Bang",
+              "year": "2025",
+              "doi": null,
+              "url": "https://osf.io/9mx36",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "supports",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_d5235f8ab82d",
+            "study_id": "study_3a94b867fb29",
+            "question_id": null,
+            "author_claim": "Active-listening capabilities improved engagement and elicited response quality.",
+            "evidence_statement": "The full chatbot significantly outperformed the baseline across agent comprehension, user interest, chat experience, engagement duration, response word count, and manually coded response quality.",
+            "reviewer_interpretation": "Specific conversational capabilities—not chatbot presence alone—can improve elicitation, although intent models performed unevenly across topics.",
+            "outcome": "active-listening interview quality",
+            "direction": "positive",
+            "population": null,
+            "conditions": [],
+            "measure": "user ratings, engagement, word count, and coded response quality",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": null,
+                "section": "5.2.4 Results",
+                "table": "Table 6",
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_3a94b867fb29",
+            "source_ids": [
+              "src_924a2313c5a7"
+            ],
+            "label": "Xiao et al. active-listening chatbot evaluation",
+            "design": "live randomized chatbot feature comparison",
+            "population": "U.S. and Canadian MTurk adults",
+            "sample_size": 206,
+            "setting": "four common interview topics",
+            "intervention": "chatbot with comprehension and active-listening skills",
+            "comparator": "baseline interview chatbot",
+            "methods": [
+              "live user experiment",
+              "manual coding of 824 responses"
+            ],
+            "measures": [
+              "response quality",
+              "engagement",
+              "agent comprehension",
+              "user interest and experience"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_3bd3efea9687",
+            "study_id": "study_3a94b867fb29",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "Specific conversational capabilities—not chatbot presence alone—can improve elicitation, although intent models performed unevenly across topics.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "5.2.4 Results",
+                    "table": "Table 6",
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Strong design evidence for active listening in bounded pre-LLM interview chatbots.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_924a2313c5a7",
+              "bibtex_key": "xiao2020hear",
+              "title": "If I Hear You Correctly: Building and Evaluating Interview Chatbots with Active Listening Skills",
+              "author": "Xiao, Ziang and Zhou, Michelle X. and Chen, Wenxi and Yang, Huahai and Chi, Changyan",
+              "year": "2020",
+              "doi": "10.1145/3313831.3376131",
+              "url": "https://arxiv.org/abs/2002.01862",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "supports",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_85673405f4c3",
+            "study_id": "study_448b2408d516",
+            "question_id": null,
+            "author_claim": "Dividing topics across managed agents improved elicitation and conversational flow.",
+            "evidence_statement": "CommunityBots participants were significantly more engaged, provided more specific, clear, and expansive responses, and experienced fewer conversational interruptions than the single-agent baseline.",
+            "reviewer_interpretation": "Interviewer architecture and topic management affect output, but the multi-agent treatment bundles several interface and conversation changes.",
+            "outcome": "multi-agent elicitation quality",
+            "direction": "positive",
+            "population": null,
+            "conditions": [],
+            "measure": "engagement, coded quality, and interruptions",
+            "timepoint": null,
+            "certainty": "low to moderate",
+            "locators": [
+              {
+                "page": null,
+                "section": "6.1-6.2 Results",
+                "table": null,
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_448b2408d516",
+            "source_ids": [
+              "src_a09d64694611"
+            ],
+            "label": "CommunityBots multi-agent public-input experiment",
+            "design": "between-subject multi-agent versus single-agent chatbot experiment",
+            "population": "U.S. crowd workers",
+            "sample_size": 96,
+            "setting": "public input across household, work, and health domains",
+            "intervention": "three-agent CommunityBots with conversation and topic management",
+            "comparator": "single-agent chatbot baseline",
+            "methods": [
+              "random assignment",
+              "quantitative and qualitative response analysis"
+            ],
+            "measures": [
+              "engagement",
+              "specificity",
+              "clarity",
+              "expansiveness",
+              "interruptions"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_00f402190fb7",
+            "study_id": "study_448b2408d516",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "low-to-moderate confidence",
+                "rationale": "Interviewer architecture and topic management affect output, but the multi-agent treatment bundles several interface and conversation changes.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "6.1-6.2 Results",
+                    "table": null,
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "low-to-moderate confidence",
+            "applicability": "Relevant design evidence for public-input elicitation; not a generative-model comparison.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_a09d64694611",
+              "bibtex_key": "jiang2023communitybots",
+              "title": "CommunityBots: Creating and Evaluating a Multi-Agent Chatbot Platform for Public Input Elicitation",
+              "author": "Jiang, Zhiqiu and Rashik, Mashrur and Panchal, Kunjal and Jasim, Mahmood and Sarvghad, Ali and Riahi, Pari and DeWitt, Erica and Thurber, Fey and Mahyar, Narges",
+              "year": "2023",
+              "doi": "10.1145/3579469",
+              "url": "https://doi.org/10.1145/3579469",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "qualifies",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_2356641420a1",
+            "study_id": "study_21e32e61e4ec",
+            "question_id": null,
+            "author_claim": "AI interviewing was viable and broadly comparable to human interviewing, with different implementation failures.",
+            "evidence_statement": "Human coding found broadly similar response quality and overall guideline adherence; the AI more often missed follow-up opportunities or gave evaluative encouragement, while humans more often missed active listening or suggested answers.",
+            "reviewer_interpretation": "Comparable averages conceal substantively different failure modes, and the small student sample makes the result proof-of-concept evidence.",
+            "outcome": "guideline adherence and response quality",
+            "direction": "mixed comparable",
+            "population": null,
+            "conditions": [],
+            "measure": "coded interviewer behavior and response quality",
+            "timepoint": null,
+            "certainty": "low",
+            "locators": [
+              {
+                "page": null,
+                "section": "4 Findings and 5 Discussion",
+                "table": null,
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_21e32e61e4ec",
+            "source_ids": [
+              "src_a7e84b286007"
+            ],
+            "label": "Wuttke et al. controlled AI-human political interview comparison",
+            "design": "small randomized controlled AI-versus-human interview study",
+            "population": "university students",
+            "sample_size": null,
+            "setting": "political interviews with identical questionnaires",
+            "intervention": "LLM conversational interviewer",
+            "comparator": "student human interviewer",
+            "methods": [
+              "random assignment",
+              "qualitative and quantitative guideline coding"
+            ],
+            "measures": [
+              "response quality",
+              "guideline adherence",
+              "engagement",
+              "failure modes"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_12d9f4c22848",
+            "study_id": "study_21e32e61e4ec",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "low confidence",
+                "rationale": "Comparable averages conceal substantively different failure modes, and the small student sample makes the result proof-of-concept evidence.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "4 Findings and 5 Discussion",
+                    "table": null,
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "low confidence",
+            "applicability": "Direct contemporary AI-human comparison but a small monitored student study.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_a7e84b286007",
+              "bibtex_key": "wuttke2024conversational",
+              "title": "AI Conversational Interviewing: Transforming Surveys with LLMs as Adaptive Interviewers",
+              "author": "Wuttke, Alexander and Aßenmacher, Matthias and Klamm, Christopher and Lang, Max M. and Würschinger, Quirin and Kreuter, Frauke",
+              "year": "2024",
+              "doi": "10.48550/arXiv.2410.01824",
+              "url": "https://arxiv.org/abs/2410.01824",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "supports",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_d8050d6897ef",
+            "study_id": "study_9bc44c06cdd3",
+            "question_id": null,
+            "author_claim": "Conversational platform and style jointly reduced satisficing.",
+            "evidence_statement": "The chatbot produced more differentiated responses than the web survey (platform F(1,102)=9.83, p<.01), with a platform-by-style interaction (F(1,102)=14.33, p<.001); dropout and ease of use did not differ significantly.",
+            "reviewer_interpretation": "Interface and tone interact: a chatbot label or layout alone is not the operative treatment, and structured-response differentiation is only one quality dimension.",
+            "outcome": "survey satisficing",
+            "direction": "positive conditional",
+            "population": null,
+            "conditions": [],
+            "measure": "response differentiation index",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": "7",
+                "section": "Non-differentiation",
+                "table": null,
+                "figure": "Figure 2",
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_9bc44c06cdd3",
+            "source_ids": [
+              "src_aa3e71d53846"
+            ],
+            "label": "Kim et al. platform-by-style survey experiment",
+            "design": "2 by 2 experiment varying web versus chatbot platform and formal versus casual style",
+            "population": "adult survey participants",
+            "sample_size": 117,
+            "setting": "structured survey administration",
+            "intervention": "chatbot survey with formal or casual style",
+            "comparator": "web survey with formal or casual style",
+            "methods": [
+              "factorial experiment",
+              "qualitative thematic analysis"
+            ],
+            "measures": [
+              "response differentiation",
+              "dropout",
+              "ease",
+              "enjoyment"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_d959256c5d38",
+            "study_id": "study_9bc44c06cdd3",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "Interface and tone interact: a chatbot label or layout alone is not the operative treatment, and structured-response differentiation is only one quality dimension.",
+                "locators": [
+                  {
+                    "page": "7",
+                    "section": "Non-differentiation",
+                    "table": null,
+                    "figure": "Figure 2",
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Useful causal evidence on conversational style in structured surveys; indirect for open-ended AI interviewing.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_aa3e71d53846",
+              "bibtex_key": "kim2019comparing",
+              "title": "Comparing Data from Chatbot and Web Surveys: Effects of Platform and Conversational Style on Survey Response Quality",
+              "author": "Kim, Soomin and Lee, Joonhwan and Gweon, Gahgene",
+              "year": "2019",
+              "doi": "10.1145/3290605.3300316",
+              "url": "https://soominkim.github.io/project/CHI2019_KIM_Comparing.pdf",
+              "status": "included"
+            }
+          ]
         }
       ],
       "confidence": "low to moderate",
       "confidence_rationale": "Promising expert ratings and feasibility results are based on small, heterogeneous, or nonrandomized comparisons.",
       "status": "reviewed",
       "created_at": "2026-08-14T09:58:11Z",
-      "updated_at": "2026-08-14T09:58:11Z"
+      "updated_at": "2026-08-14T12:54:22Z"
     },
     {
       "claim_id": "claim_5e6f2020b1ed",
@@ -983,13 +1739,298 @@
               "status": "included"
             }
           ]
+        },
+        {
+          "relationship": "supports",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_dc3b9b2618e4",
+            "study_id": "study_bb4eb7f8339e",
+            "question_id": null,
+            "author_claim": "LLM chatbots improved experience but did not reliably produce richer qualitative evidence.",
+            "evidence_statement": "Across coded segments, relevance averaged 87.2% and clarity 82.1%, but cognitive empathy averaged 31.6% and palpability 22.2%; apart from follow-up quality, the LLM conditions did not significantly outperform the naive baseline.",
+            "reviewer_interpretation": "Conversational fluency and conventional response-quality scores can coexist with weak qualitative richness, directly qualifying general claims about adaptive probing.",
+            "outcome": "qualitative richness",
+            "direction": "no general improvement",
+            "population": null,
+            "conditions": [],
+            "measure": "human-coded communicative quality and richness",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": null,
+                "section": "7.1 Coding Results Overall and Across Groups",
+                "table": null,
+                "figure": "Figure 5",
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_bb4eb7f8339e",
+            "source_ids": [
+              "src_0876e37522c7"
+            ],
+            "label": "Cuevas et al. three-chatbot richness evaluation",
+            "design": "three-condition comparative experiment",
+            "population": "online adult participants",
+            "sample_size": 399,
+            "setting": "conversational study of views about AI",
+            "intervention": "dynamic-prober and member-checker LLM chatbots",
+            "comparator": "hard-coded baseline chatbot",
+            "methods": [
+              "participant experience measures",
+              "human coding of response quality and qualitative richness"
+            ],
+            "measures": [
+              "relevance",
+              "clarity",
+              "specificity",
+              "cognitive empathy",
+              "palpability"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_65610af90f66",
+            "study_id": "study_bb4eb7f8339e",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "Conversational fluency and conventional response-quality scores can coexist with weak qualitative richness, directly qualifying general claims about adaptive probing.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "7.1 Coding Results Overall and Across Groups",
+                    "table": null,
+                    "figure": "Figure 5",
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Direct evidence on LLM conversational data collection; the topic and operationalization of richness bound generalization.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_0876e37522c7",
+              "bibtex_key": "cuevas2025qualitative",
+              "title": "Collecting Qualitative Data at Scale with Large Language Models: A Case Study",
+              "author": "Cuevas, Alejandro and Scurrell, Jennifer V. and Brown, Eva M. and Entenmann, Jason and Daepp, Madeleine I. G.",
+              "year": "2025",
+              "doi": "10.1145/3710947",
+              "url": "https://arxiv.org/abs/2309.10187",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "qualifies",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_7e39509deda6",
+            "study_id": "study_cc345802522e",
+            "question_id": null,
+            "author_claim": "AI interviews can sustain effort and reveal explanations hidden beneath one-shot answers.",
+            "evidence_statement": "More than 95% completed the interview; the median interview lasted 27 minutes and produced about 610 respondent words, while probing revealed risk beliefs and investing misconceptions obscured by initial low-income explanations.",
+            "reviewer_interpretation": "This is strong feasibility and discovery evidence, although the value of emergent themes is not equivalent to criterion validity.",
+            "outcome": "engagement and thematic depth",
+            "direction": "positive",
+            "population": null,
+            "conditions": [],
+            "measure": "completion, duration, text volume, and inductive themes",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": "15-18",
+                "section": "3.3 Results",
+                "table": null,
+                "figure": "Figures 3-4",
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_cc345802522e",
+            "source_ids": [
+              "src_2fc31ffa6791"
+            ],
+            "label": "Chopra and Haaland AI qualitative interview study",
+            "design": "large online AI-led qualitative interview with mixed qualitative and quantitative validation",
+            "population": "U.S. stock-market nonparticipants able to save",
+            "sample_size": 395,
+            "setting": "roughly 30-minute online text interviews",
+            "intervention": "adaptive AI qualitative interviewer",
+            "comparator": "closed-ended and one-shot open-ended survey measures",
+            "methods": [
+              "inductive coding",
+              "respondent evaluation",
+              "quantitative coding"
+            ],
+            "measures": [
+              "completion",
+              "effort",
+              "naturalness",
+              "themes and behavioral associations"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_e841dad08d7a",
+            "study_id": "study_cc345802522e",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "This is strong feasibility and discovery evidence, although the value of emergent themes is not equivalent to criterion validity.",
+                "locators": [
+                  {
+                    "page": "15-18",
+                    "section": "3.3 Results",
+                    "table": null,
+                    "figure": "Figures 3-4",
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Highly relevant economics application, with validation bounded by one focal population and interview purpose.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_2fc31ffa6791",
+              "bibtex_key": "chopra2023qualitative",
+              "title": "Conducting Qualitative Interviews with AI",
+              "author": "Chopra, Felix and Haaland, Ingar",
+              "year": "2023",
+              "doi": "10.2139/ssrn.4572954",
+              "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4572954",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "qualifies",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_2c7b181eb6f7",
+            "study_id": "study_2df036585384",
+            "question_id": null,
+            "author_claim": "The conversational survey increased engagement and response quality.",
+            "evidence_statement": "The chatbot elicited 39% more information and 25.7% higher aggregate response quality across informativeness, relevance, specificity, and clarity than the conventional survey.",
+            "reviewer_interpretation": "A bounded pre-LLM adaptive system can improve coded open-response quality at scale, though Gricean metrics do not establish broader validity.",
+            "outcome": "open-ended response quality",
+            "direction": "positive",
+            "population": null,
+            "conditions": [],
+            "measure": "human-coded Gricean response quality",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": null,
+                "section": "4.4 Summary of Findings",
+                "table": null,
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_2df036585384",
+            "source_ids": [
+              "src_645a7d05436c"
+            ],
+            "label": "Xiao et al. conversational survey field study",
+            "design": "large field comparison of conversational and conventional open-ended surveys",
+            "population": "online survey participants",
+            "sample_size": 600,
+            "setting": "mostly open-ended survey with more than 5,200 responses",
+            "intervention": "AI-powered conversational survey chatbot",
+            "comparator": "Qualtrics online survey",
+            "methods": [
+              "between-mode field comparison",
+              "human response coding"
+            ],
+            "measures": [
+              "engagement",
+              "informativeness",
+              "relevance",
+              "specificity",
+              "clarity"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_f5ba6dc9a8e7",
+            "study_id": "study_2df036585384",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "A bounded pre-LLM adaptive system can improve coded open-response quality at scale, though Gricean metrics do not establish broader validity.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "4.4 Summary of Findings",
+                    "table": null,
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Foundational comparative evidence for conversational surveys; technology predates general-purpose LLMs.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_645a7d05436c",
+              "bibtex_key": "xiao2020tell",
+              "title": "Tell Me About Yourself: Using an AI-Powered Chatbot to Conduct Conversational Surveys with Open-ended Questions",
+              "author": "Xiao, Ziang and Zhou, Michelle X. and Liao, Q. Vera and Mark, Gloria and Chi, Changyan and Chen, Wenxi and Yang, Huahai",
+              "year": "2020",
+              "doi": "10.1145/3381804",
+              "url": "https://arxiv.org/abs/1905.10700",
+              "status": "included"
+            }
+          ]
         }
       ],
       "confidence": "moderate",
       "confidence_rationale": "The studies consistently separate engagement or richness from validity, but only one included study uses a direct ground-truth outcome.",
       "status": "reviewed",
       "created_at": "2026-08-14T09:58:12Z",
-      "updated_at": "2026-08-14T09:58:12Z"
+      "updated_at": "2026-08-14T12:54:22Z"
     },
     {
       "claim_id": "claim_61ea2c6b6b95",
@@ -1894,16 +2935,887 @@
               "status": "included"
             }
           ]
+        },
+        {
+          "relationship": "qualifies",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_dc3b9b2618e4",
+            "study_id": "study_bb4eb7f8339e",
+            "question_id": null,
+            "author_claim": "LLM chatbots improved experience but did not reliably produce richer qualitative evidence.",
+            "evidence_statement": "Across coded segments, relevance averaged 87.2% and clarity 82.1%, but cognitive empathy averaged 31.6% and palpability 22.2%; apart from follow-up quality, the LLM conditions did not significantly outperform the naive baseline.",
+            "reviewer_interpretation": "Conversational fluency and conventional response-quality scores can coexist with weak qualitative richness, directly qualifying general claims about adaptive probing.",
+            "outcome": "qualitative richness",
+            "direction": "no general improvement",
+            "population": null,
+            "conditions": [],
+            "measure": "human-coded communicative quality and richness",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": null,
+                "section": "7.1 Coding Results Overall and Across Groups",
+                "table": null,
+                "figure": "Figure 5",
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_bb4eb7f8339e",
+            "source_ids": [
+              "src_0876e37522c7"
+            ],
+            "label": "Cuevas et al. three-chatbot richness evaluation",
+            "design": "three-condition comparative experiment",
+            "population": "online adult participants",
+            "sample_size": 399,
+            "setting": "conversational study of views about AI",
+            "intervention": "dynamic-prober and member-checker LLM chatbots",
+            "comparator": "hard-coded baseline chatbot",
+            "methods": [
+              "participant experience measures",
+              "human coding of response quality and qualitative richness"
+            ],
+            "measures": [
+              "relevance",
+              "clarity",
+              "specificity",
+              "cognitive empathy",
+              "palpability"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_65610af90f66",
+            "study_id": "study_bb4eb7f8339e",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "Conversational fluency and conventional response-quality scores can coexist with weak qualitative richness, directly qualifying general claims about adaptive probing.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "7.1 Coding Results Overall and Across Groups",
+                    "table": null,
+                    "figure": "Figure 5",
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Direct evidence on LLM conversational data collection; the topic and operationalization of richness bound generalization.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_0876e37522c7",
+              "bibtex_key": "cuevas2025qualitative",
+              "title": "Collecting Qualitative Data at Scale with Large Language Models: A Case Study",
+              "author": "Cuevas, Alejandro and Scurrell, Jennifer V. and Brown, Eva M. and Entenmann, Jason and Daepp, Madeleine I. G.",
+              "year": "2025",
+              "doi": "10.1145/3710947",
+              "url": "https://arxiv.org/abs/2309.10187",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "supports",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_7e39509deda6",
+            "study_id": "study_cc345802522e",
+            "question_id": null,
+            "author_claim": "AI interviews can sustain effort and reveal explanations hidden beneath one-shot answers.",
+            "evidence_statement": "More than 95% completed the interview; the median interview lasted 27 minutes and produced about 610 respondent words, while probing revealed risk beliefs and investing misconceptions obscured by initial low-income explanations.",
+            "reviewer_interpretation": "This is strong feasibility and discovery evidence, although the value of emergent themes is not equivalent to criterion validity.",
+            "outcome": "engagement and thematic depth",
+            "direction": "positive",
+            "population": null,
+            "conditions": [],
+            "measure": "completion, duration, text volume, and inductive themes",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": "15-18",
+                "section": "3.3 Results",
+                "table": null,
+                "figure": "Figures 3-4",
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_cc345802522e",
+            "source_ids": [
+              "src_2fc31ffa6791"
+            ],
+            "label": "Chopra and Haaland AI qualitative interview study",
+            "design": "large online AI-led qualitative interview with mixed qualitative and quantitative validation",
+            "population": "U.S. stock-market nonparticipants able to save",
+            "sample_size": 395,
+            "setting": "roughly 30-minute online text interviews",
+            "intervention": "adaptive AI qualitative interviewer",
+            "comparator": "closed-ended and one-shot open-ended survey measures",
+            "methods": [
+              "inductive coding",
+              "respondent evaluation",
+              "quantitative coding"
+            ],
+            "measures": [
+              "completion",
+              "effort",
+              "naturalness",
+              "themes and behavioral associations"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_e841dad08d7a",
+            "study_id": "study_cc345802522e",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "This is strong feasibility and discovery evidence, although the value of emergent themes is not equivalent to criterion validity.",
+                "locators": [
+                  {
+                    "page": "15-18",
+                    "section": "3.3 Results",
+                    "table": null,
+                    "figure": "Figures 3-4",
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Highly relevant economics application, with validation bounded by one focal population and interview purpose.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_2fc31ffa6791",
+              "bibtex_key": "chopra2023qualitative",
+              "title": "Conducting Qualitative Interviews with AI",
+              "author": "Chopra, Felix and Haaland, Ingar",
+              "year": "2023",
+              "doi": "10.2139/ssrn.4572954",
+              "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4572954",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "qualifies",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_5cd4384055e2",
+            "study_id": "study_90a042fe8231",
+            "question_id": null,
+            "author_claim": "Chatbot collection did not provide a general longitudinal data-quality or experience advantage.",
+            "evidence_statement": "Web surveys often had more favorable response characteristics and quality, chatbot respondents supplied fewer words over time, and chatbot ratings of enjoyment, usefulness, and security were lower, although attention-check performance favored the chatbot.",
+            "reviewer_interpretation": "Conversational interfaces can underperform conventional forms when repeated use and privacy perceptions matter; effects depend on metric and deployment horizon.",
+            "outcome": "longitudinal data quality and experience",
+            "direction": "mixed negative",
+            "population": null,
+            "conditions": [],
+            "measure": "response behavior, attention checks, and user ratings",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": "12-17",
+                "section": "Results and General discussion",
+                "table": null,
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_90a042fe8231",
+            "source_ids": [
+              "src_43270b46dc12"
+            ],
+            "label": "Zarouali et al. longitudinal chatbot survey comparison",
+            "design": "preregistered longitudinal chatbot-versus-web-survey comparison",
+            "population": "Dutch adult participants",
+            "sample_size": 304,
+            "setting": "14-day repeated data collection",
+            "intervention": "messaging-platform chatbot survey",
+            "comparator": "conventional web survey",
+            "methods": [
+              "longitudinal response analysis",
+              "user evaluation"
+            ],
+            "measures": [
+              "response characteristics",
+              "data quality",
+              "enjoyment",
+              "usefulness",
+              "security"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_c5611c8cca28",
+            "study_id": "study_90a042fe8231",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "Conversational interfaces can underperform conventional forms when repeated use and privacy perceptions matter; effects depend on metric and deployment horizon.",
+                "locators": [
+                  {
+                    "page": "12-17",
+                    "section": "Results and General discussion",
+                    "table": null,
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Direct mode comparison for repeated chatbot surveys, less direct for generative long-form interviewing.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_43270b46dc12",
+              "bibtex_key": "zarouali2024comparing",
+              "title": "Comparing Chatbots and Online Surveys for (Longitudinal) Data Collection: An Investigation of Response Characteristics, Data Quality, and User Evaluation",
+              "author": "Zarouali, Brahim and Araujo, Theo and Ohme, Jakob and de Vreese, Claes",
+              "year": "2024",
+              "doi": "10.1080/19312458.2022.2156489",
+              "url": "https://www.dare.uva.nl/id/8d1a3d3a-31ff-4fcf-9dd5-614e9e37efed",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "supports",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_2c7b181eb6f7",
+            "study_id": "study_2df036585384",
+            "question_id": null,
+            "author_claim": "The conversational survey increased engagement and response quality.",
+            "evidence_statement": "The chatbot elicited 39% more information and 25.7% higher aggregate response quality across informativeness, relevance, specificity, and clarity than the conventional survey.",
+            "reviewer_interpretation": "A bounded pre-LLM adaptive system can improve coded open-response quality at scale, though Gricean metrics do not establish broader validity.",
+            "outcome": "open-ended response quality",
+            "direction": "positive",
+            "population": null,
+            "conditions": [],
+            "measure": "human-coded Gricean response quality",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": null,
+                "section": "4.4 Summary of Findings",
+                "table": null,
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_2df036585384",
+            "source_ids": [
+              "src_645a7d05436c"
+            ],
+            "label": "Xiao et al. conversational survey field study",
+            "design": "large field comparison of conversational and conventional open-ended surveys",
+            "population": "online survey participants",
+            "sample_size": 600,
+            "setting": "mostly open-ended survey with more than 5,200 responses",
+            "intervention": "AI-powered conversational survey chatbot",
+            "comparator": "Qualtrics online survey",
+            "methods": [
+              "between-mode field comparison",
+              "human response coding"
+            ],
+            "measures": [
+              "engagement",
+              "informativeness",
+              "relevance",
+              "specificity",
+              "clarity"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_f5ba6dc9a8e7",
+            "study_id": "study_2df036585384",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "A bounded pre-LLM adaptive system can improve coded open-response quality at scale, though Gricean metrics do not establish broader validity.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "4.4 Summary of Findings",
+                    "table": null,
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Foundational comparative evidence for conversational surveys; technology predates general-purpose LLMs.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_645a7d05436c",
+              "bibtex_key": "xiao2020tell",
+              "title": "Tell Me About Yourself: Using an AI-Powered Chatbot to Conduct Conversational Surveys with Open-ended Questions",
+              "author": "Xiao, Ziang and Zhou, Michelle X. and Liao, Q. Vera and Mark, Gloria and Chi, Changyan and Chen, Wenxi and Yang, Huahai",
+              "year": "2020",
+              "doi": "10.1145/3381804",
+              "url": "https://arxiv.org/abs/1905.10700",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "supports",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_d5235f8ab82d",
+            "study_id": "study_3a94b867fb29",
+            "question_id": null,
+            "author_claim": "Active-listening capabilities improved engagement and elicited response quality.",
+            "evidence_statement": "The full chatbot significantly outperformed the baseline across agent comprehension, user interest, chat experience, engagement duration, response word count, and manually coded response quality.",
+            "reviewer_interpretation": "Specific conversational capabilities—not chatbot presence alone—can improve elicitation, although intent models performed unevenly across topics.",
+            "outcome": "active-listening interview quality",
+            "direction": "positive",
+            "population": null,
+            "conditions": [],
+            "measure": "user ratings, engagement, word count, and coded response quality",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": null,
+                "section": "5.2.4 Results",
+                "table": "Table 6",
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_3a94b867fb29",
+            "source_ids": [
+              "src_924a2313c5a7"
+            ],
+            "label": "Xiao et al. active-listening chatbot evaluation",
+            "design": "live randomized chatbot feature comparison",
+            "population": "U.S. and Canadian MTurk adults",
+            "sample_size": 206,
+            "setting": "four common interview topics",
+            "intervention": "chatbot with comprehension and active-listening skills",
+            "comparator": "baseline interview chatbot",
+            "methods": [
+              "live user experiment",
+              "manual coding of 824 responses"
+            ],
+            "measures": [
+              "response quality",
+              "engagement",
+              "agent comprehension",
+              "user interest and experience"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_3bd3efea9687",
+            "study_id": "study_3a94b867fb29",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "Specific conversational capabilities—not chatbot presence alone—can improve elicitation, although intent models performed unevenly across topics.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "5.2.4 Results",
+                    "table": "Table 6",
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Strong design evidence for active listening in bounded pre-LLM interview chatbots.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_924a2313c5a7",
+              "bibtex_key": "xiao2020hear",
+              "title": "If I Hear You Correctly: Building and Evaluating Interview Chatbots with Active Listening Skills",
+              "author": "Xiao, Ziang and Zhou, Michelle X. and Chen, Wenxi and Yang, Huahai and Chi, Changyan",
+              "year": "2020",
+              "doi": "10.1145/3313831.3376131",
+              "url": "https://arxiv.org/abs/2002.01862",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "supports",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_85673405f4c3",
+            "study_id": "study_448b2408d516",
+            "question_id": null,
+            "author_claim": "Dividing topics across managed agents improved elicitation and conversational flow.",
+            "evidence_statement": "CommunityBots participants were significantly more engaged, provided more specific, clear, and expansive responses, and experienced fewer conversational interruptions than the single-agent baseline.",
+            "reviewer_interpretation": "Interviewer architecture and topic management affect output, but the multi-agent treatment bundles several interface and conversation changes.",
+            "outcome": "multi-agent elicitation quality",
+            "direction": "positive",
+            "population": null,
+            "conditions": [],
+            "measure": "engagement, coded quality, and interruptions",
+            "timepoint": null,
+            "certainty": "low to moderate",
+            "locators": [
+              {
+                "page": null,
+                "section": "6.1-6.2 Results",
+                "table": null,
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_448b2408d516",
+            "source_ids": [
+              "src_a09d64694611"
+            ],
+            "label": "CommunityBots multi-agent public-input experiment",
+            "design": "between-subject multi-agent versus single-agent chatbot experiment",
+            "population": "U.S. crowd workers",
+            "sample_size": 96,
+            "setting": "public input across household, work, and health domains",
+            "intervention": "three-agent CommunityBots with conversation and topic management",
+            "comparator": "single-agent chatbot baseline",
+            "methods": [
+              "random assignment",
+              "quantitative and qualitative response analysis"
+            ],
+            "measures": [
+              "engagement",
+              "specificity",
+              "clarity",
+              "expansiveness",
+              "interruptions"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_00f402190fb7",
+            "study_id": "study_448b2408d516",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "low-to-moderate confidence",
+                "rationale": "Interviewer architecture and topic management affect output, but the multi-agent treatment bundles several interface and conversation changes.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "6.1-6.2 Results",
+                    "table": null,
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "low-to-moderate confidence",
+            "applicability": "Relevant design evidence for public-input elicitation; not a generative-model comparison.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_a09d64694611",
+              "bibtex_key": "jiang2023communitybots",
+              "title": "CommunityBots: Creating and Evaluating a Multi-Agent Chatbot Platform for Public Input Elicitation",
+              "author": "Jiang, Zhiqiu and Rashik, Mashrur and Panchal, Kunjal and Jasim, Mahmood and Sarvghad, Ali and Riahi, Pari and DeWitt, Erica and Thurber, Fey and Mahyar, Narges",
+              "year": "2023",
+              "doi": "10.1145/3579469",
+              "url": "https://doi.org/10.1145/3579469",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "qualifies",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_2356641420a1",
+            "study_id": "study_21e32e61e4ec",
+            "question_id": null,
+            "author_claim": "AI interviewing was viable and broadly comparable to human interviewing, with different implementation failures.",
+            "evidence_statement": "Human coding found broadly similar response quality and overall guideline adherence; the AI more often missed follow-up opportunities or gave evaluative encouragement, while humans more often missed active listening or suggested answers.",
+            "reviewer_interpretation": "Comparable averages conceal substantively different failure modes, and the small student sample makes the result proof-of-concept evidence.",
+            "outcome": "guideline adherence and response quality",
+            "direction": "mixed comparable",
+            "population": null,
+            "conditions": [],
+            "measure": "coded interviewer behavior and response quality",
+            "timepoint": null,
+            "certainty": "low",
+            "locators": [
+              {
+                "page": null,
+                "section": "4 Findings and 5 Discussion",
+                "table": null,
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_21e32e61e4ec",
+            "source_ids": [
+              "src_a7e84b286007"
+            ],
+            "label": "Wuttke et al. controlled AI-human political interview comparison",
+            "design": "small randomized controlled AI-versus-human interview study",
+            "population": "university students",
+            "sample_size": null,
+            "setting": "political interviews with identical questionnaires",
+            "intervention": "LLM conversational interviewer",
+            "comparator": "student human interviewer",
+            "methods": [
+              "random assignment",
+              "qualitative and quantitative guideline coding"
+            ],
+            "measures": [
+              "response quality",
+              "guideline adherence",
+              "engagement",
+              "failure modes"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_12d9f4c22848",
+            "study_id": "study_21e32e61e4ec",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "low confidence",
+                "rationale": "Comparable averages conceal substantively different failure modes, and the small student sample makes the result proof-of-concept evidence.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "4 Findings and 5 Discussion",
+                    "table": null,
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "low confidence",
+            "applicability": "Direct contemporary AI-human comparison but a small monitored student study.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_a7e84b286007",
+              "bibtex_key": "wuttke2024conversational",
+              "title": "AI Conversational Interviewing: Transforming Surveys with LLMs as Adaptive Interviewers",
+              "author": "Wuttke, Alexander and Aßenmacher, Matthias and Klamm, Christopher and Lang, Max M. and Würschinger, Quirin and Kreuter, Frauke",
+              "year": "2024",
+              "doi": "10.48550/arXiv.2410.01824",
+              "url": "https://arxiv.org/abs/2410.01824",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "qualifies",
+          "rationale": "Full-text evidence added in the expanded reviewed tranche.",
+          "finding": {
+            "finding_id": "finding_d8050d6897ef",
+            "study_id": "study_9bc44c06cdd3",
+            "question_id": null,
+            "author_claim": "Conversational platform and style jointly reduced satisficing.",
+            "evidence_statement": "The chatbot produced more differentiated responses than the web survey (platform F(1,102)=9.83, p<.01), with a platform-by-style interaction (F(1,102)=14.33, p<.001); dropout and ease of use did not differ significantly.",
+            "reviewer_interpretation": "Interface and tone interact: a chatbot label or layout alone is not the operative treatment, and structured-response differentiation is only one quality dimension.",
+            "outcome": "survey satisficing",
+            "direction": "positive conditional",
+            "population": null,
+            "conditions": [],
+            "measure": "response differentiation index",
+            "timepoint": null,
+            "certainty": "moderate",
+            "locators": [
+              {
+                "page": "7",
+                "section": "Non-differentiation",
+                "table": null,
+                "figure": "Figure 2",
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "study": {
+            "study_id": "study_9bc44c06cdd3",
+            "source_ids": [
+              "src_aa3e71d53846"
+            ],
+            "label": "Kim et al. platform-by-style survey experiment",
+            "design": "2 by 2 experiment varying web versus chatbot platform and formal versus casual style",
+            "population": "adult survey participants",
+            "sample_size": 117,
+            "setting": "structured survey administration",
+            "intervention": "chatbot survey with formal or casual style",
+            "comparator": "web survey with formal or casual style",
+            "methods": [
+              "factorial experiment",
+              "qualitative thematic analysis"
+            ],
+            "measures": [
+              "response differentiation",
+              "dropout",
+              "ease",
+              "enjoyment"
+            ],
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_d959256c5d38",
+            "study_id": "study_9bc44c06cdd3",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "moderate confidence",
+                "rationale": "Interface and tone interact: a chatbot label or layout alone is not the operative treatment, and structured-response differentiation is only one quality dimension.",
+                "locators": [
+                  {
+                    "page": "7",
+                    "section": "Non-differentiation",
+                    "table": null,
+                    "figure": "Figure 2",
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "moderate confidence",
+            "applicability": "Useful causal evidence on conversational style in structured surveys; indirect for open-ended AI interviewing.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:54:22Z",
+            "updated_at": "2026-08-14T12:54:22Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_aa3e71d53846",
+              "bibtex_key": "kim2019comparing",
+              "title": "Comparing Data from Chatbot and Web Surveys: Effects of Platform and Conversational Style on Survey Response Quality",
+              "author": "Kim, Soomin and Lee, Joonhwan and Gweon, Gahgene",
+              "year": "2019",
+              "doi": "10.1145/3290605.3300316",
+              "url": "https://soominkim.github.io/project/CHI2019_KIM_Comparing.pdf",
+              "status": "included"
+            }
+          ]
+        },
+        {
+          "relationship": "supports",
+          "rationale": "Applied comparison supports respondent-specific over generic probing, with important design limitations.",
+          "finding": {
+            "finding_id": "finding_19c1914293f1",
+            "study_id": "study_a50c93f4a984",
+            "question_id": null,
+            "author_claim": "SmartProbe generates effective probes and elicits more informative responses than generic probing.",
+            "evidence_statement": "Market researchers rated 69% of 300 generated probes as 4/5 or 5/5; 76% of responses to SmartProbe were rated 4/5 or 5/5 versus 25% under generic probing in parallel samples of 500 and 457.",
+            "reviewer_interpretation": "The results support respondent-specific probing, but proprietary in-house ratings, bundled platforms, and nonrandom parallel samples limit causal and independent-validity claims.",
+            "outcome": "probe and response quality",
+            "direction": "positive",
+            "population": null,
+            "conditions": [],
+            "measure": "in-house five-point expert ratings",
+            "timepoint": null,
+            "certainty": "low to moderate",
+            "locators": [
+              {
+                "page": null,
+                "section": "4.1-4.2 Evaluation",
+                "table": "Tables 2 and 4",
+                "figure": null,
+                "passage": null
+              }
+            ],
+            "created_at": "2026-08-14T12:59:31Z",
+            "updated_at": "2026-08-14T12:59:31Z"
+          },
+          "study": {
+            "study_id": "study_a50c93f4a984",
+            "source_ids": [
+              "src_20b583c660b2"
+            ],
+            "label": "SmartProbe virtual-moderator evaluations",
+            "design": "expert probe-rating study plus parallel survey comparison",
+            "population": "North American market-research survey participants",
+            "sample_size": 957,
+            "setting": "market-research surveys across multiple domains",
+            "intervention": "LLM-generated respondent-specific SmartProbe follow-up",
+            "comparator": "generic pre-programmed probing question",
+            "methods": [
+              "expert ratings of 300 generated probes",
+              "parallel surveys with 457 standard and 500 conversational respondents"
+            ],
+            "measures": [
+              "probe quality",
+              "probing-response quality",
+              "word count",
+              "theme differentiation"
+            ],
+            "created_at": "2026-08-14T12:59:25Z",
+            "updated_at": "2026-08-14T12:59:25Z"
+          },
+          "appraisal": {
+            "appraisal_id": "appraisal_1d1f064ec497",
+            "study_id": "study_a50c93f4a984",
+            "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+            "framework_version": "1",
+            "dimensions": [
+              {
+                "name": "design and inference",
+                "judgment": "some concerns",
+                "rationale": "Large applied samples and transparent outcome breakdowns are useful, but assignment, platform bundling, and in-house outcome ratings limit causal inference.",
+                "locators": [
+                  {
+                    "page": null,
+                    "section": "4 Evaluation",
+                    "table": null,
+                    "figure": null,
+                    "passage": null
+                  }
+                ]
+              }
+            ],
+            "overall_judgment": "low-to-moderate confidence",
+            "applicability": "Direct evidence on LLM-generated market-research probes; less direct for independent academic qualitative interviews.",
+            "reviewer": "Codex full-text review",
+            "created_at": "2026-08-14T12:59:31Z",
+            "updated_at": "2026-08-14T12:59:31Z"
+          },
+          "sources": [
+            {
+              "source_id": "src_20b583c660b2",
+              "bibtex_key": "seltzer2023smartprobe",
+              "title": "SmartProbe: A Virtual Moderator for Market Research Surveys",
+              "author": "Seltzer, Josh and Pan, James and Cheng, Kathy and Sun, Yichen and Kolagati, Sreekar and Lin, Junchen and Zong, Sarah",
+              "year": "2023",
+              "doi": "10.48550/arXiv.2305.08271",
+              "url": null,
+              "status": "included"
+            }
+          ]
         }
       ],
       "confidence": "moderate",
       "confidence_rationale": "Two experiments converge that probing effects are multidimensional and conditional; samples and tasks remain bounded.",
       "status": "reviewed",
       "created_at": "2026-08-14T09:58:11Z",
-      "updated_at": "2026-08-14T09:58:11Z"
+      "updated_at": "2026-08-14T12:59:39Z"
     }
   ],
   "sources": [
+    {
+      "source_id": "src_0876e37522c7",
+      "bibtex_key": "cuevas2025qualitative",
+      "title": "Collecting Qualitative Data at Scale with Large Language Models: A Case Study",
+      "author": "Cuevas, Alejandro and Scurrell, Jennifer V. and Brown, Eva M. and Entenmann, Jason and Daepp, Madeleine I. G.",
+      "year": "2025",
+      "doi": "10.1145/3710947",
+      "url": "https://arxiv.org/abs/2309.10187",
+      "status": "included"
+    },
+    {
+      "source_id": "src_20b583c660b2",
+      "bibtex_key": "seltzer2023smartprobe",
+      "title": "SmartProbe: A Virtual Moderator for Market Research Surveys",
+      "author": "Seltzer, Josh and Pan, James and Cheng, Kathy and Sun, Yichen and Kolagati, Sreekar and Lin, Junchen and Zong, Sarah",
+      "year": "2023",
+      "doi": "10.48550/arXiv.2305.08271",
+      "url": null,
+      "status": "included"
+    },
     {
       "source_id": "src_2a843bf69441",
       "bibtex_key": "barari2025aiassisted",
@@ -1912,6 +3824,16 @@
       "year": "2025",
       "doi": "10.48550/arXiv.2504.13908",
       "url": "https://arxiv.org/abs/2504.13908",
+      "status": "included"
+    },
+    {
+      "source_id": "src_2fc31ffa6791",
+      "bibtex_key": "chopra2023qualitative",
+      "title": "Conducting Qualitative Interviews with AI",
+      "author": "Chopra, Felix and Haaland, Ingar",
+      "year": "2023",
+      "doi": "10.2139/ssrn.4572954",
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4572954",
       "status": "included"
     },
     {
@@ -1925,6 +3847,16 @@
       "status": "included"
     },
     {
+      "source_id": "src_43270b46dc12",
+      "bibtex_key": "zarouali2024comparing",
+      "title": "Comparing Chatbots and Online Surveys for (Longitudinal) Data Collection: An Investigation of Response Characteristics, Data Quality, and User Evaluation",
+      "author": "Zarouali, Brahim and Araujo, Theo and Ohme, Jakob and de Vreese, Claes",
+      "year": "2024",
+      "doi": "10.1080/19312458.2022.2156489",
+      "url": "https://www.dare.uva.nl/id/8d1a3d3a-31ff-4fcf-9dd5-614e9e37efed",
+      "status": "included"
+    },
+    {
       "source_id": "src_5e242e942988",
       "bibtex_key": "sun2025comparing",
       "title": "Comparing the Performance of a Large Language Model and Naive Human Interviewers in Interviewing Children about a Witnessed Mock-Event",
@@ -1935,6 +3867,16 @@
       "status": "included"
     },
     {
+      "source_id": "src_645a7d05436c",
+      "bibtex_key": "xiao2020tell",
+      "title": "Tell Me About Yourself: Using an AI-Powered Chatbot to Conduct Conversational Surveys with Open-ended Questions",
+      "author": "Xiao, Ziang and Zhou, Michelle X. and Liao, Q. Vera and Mark, Gloria and Chi, Changyan and Chen, Wenxi and Yang, Huahai",
+      "year": "2020",
+      "doi": "10.1145/3381804",
+      "url": "https://arxiv.org/abs/1905.10700",
+      "status": "included"
+    },
+    {
       "source_id": "src_6541b25ef96e",
       "bibtex_key": "geiecke2026conversations",
       "title": "Conversations at Scale: Robust AI-led Interviews",
@@ -1942,6 +3884,56 @@
       "year": "2026",
       "doi": "10.2139/ssrn.4974382",
       "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4974382",
+      "status": "included"
+    },
+    {
+      "source_id": "src_8f39b52d2f72",
+      "bibtex_key": "guven2025comparison",
+      "title": "Comparing AI-led to Human-led Chat-based Interviews: Motivations, Initial Results, and Challenges",
+      "author": "Guven, Semra Yuksel and Gårdhus, Tobias and Bjerre-Nielsen, Andreas and Carlsen, Hjalmar Bang",
+      "year": "2025",
+      "doi": null,
+      "url": "https://osf.io/9mx36",
+      "status": "included"
+    },
+    {
+      "source_id": "src_924a2313c5a7",
+      "bibtex_key": "xiao2020hear",
+      "title": "If I Hear You Correctly: Building and Evaluating Interview Chatbots with Active Listening Skills",
+      "author": "Xiao, Ziang and Zhou, Michelle X. and Chen, Wenxi and Yang, Huahai and Chi, Changyan",
+      "year": "2020",
+      "doi": "10.1145/3313831.3376131",
+      "url": "https://arxiv.org/abs/2002.01862",
+      "status": "included"
+    },
+    {
+      "source_id": "src_a09d64694611",
+      "bibtex_key": "jiang2023communitybots",
+      "title": "CommunityBots: Creating and Evaluating a Multi-Agent Chatbot Platform for Public Input Elicitation",
+      "author": "Jiang, Zhiqiu and Rashik, Mashrur and Panchal, Kunjal and Jasim, Mahmood and Sarvghad, Ali and Riahi, Pari and DeWitt, Erica and Thurber, Fey and Mahyar, Narges",
+      "year": "2023",
+      "doi": "10.1145/3579469",
+      "url": "https://doi.org/10.1145/3579469",
+      "status": "included"
+    },
+    {
+      "source_id": "src_a7e84b286007",
+      "bibtex_key": "wuttke2024conversational",
+      "title": "AI Conversational Interviewing: Transforming Surveys with LLMs as Adaptive Interviewers",
+      "author": "Wuttke, Alexander and Aßenmacher, Matthias and Klamm, Christopher and Lang, Max M. and Würschinger, Quirin and Kreuter, Frauke",
+      "year": "2024",
+      "doi": "10.48550/arXiv.2410.01824",
+      "url": "https://arxiv.org/abs/2410.01824",
+      "status": "included"
+    },
+    {
+      "source_id": "src_aa3e71d53846",
+      "bibtex_key": "kim2019comparing",
+      "title": "Comparing Data from Chatbot and Web Surveys: Effects of Platform and Conversational Style on Survey Response Quality",
+      "author": "Kim, Soomin and Lee, Joonhwan and Gweon, Gahgene",
+      "year": "2019",
+      "doi": "10.1145/3290605.3300316",
+      "url": "https://soominkim.github.io/project/CHI2019_KIM_Comparing.pdf",
       "status": "included"
     },
     {
@@ -1981,7 +3973,7 @@
     "subtitle": "What AI Interviewers Change About Disclosure, Adaptivity, and Measurement",
     "audience": "Economists, survey methodologists, and social scientists considering AI-mediated interviews",
     "genre": "JEL-style economics literature review",
-    "abstract": "Adaptive interviewing has traditionally exchanged standardization and scale for interviewer judgment and conversational depth. AI interviewers relax that production constraint, but their value depends on whether conversational gains become valid measurements rather than merely longer transcripts. This review connects research on virtual humans, conversational surveys, adaptive probing, and criterion-based interview evaluation. Across seven studies, the evidence supports a conditional conclusion: automation can reduce evaluation apprehension and can improve selected dimensions of probing and transcript quality, yet effects depend on disclosure, trust, probe purpose, modality, and the availability of external validity criteria. The field has advanced faster on scalable elicitation than on measurement theory. Its central agenda is therefore to identify which interviewer decisions should be automated, for whom, and against which substantive benchmark.",
+    "abstract": "Adaptive interviewing has traditionally exchanged standardization and scale for interviewer judgment and conversational depth. AI interviewers relax that production constraint, but their value depends on whether conversational gains become valid measurements rather than merely longer transcripts. This review connects research on virtual humans, conversational surveys, adaptive probing, and criterion-based interview evaluation. Across seventeen papers, the evidence supports a conditional conclusion: automation can reduce evaluation apprehension and can improve selected dimensions of probing and transcript quality, yet effects depend on disclosure, trust, probe purpose, modality, and the availability of external validity criteria. The field has advanced faster on scalable elicitation than on measurement theory. Its central agenda is therefore to identify which interviewer decisions should be automated, for whom, and against which substantive benchmark.",
     "keywords": [
       "artificial intelligence",
       "interview methods",
@@ -2042,7 +4034,13 @@
         "source_ids": [
           "src_db7efbce68d9",
           "src_2a843bf69441",
-          "src_af8750017209"
+          "src_af8750017209",
+          "src_20b583c660b2",
+          "src_645a7d05436c",
+          "src_924a2313c5a7",
+          "src_a09d64694611",
+          "src_aa3e71d53846",
+          "src_43270b46dc12"
         ],
         "relationship_to_review": "Identifies design margins and shows that adaptivity has selective benefits and measurable burden costs."
       },
@@ -2134,6 +4132,15 @@
           "claim_5e6f2020b1ed"
         ],
         "caveat": "Transcript-quality benchmarks do not by themselves establish construct or predictive validity."
+      },
+      {
+        "source_id": "src_20b583c660b2",
+        "role": "evaluation",
+        "contribution": "Demonstrates respondent-specific LLM probing in an applied market-research system.",
+        "claim_ids": [
+          "claim_afb1fe75ab9d"
+        ],
+        "caveat": "Parallel samples, bundled systems, and proprietary ratings limit causal and independent-validity claims."
       }
     ],
     "timeline": [
@@ -2152,6 +4159,14 @@
         "significance": "The interface becomes cheaper and more familiar, shifting attention toward usability and trust.",
         "source_ids": [
           "src_db7efbce68d9"
+        ]
+      },
+      {
+        "year": 2023,
+        "label": "Language models begin generating respondent-specific probes",
+        "significance": "Applied systems make the content and policy of follow-up questions a central design margin.",
+        "source_ids": [
+          "src_20b583c660b2"
         ]
       },
       {
@@ -2244,6 +4259,6 @@
       "The most defensible current result is conditional: automation can improve disclosure and selected forms of probing, while trust, burden, task, and modality determine whether those gains survive.",
       "The next generation of studies should pre-specify the measurement target, benchmark against external criteria, report heterogeneous effects, and compare total production costs rather than transcript volume alone."
     ],
-    "updated_at": "2026-08-14T11:01:45Z"
+    "updated_at": "2026-08-14T13:03:58Z"
   }
 }

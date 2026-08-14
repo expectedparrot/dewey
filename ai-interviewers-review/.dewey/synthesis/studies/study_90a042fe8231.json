@@ -1,0 +1,26 @@
+{
+  "study_id": "study_90a042fe8231",
+  "source_ids": [
+    "src_43270b46dc12"
+  ],
+  "label": "Zarouali et al. longitudinal chatbot survey comparison",
+  "design": "preregistered longitudinal chatbot-versus-web-survey comparison",
+  "population": "Dutch adult participants",
+  "sample_size": 304,
+  "setting": "14-day repeated data collection",
+  "intervention": "messaging-platform chatbot survey",
+  "comparator": "conventional web survey",
+  "methods": [
+    "longitudinal response analysis",
+    "user evaluation"
+  ],
+  "measures": [
+    "response characteristics",
+    "data quality",
+    "enjoyment",
+    "usefulness",
+    "security"
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

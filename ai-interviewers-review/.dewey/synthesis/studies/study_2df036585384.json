@@ -1,0 +1,26 @@
+{
+  "study_id": "study_2df036585384",
+  "source_ids": [
+    "src_645a7d05436c"
+  ],
+  "label": "Xiao et al. conversational survey field study",
+  "design": "large field comparison of conversational and conventional open-ended surveys",
+  "population": "online survey participants",
+  "sample_size": 600,
+  "setting": "mostly open-ended survey with more than 5,200 responses",
+  "intervention": "AI-powered conversational survey chatbot",
+  "comparator": "Qualtrics online survey",
+  "methods": [
+    "between-mode field comparison",
+    "human response coding"
+  ],
+  "measures": [
+    "engagement",
+    "informativeness",
+    "relevance",
+    "specificity",
+    "clarity"
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

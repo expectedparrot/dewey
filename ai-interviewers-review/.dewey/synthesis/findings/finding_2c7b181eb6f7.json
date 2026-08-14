@@ -1,0 +1,26 @@
+{
+  "finding_id": "finding_2c7b181eb6f7",
+  "study_id": "study_2df036585384",
+  "question_id": null,
+  "author_claim": "The conversational survey increased engagement and response quality.",
+  "evidence_statement": "The chatbot elicited 39% more information and 25.7% higher aggregate response quality across informativeness, relevance, specificity, and clarity than the conventional survey.",
+  "reviewer_interpretation": "A bounded pre-LLM adaptive system can improve coded open-response quality at scale, though Gricean metrics do not establish broader validity.",
+  "outcome": "open-ended response quality",
+  "direction": "positive",
+  "population": null,
+  "conditions": [],
+  "measure": "human-coded Gricean response quality",
+  "timepoint": null,
+  "certainty": "moderate",
+  "locators": [
+    {
+      "page": null,
+      "section": "4.4 Summary of Findings",
+      "table": null,
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

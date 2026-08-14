@@ -1,0 +1,27 @@
+{
+  "appraisal_id": "appraisal_00f402190fb7",
+  "study_id": "study_448b2408d516",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "design and inference",
+      "judgment": "low-to-moderate confidence",
+      "rationale": "Interviewer architecture and topic management affect output, but the multi-agent treatment bundles several interface and conversation changes.",
+      "locators": [
+        {
+          "page": null,
+          "section": "6.1-6.2 Results",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "low-to-moderate confidence",
+  "applicability": "Relevant design evidence for public-input elicitation; not a generative-model comparison.",
+  "reviewer": "Codex full-text review",
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

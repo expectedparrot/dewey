@@ -1,0 +1,26 @@
+{
+  "study_id": "study_448b2408d516",
+  "source_ids": [
+    "src_a09d64694611"
+  ],
+  "label": "CommunityBots multi-agent public-input experiment",
+  "design": "between-subject multi-agent versus single-agent chatbot experiment",
+  "population": "U.S. crowd workers",
+  "sample_size": 96,
+  "setting": "public input across household, work, and health domains",
+  "intervention": "three-agent CommunityBots with conversation and topic management",
+  "comparator": "single-agent chatbot baseline",
+  "methods": [
+    "random assignment",
+    "quantitative and qualitative response analysis"
+  ],
+  "measures": [
+    "engagement",
+    "specificity",
+    "clarity",
+    "expansiveness",
+    "interruptions"
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

@@ -1,0 +1,26 @@
+{
+  "finding_id": "finding_dc3b9b2618e4",
+  "study_id": "study_bb4eb7f8339e",
+  "question_id": null,
+  "author_claim": "LLM chatbots improved experience but did not reliably produce richer qualitative evidence.",
+  "evidence_statement": "Across coded segments, relevance averaged 87.2% and clarity 82.1%, but cognitive empathy averaged 31.6% and palpability 22.2%; apart from follow-up quality, the LLM conditions did not significantly outperform the naive baseline.",
+  "reviewer_interpretation": "Conversational fluency and conventional response-quality scores can coexist with weak qualitative richness, directly qualifying general claims about adaptive probing.",
+  "outcome": "qualitative richness",
+  "direction": "no general improvement",
+  "population": null,
+  "conditions": [],
+  "measure": "human-coded communicative quality and richness",
+  "timepoint": null,
+  "certainty": "moderate",
+  "locators": [
+    {
+      "page": null,
+      "section": "7.1 Coding Results Overall and Across Groups",
+      "table": null,
+      "figure": "Figure 5",
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

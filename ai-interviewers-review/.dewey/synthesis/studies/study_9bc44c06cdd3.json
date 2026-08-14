@@ -1,0 +1,25 @@
+{
+  "study_id": "study_9bc44c06cdd3",
+  "source_ids": [
+    "src_aa3e71d53846"
+  ],
+  "label": "Kim et al. platform-by-style survey experiment",
+  "design": "2 by 2 experiment varying web versus chatbot platform and formal versus casual style",
+  "population": "adult survey participants",
+  "sample_size": 117,
+  "setting": "structured survey administration",
+  "intervention": "chatbot survey with formal or casual style",
+  "comparator": "web survey with formal or casual style",
+  "methods": [
+    "factorial experiment",
+    "qualitative thematic analysis"
+  ],
+  "measures": [
+    "response differentiation",
+    "dropout",
+    "ease",
+    "enjoyment"
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

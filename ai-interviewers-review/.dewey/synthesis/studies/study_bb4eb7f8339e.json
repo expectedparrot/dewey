@@ -1,0 +1,26 @@
+{
+  "study_id": "study_bb4eb7f8339e",
+  "source_ids": [
+    "src_0876e37522c7"
+  ],
+  "label": "Cuevas et al. three-chatbot richness evaluation",
+  "design": "three-condition comparative experiment",
+  "population": "online adult participants",
+  "sample_size": 399,
+  "setting": "conversational study of views about AI",
+  "intervention": "dynamic-prober and member-checker LLM chatbots",
+  "comparator": "hard-coded baseline chatbot",
+  "methods": [
+    "participant experience measures",
+    "human coding of response quality and qualitative richness"
+  ],
+  "measures": [
+    "relevance",
+    "clarity",
+    "specificity",
+    "cognitive empathy",
+    "palpability"
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

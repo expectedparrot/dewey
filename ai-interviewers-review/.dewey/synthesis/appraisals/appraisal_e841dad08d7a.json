@@ -1,0 +1,27 @@
+{
+  "appraisal_id": "appraisal_e841dad08d7a",
+  "study_id": "study_cc345802522e",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "design and inference",
+      "judgment": "moderate confidence",
+      "rationale": "This is strong feasibility and discovery evidence, although the value of emergent themes is not equivalent to criterion validity.",
+      "locators": [
+        {
+          "page": "15-18",
+          "section": "3.3 Results",
+          "table": null,
+          "figure": "Figures 3-4",
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "moderate confidence",
+  "applicability": "Highly relevant economics application, with validation bounded by one focal population and interview purpose.",
+  "reviewer": "Codex full-text review",
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

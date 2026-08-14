@@ -1,0 +1,27 @@
+{
+  "appraisal_id": "appraisal_8008db880b18",
+  "study_id": "study_0e54ad8925db",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "design and inference",
+      "judgment": "low confidence",
+      "rationale": "Holding text modality constant narrows the comparison, but the small sample and non-expert human benchmark preclude an equivalence conclusion.",
+      "locators": [
+        {
+          "page": null,
+          "section": "4 Results",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "low confidence",
+  "applicability": "Direct modality-matched comparison, limited by sample size, interviewer expertise, and an older local model.",
+  "reviewer": "Codex full-text review",
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

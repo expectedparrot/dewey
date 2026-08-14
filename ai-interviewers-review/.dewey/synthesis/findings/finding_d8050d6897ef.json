@@ -1,0 +1,26 @@
+{
+  "finding_id": "finding_d8050d6897ef",
+  "study_id": "study_9bc44c06cdd3",
+  "question_id": null,
+  "author_claim": "Conversational platform and style jointly reduced satisficing.",
+  "evidence_statement": "The chatbot produced more differentiated responses than the web survey (platform F(1,102)=9.83, p<.01), with a platform-by-style interaction (F(1,102)=14.33, p<.001); dropout and ease of use did not differ significantly.",
+  "reviewer_interpretation": "Interface and tone interact: a chatbot label or layout alone is not the operative treatment, and structured-response differentiation is only one quality dimension.",
+  "outcome": "survey satisficing",
+  "direction": "positive conditional",
+  "population": null,
+  "conditions": [],
+  "measure": "response differentiation index",
+  "timepoint": null,
+  "certainty": "moderate",
+  "locators": [
+    {
+      "page": "7",
+      "section": "Non-differentiation",
+      "table": null,
+      "figure": "Figure 2",
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

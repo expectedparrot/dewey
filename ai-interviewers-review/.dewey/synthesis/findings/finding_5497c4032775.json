@@ -1,0 +1,26 @@
+{
+  "finding_id": "finding_5497c4032775",
+  "study_id": "study_0e54ad8925db",
+  "question_id": null,
+  "author_claim": "AI and human text interviews showed different pacing but similar coded specificity and relevance.",
+  "evidence_statement": "Humans elicited longer responses per question, while the AI asked questions faster and produced longer interviews overall; coded specificity and relevance did not differ significantly.",
+  "reviewer_interpretation": "Holding text modality constant narrows the comparison, but the small sample and non-expert human benchmark preclude an equivalence conclusion.",
+  "outcome": "human-AI transcript performance",
+  "direction": "mixed",
+  "population": null,
+  "conditions": [],
+  "measure": "response length and coded specificity and relevance",
+  "timepoint": null,
+  "certainty": "low",
+  "locators": [
+    {
+      "page": null,
+      "section": "4 Results",
+      "table": null,
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

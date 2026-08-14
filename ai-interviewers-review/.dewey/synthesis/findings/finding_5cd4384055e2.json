@@ -1,0 +1,26 @@
+{
+  "finding_id": "finding_5cd4384055e2",
+  "study_id": "study_90a042fe8231",
+  "question_id": null,
+  "author_claim": "Chatbot collection did not provide a general longitudinal data-quality or experience advantage.",
+  "evidence_statement": "Web surveys often had more favorable response characteristics and quality, chatbot respondents supplied fewer words over time, and chatbot ratings of enjoyment, usefulness, and security were lower, although attention-check performance favored the chatbot.",
+  "reviewer_interpretation": "Conversational interfaces can underperform conventional forms when repeated use and privacy perceptions matter; effects depend on metric and deployment horizon.",
+  "outcome": "longitudinal data quality and experience",
+  "direction": "mixed negative",
+  "population": null,
+  "conditions": [],
+  "measure": "response behavior, attention checks, and user ratings",
+  "timepoint": null,
+  "certainty": "moderate",
+  "locators": [
+    {
+      "page": "12-17",
+      "section": "Results and General discussion",
+      "table": null,
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

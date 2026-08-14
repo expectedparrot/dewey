@@ -1,0 +1,26 @@
+{
+  "finding_id": "finding_19c1914293f1",
+  "study_id": "study_a50c93f4a984",
+  "question_id": null,
+  "author_claim": "SmartProbe generates effective probes and elicits more informative responses than generic probing.",
+  "evidence_statement": "Market researchers rated 69% of 300 generated probes as 4/5 or 5/5; 76% of responses to SmartProbe were rated 4/5 or 5/5 versus 25% under generic probing in parallel samples of 500 and 457.",
+  "reviewer_interpretation": "The results support respondent-specific probing, but proprietary in-house ratings, bundled platforms, and nonrandom parallel samples limit causal and independent-validity claims.",
+  "outcome": "probe and response quality",
+  "direction": "positive",
+  "population": null,
+  "conditions": [],
+  "measure": "in-house five-point expert ratings",
+  "timepoint": null,
+  "certainty": "low to moderate",
+  "locators": [
+    {
+      "page": null,
+      "section": "4.1-4.2 Evaluation",
+      "table": "Tables 2 and 4",
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T12:59:31Z",
+  "updated_at": "2026-08-14T12:59:31Z"
+}

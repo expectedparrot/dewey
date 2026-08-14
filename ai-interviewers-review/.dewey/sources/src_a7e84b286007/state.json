@@ -1,7 +1,7 @@
 {
-  "status": "queued",
+  "status": "included",
   "added_at": "2026-08-12T12:10:38Z",
   "last_read_at": null,
-  "included": null,
+  "included": true,
   "priority": null
 }

@@ -25,11 +25,26 @@
       "finding_id": "finding_c742fb874412",
       "relationship": "qualifies",
       "rationale": "Randomized reflective interviews improved self-reported clarity, which is valuable but not external truth validation."
+    },
+    {
+      "finding_id": "finding_dc3b9b2618e4",
+      "relationship": "supports",
+      "rationale": "Full-text evidence added in the expanded reviewed tranche."
+    },
+    {
+      "finding_id": "finding_7e39509deda6",
+      "relationship": "qualifies",
+      "rationale": "Full-text evidence added in the expanded reviewed tranche."
+    },
+    {
+      "finding_id": "finding_2c7b181eb6f7",
+      "relationship": "qualifies",
+      "rationale": "Full-text evidence added in the expanded reviewed tranche."
     }
   ],
   "confidence": "moderate",
   "confidence_rationale": "The studies consistently separate engagement or richness from validity, but only one included study uses a direct ground-truth outcome.",
   "status": "reviewed",
   "created_at": "2026-08-14T09:58:12Z",
-  "updated_at": "2026-08-14T09:58:12Z"
+  "updated_at": "2026-08-14T12:54:22Z"
 }

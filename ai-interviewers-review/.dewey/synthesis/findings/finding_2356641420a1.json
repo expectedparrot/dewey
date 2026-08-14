@@ -1,0 +1,26 @@
+{
+  "finding_id": "finding_2356641420a1",
+  "study_id": "study_21e32e61e4ec",
+  "question_id": null,
+  "author_claim": "AI interviewing was viable and broadly comparable to human interviewing, with different implementation failures.",
+  "evidence_statement": "Human coding found broadly similar response quality and overall guideline adherence; the AI more often missed follow-up opportunities or gave evaluative encouragement, while humans more often missed active listening or suggested answers.",
+  "reviewer_interpretation": "Comparable averages conceal substantively different failure modes, and the small student sample makes the result proof-of-concept evidence.",
+  "outcome": "guideline adherence and response quality",
+  "direction": "mixed comparable",
+  "population": null,
+  "conditions": [],
+  "measure": "coded interviewer behavior and response quality",
+  "timepoint": null,
+  "certainty": "low",
+  "locators": [
+    {
+      "page": null,
+      "section": "4 Findings and 5 Discussion",
+      "table": null,
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

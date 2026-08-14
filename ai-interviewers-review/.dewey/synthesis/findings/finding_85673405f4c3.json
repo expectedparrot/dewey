@@ -1,0 +1,26 @@
+{
+  "finding_id": "finding_85673405f4c3",
+  "study_id": "study_448b2408d516",
+  "question_id": null,
+  "author_claim": "Dividing topics across managed agents improved elicitation and conversational flow.",
+  "evidence_statement": "CommunityBots participants were significantly more engaged, provided more specific, clear, and expansive responses, and experienced fewer conversational interruptions than the single-agent baseline.",
+  "reviewer_interpretation": "Interviewer architecture and topic management affect output, but the multi-agent treatment bundles several interface and conversation changes.",
+  "outcome": "multi-agent elicitation quality",
+  "direction": "positive",
+  "population": null,
+  "conditions": [],
+  "measure": "engagement, coded quality, and interruptions",
+  "timepoint": null,
+  "certainty": "low to moderate",
+  "locators": [
+    {
+      "page": null,
+      "section": "6.1-6.2 Results",
+      "table": null,
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

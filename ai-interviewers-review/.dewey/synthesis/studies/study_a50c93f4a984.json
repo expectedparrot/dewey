@@ -1,0 +1,25 @@
+{
+  "study_id": "study_a50c93f4a984",
+  "source_ids": [
+    "src_20b583c660b2"
+  ],
+  "label": "SmartProbe virtual-moderator evaluations",
+  "design": "expert probe-rating study plus parallel survey comparison",
+  "population": "North American market-research survey participants",
+  "sample_size": 957,
+  "setting": "market-research surveys across multiple domains",
+  "intervention": "LLM-generated respondent-specific SmartProbe follow-up",
+  "comparator": "generic pre-programmed probing question",
+  "methods": [
+    "expert ratings of 300 generated probes",
+    "parallel surveys with 457 standard and 500 conversational respondents"
+  ],
+  "measures": [
+    "probe quality",
+    "probing-response quality",
+    "word count",
+    "theme differentiation"
+  ],
+  "created_at": "2026-08-14T12:59:25Z",
+  "updated_at": "2026-08-14T12:59:25Z"
+}

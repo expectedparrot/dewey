@@ -1,0 +1,27 @@
+{
+  "appraisal_id": "appraisal_d959256c5d38",
+  "study_id": "study_9bc44c06cdd3",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "design and inference",
+      "judgment": "moderate confidence",
+      "rationale": "Interface and tone interact: a chatbot label or layout alone is not the operative treatment, and structured-response differentiation is only one quality dimension.",
+      "locators": [
+        {
+          "page": "7",
+          "section": "Non-differentiation",
+          "table": null,
+          "figure": "Figure 2",
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "moderate confidence",
+  "applicability": "Useful causal evidence on conversational style in structured surveys; indirect for open-ended AI interviewing.",
+  "reviewer": "Codex full-text review",
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

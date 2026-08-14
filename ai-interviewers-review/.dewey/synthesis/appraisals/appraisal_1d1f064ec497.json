@@ -1,0 +1,27 @@
+{
+  "appraisal_id": "appraisal_1d1f064ec497",
+  "study_id": "study_a50c93f4a984",
+  "framework": "review-specific mixed-method risk-of-bias and applicability appraisal",
+  "framework_version": "1",
+  "dimensions": [
+    {
+      "name": "design and inference",
+      "judgment": "some concerns",
+      "rationale": "Large applied samples and transparent outcome breakdowns are useful, but assignment, platform bundling, and in-house outcome ratings limit causal inference.",
+      "locators": [
+        {
+          "page": null,
+          "section": "4 Evaluation",
+          "table": null,
+          "figure": null,
+          "passage": null
+        }
+      ]
+    }
+  ],
+  "overall_judgment": "low-to-moderate confidence",
+  "applicability": "Direct evidence on LLM-generated market-research probes; less direct for independent academic qualitative interviews.",
+  "reviewer": "Codex full-text review",
+  "created_at": "2026-08-14T12:59:31Z",
+  "updated_at": "2026-08-14T12:59:31Z"
+}

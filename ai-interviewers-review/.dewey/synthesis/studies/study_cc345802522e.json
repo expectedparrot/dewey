@@ -1,0 +1,26 @@
+{
+  "study_id": "study_cc345802522e",
+  "source_ids": [
+    "src_2fc31ffa6791"
+  ],
+  "label": "Chopra and Haaland AI qualitative interview study",
+  "design": "large online AI-led qualitative interview with mixed qualitative and quantitative validation",
+  "population": "U.S. stock-market nonparticipants able to save",
+  "sample_size": 395,
+  "setting": "roughly 30-minute online text interviews",
+  "intervention": "adaptive AI qualitative interviewer",
+  "comparator": "closed-ended and one-shot open-ended survey measures",
+  "methods": [
+    "inductive coding",
+    "respondent evaluation",
+    "quantitative coding"
+  ],
+  "measures": [
+    "completion",
+    "effort",
+    "naturalness",
+    "themes and behavioral associations"
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

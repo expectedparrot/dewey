@@ -459,6 +459,12 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
         for source_id in source_ids
         if not (repo.source_dir(source_id) / "summary.txt").read_text(encoding="utf-8").strip()
     ]
+    missing_documents = [
+        source_id
+        for source_id in unsummarized
+        if not repo.load_metadata(source_id).managed_pdf_path
+        and not repo.load_metadata(source_id).original_pdf_path
+    ]
     coverage = synthesis_coverage(repo)
     included_unsummarized = [
         source_id for source_id in unsummarized if repo.load_state(source_id).status == SourceStatus.included
@@ -481,6 +487,12 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
     elif not source_ids:
         phase = "seed"
         recommendations = ["The last candidate set yielded no sources; broaden or revise the search"]
+    elif included_unsummarized and included_unsummarized[0] in missing_documents:
+        phase = "retrieve"
+        recommendations = [
+            f"dewey add document {included_unsummarized[0]} <paper.pdf>",
+            f"Retrieve full text for {len([source_id for source_id in included_unsummarized if source_id in missing_documents])} included source(s) before summarizing",
+        ]
     elif included_unsummarized:
         phase = "read"
         recommendations = [
@@ -542,6 +554,12 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
             "dewey report audit",
             "dewey report context --output .dewey/synthesis/report-context.json",
             "Use the report bundle to draft a traceable thematic report",
+        ]
+    elif unsummarized and unsummarized[0] in missing_documents:
+        phase = "retrieve"
+        recommendations = [
+            f"dewey add document {unsummarized[0]} <paper.pdf>",
+            f"Retrieve and screen {len(missing_documents)} metadata-only source(s)",
         ]
     elif unsummarized:
         phase = "read"
@@ -1389,6 +1407,41 @@ def show(source_id: str, json_output: bool = typer.Option(False, "--json")) -> N
     )
     payload["text"] = text
     emit(payload, json_output)
+
+
+@add_app.command("document")
+def add_document(
+    source_id: str,
+    path: Path,
+    replace: bool = typer.Option(False, "--replace"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Attach a retrieved PDF to an existing metadata-only source."""
+    action = "source.attach_document"
+    repo = load_repo(action, json_output)
+    ensure_source_exists(repo, source_id, action, json_output)
+    if not path.exists() or not path.is_file():
+        fail(action, "file_not_found", f"No file exists at {path}", 4, json_output)
+    if path.suffix.casefold() != ".pdf":
+        fail(action, "invalid_document", "Attached documents must be PDFs", 2, json_output)
+    metadata = repo.load_metadata(source_id)
+    destination = repo.source_dir(source_id) / "source.pdf"
+    if (metadata.managed_pdf_path or destination.exists()) and not replace:
+        fail(action, "document_exists", f"A PDF already exists for {source_id}; use --replace", 2, json_output)
+    resolved_input = path.resolve()
+    if resolved_input != destination.resolve():
+        shutil.copy2(resolved_input, destination)
+    metadata.managed_pdf_path = str(destination.relative_to(repo.root))
+    metadata.original_pdf_path = str(resolved_input)
+    metadata.content_hash = sha256_file(destination)
+    metadata.markdown_status = MarkdownStatus.missing
+    metadata.markdown_path = None
+    metadata.markdown_source = None
+    metadata.updated_at = utc_now()
+    repo.write_metadata(source_id, metadata)
+    repo.index_source(source_id)
+    repo.append_log(action, source_id=source_id, path=str(resolved_input), replaced=replace)
+    emit({"ok": True, "action": action, "source_id": source_id, "pdf": metadata.managed_pdf_path, "text": f"Attached PDF to {source_id}"}, json_output)
 
 
 @remove_app.command("source")

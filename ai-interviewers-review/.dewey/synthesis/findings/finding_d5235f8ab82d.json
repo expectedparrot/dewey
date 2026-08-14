@@ -1,0 +1,26 @@
+{
+  "finding_id": "finding_d5235f8ab82d",
+  "study_id": "study_3a94b867fb29",
+  "question_id": null,
+  "author_claim": "Active-listening capabilities improved engagement and elicited response quality.",
+  "evidence_statement": "The full chatbot significantly outperformed the baseline across agent comprehension, user interest, chat experience, engagement duration, response word count, and manually coded response quality.",
+  "reviewer_interpretation": "Specific conversational capabilities\u2014not chatbot presence alone\u2014can improve elicitation, although intent models performed unevenly across topics.",
+  "outcome": "active-listening interview quality",
+  "direction": "positive",
+  "population": null,
+  "conditions": [],
+  "measure": "user ratings, engagement, word count, and coded response quality",
+  "timepoint": null,
+  "certainty": "moderate",
+  "locators": [
+    {
+      "page": null,
+      "section": "5.2.4 Results",
+      "table": "Table 6",
+      "figure": null,
+      "passage": null
+    }
+  ],
+  "created_at": "2026-08-14T12:54:22Z",
+  "updated_at": "2026-08-14T12:54:22Z"
+}

@@ -51,7 +51,11 @@ For PDFs, local `paper2md` is the default. Firecrawl is explicit and uploads the
 ```bash
 dewey add source paper.pdf
 dewey add source paper.pdf --backend firecrawl
+dewey add document <source-id> retrieved-paper.pdf
 ```
+
+Use `add document` after screening a metadata-only citation and retrieving its full text;
+it preserves the existing source identifier and discovery provenance.
 
 Firecrawl reads `FIRECRAWL_API_KEY` from the environment or `.env`. Ask before external uploads, paid services, or model inference.
 

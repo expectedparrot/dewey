@@ -4,7 +4,7 @@
   "subtitle": "What AI Interviewers Change About Disclosure, Adaptivity, and Measurement",
   "audience": "Economists, survey methodologists, and social scientists considering AI-mediated interviews",
   "genre": "JEL-style economics literature review",
-  "abstract": "Adaptive interviewing has traditionally exchanged standardization and scale for interviewer judgment and conversational depth. AI interviewers relax that production constraint, but their value depends on whether conversational gains become valid measurements rather than merely longer transcripts. This review connects research on virtual humans, conversational surveys, adaptive probing, and criterion-based interview evaluation. Across seven studies, the evidence supports a conditional conclusion: automation can reduce evaluation apprehension and can improve selected dimensions of probing and transcript quality, yet effects depend on disclosure, trust, probe purpose, modality, and the availability of external validity criteria. The field has advanced faster on scalable elicitation than on measurement theory. Its central agenda is therefore to identify which interviewer decisions should be automated, for whom, and against which substantive benchmark.",
+  "abstract": "Adaptive interviewing has traditionally exchanged standardization and scale for interviewer judgment and conversational depth. AI interviewers relax that production constraint, but their value depends on whether conversational gains become valid measurements rather than merely longer transcripts. This review connects research on virtual humans, conversational surveys, adaptive probing, and criterion-based interview evaluation. Across seventeen papers, the evidence supports a conditional conclusion: automation can reduce evaluation apprehension and can improve selected dimensions of probing and transcript quality, yet effects depend on disclosure, trust, probe purpose, modality, and the availability of external validity criteria. The field has advanced faster on scalable elicitation than on measurement theory. Its central agenda is therefore to identify which interviewer decisions should be automated, for whom, and against which substantive benchmark.",
   "keywords": [
     "artificial intelligence",
     "interview methods",
@@ -65,7 +65,13 @@
       "source_ids": [
         "src_db7efbce68d9",
         "src_2a843bf69441",
-        "src_af8750017209"
+        "src_af8750017209",
+        "src_20b583c660b2",
+        "src_645a7d05436c",
+        "src_924a2313c5a7",
+        "src_a09d64694611",
+        "src_aa3e71d53846",
+        "src_43270b46dc12"
       ],
       "relationship_to_review": "Identifies design margins and shows that adaptivity has selective benefits and measurable burden costs."
     },
@@ -157,6 +163,15 @@
         "claim_5e6f2020b1ed"
       ],
       "caveat": "Transcript-quality benchmarks do not by themselves establish construct or predictive validity."
+    },
+    {
+      "source_id": "src_20b583c660b2",
+      "role": "evaluation",
+      "contribution": "Demonstrates respondent-specific LLM probing in an applied market-research system.",
+      "claim_ids": [
+        "claim_afb1fe75ab9d"
+      ],
+      "caveat": "Parallel samples, bundled systems, and proprietary ratings limit causal and independent-validity claims."
     }
   ],
   "timeline": [
@@ -175,6 +190,14 @@
       "significance": "The interface becomes cheaper and more familiar, shifting attention toward usability and trust.",
       "source_ids": [
         "src_db7efbce68d9"
+      ]
+    },
+    {
+      "year": 2023,
+      "label": "Language models begin generating respondent-specific probes",
+      "significance": "Applied systems make the content and policy of follow-up questions a central design margin.",
+      "source_ids": [
+        "src_20b583c660b2"
       ]
     },
     {
@@ -267,5 +290,5 @@
     "The most defensible current result is conditional: automation can improve disclosure and selected forms of probing, while trust, burden, task, and modality determine whether those gains survive.",
     "The next generation of studies should pre-specify the measurement target, benchmark against external criteria, report heterogeneous effects, and compare total production costs rather than transcript volume alone."
   ],
-  "updated_at": "2026-08-14T11:01:45Z"
+  "updated_at": "2026-08-14T13:03:58Z"
 }
