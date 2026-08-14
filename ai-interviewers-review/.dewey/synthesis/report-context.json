@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated_at": "2026-08-14T13:03:58Z",
+  "generated_at": "2026-08-14T13:23:08Z",
   "review": {
     "topic": "AI interviewers",
     "research_question": "How are AI interviewers designed and evaluated, and how do they affect interview quality, respondent experience, and resulting data compared with human or conventional interviewing?"
@@ -4049,9 +4049,21 @@
         "label": "Qualitative evidence at scale",
         "description": "Recent economics work treats AI-led conversation as infrastructure for producing rich qualitative data at survey-like scale.",
         "source_ids": [
+          "src_2fc31ffa6791",
           "src_6541b25ef96e"
         ],
         "relationship_to_review": "Shows the frontier application and motivates the production-technology framing."
+      },
+      {
+        "stream_id": "human_machine_comparisons",
+        "label": "Matched human-machine comparisons",
+        "description": "Controlled and modality-aware comparisons reveal differences in pacing, guideline adherence, rapport, and failure modes that aggregate quality scores conceal.",
+        "source_ids": [
+          "src_8f39b52d2f72",
+          "src_a7e84b286007",
+          "src_6541b25ef96e"
+        ],
+        "relationship_to_review": "Replaces a generic human-equivalence question with an analysis of capabilities, modalities, and comparison conditions."
       },
       {
         "stream_id": "criterion_validity",
@@ -4141,6 +4153,97 @@
           "claim_afb1fe75ab9d"
         ],
         "caveat": "Parallel samples, bundled systems, and proprietary ratings limit causal and independent-validity claims."
+      },
+      {
+        "source_id": "src_0876e37522c7",
+        "role": "counterpoint",
+        "contribution": "Shows that LLM follow-up can improve fluency without reliably improving qualitative richness over a scripted baseline.",
+        "claim_ids": [
+          "claim_afb1fe75ab9d",
+          "claim_5e6f2020b1ed"
+        ],
+        "caveat": "One topic and a study-specific coding framework bound generalization."
+      },
+      {
+        "source_id": "src_2fc31ffa6791",
+        "role": "application",
+        "contribution": "Demonstrates sustained AI-led qualitative interviews in economics and uncovers mechanisms beneath initial survey answers.",
+        "claim_ids": [
+          "claim_afb1fe75ab9d",
+          "claim_0eea6a57de7b",
+          "claim_5e6f2020b1ed"
+        ],
+        "caveat": "Thematic discovery is not independent criterion validation."
+      },
+      {
+        "source_id": "src_43270b46dc12",
+        "role": "counterpoint",
+        "contribution": "Documents dimensions on which repeated conventional web surveys outperform a chatbot.",
+        "claim_ids": [
+          "claim_0eea6a57de7b",
+          "claim_afb1fe75ab9d"
+        ],
+        "caveat": "A messaging-platform survey is less adaptive than a modern long-form AI interview."
+      },
+      {
+        "source_id": "src_645a7d05436c",
+        "role": "bridge",
+        "contribution": "Shows at scale that a pre-LLM conversational survey can improve coded open-ended response quality.",
+        "claim_ids": [
+          "claim_afb1fe75ab9d",
+          "claim_0eea6a57de7b",
+          "claim_5e6f2020b1ed"
+        ],
+        "caveat": "Response-quality coding does not establish construct validity."
+      },
+      {
+        "source_id": "src_8f39b52d2f72",
+        "role": "evaluation",
+        "contribution": "Provides a randomized, modality-matched AI-human text interview comparison.",
+        "claim_ids": [
+          "claim_0eea6a57de7b"
+        ],
+        "caveat": "The sample is small and the human interviewers were not experts."
+      },
+      {
+        "source_id": "src_924a2313c5a7",
+        "role": "evaluation",
+        "contribution": "Isolates comprehension and active-listening functions within an interview chatbot.",
+        "claim_ids": [
+          "claim_afb1fe75ab9d",
+          "claim_0eea6a57de7b"
+        ],
+        "caveat": "Intent recognition and effects varied across bounded topics."
+      },
+      {
+        "source_id": "src_a09d64694611",
+        "role": "evaluation",
+        "contribution": "Shows that topic specialization and conversation management affect engagement and answer quality.",
+        "claim_ids": [
+          "claim_afb1fe75ab9d",
+          "claim_0eea6a57de7b"
+        ],
+        "caveat": "The multi-agent treatment bundles architecture and interface changes."
+      },
+      {
+        "source_id": "src_a7e84b286007",
+        "role": "evaluation",
+        "contribution": "Compares AI and human guideline adherence and identifies different classes of interviewing error.",
+        "claim_ids": [
+          "claim_0eea6a57de7b",
+          "claim_afb1fe75ab9d"
+        ],
+        "caveat": "A small student study supports proof of concept rather than equivalence."
+      },
+      {
+        "source_id": "src_aa3e71d53846",
+        "role": "bridge",
+        "contribution": "Demonstrates that platform and conversational style interact in shaping survey satisficing.",
+        "claim_ids": [
+          "claim_0eea6a57de7b",
+          "claim_afb1fe75ab9d"
+        ],
+        "caveat": "Structured-response differentiation is only one quality dimension."
       }
     ],
     "timeline": [
@@ -4154,6 +4257,23 @@
         ]
       },
       {
+        "year": 2019,
+        "label": "Conversational presentation becomes an experimental survey-design margin",
+        "significance": "Platform and style interact rather than producing a uniform chatbot effect.",
+        "source_ids": [
+          "src_aa3e71d53846"
+        ]
+      },
+      {
+        "year": 2020,
+        "label": "Conversational surveys isolate response quality and active listening",
+        "significance": "Large comparisons and feature experiments move evaluation beyond novelty and preference.",
+        "source_ids": [
+          "src_645a7d05436c",
+          "src_924a2313c5a7"
+        ]
+      },
+      {
         "year": 2021,
         "label": "Conversational survey chatbots move into ordinary data collection",
         "significance": "The interface becomes cheaper and more familiar, shifting attention toward usability and trust.",
@@ -4163,20 +4283,33 @@
       },
       {
         "year": 2023,
-        "label": "Language models begin generating respondent-specific probes",
-        "significance": "Applied systems make the content and policy of follow-up questions a central design margin.",
+        "label": "Language models generate respondent-specific probes and extended interviews",
+        "significance": "Probe policy becomes a central design margin while economics applications demonstrate sustained elicitation.",
         "source_ids": [
-          "src_20b583c660b2"
+          "src_20b583c660b2",
+          "src_2fc31ffa6791",
+          "src_a09d64694611"
+        ]
+      },
+      {
+        "year": 2024,
+        "label": "Repeated-use and matched-comparison evidence complicate platform claims",
+        "significance": "Longitudinal and controlled studies reveal burden, trust, and distinct human-machine failure modes.",
+        "source_ids": [
+          "src_43270b46dc12",
+          "src_a7e84b286007"
         ]
       },
       {
         "year": 2025,
-        "label": "Generative systems enable randomized tests of adaptivity and probe design",
-        "significance": "Studies begin to compare conversational treatments, isolate probe types, and test performance against external criteria.",
+        "label": "Generative systems enable tests of adaptivity, architecture, and accuracy",
+        "significance": "Studies compare probe types and human interviewers, test LLMs against scripted systems, and evaluate performance against an external criterion.",
         "source_ids": [
           "src_2a843bf69441",
           "src_af8750017209",
-          "src_5e242e942988"
+          "src_5e242e942988",
+          "src_0876e37522c7",
+          "src_8f39b52d2f72"
         ]
       },
       {
@@ -4190,24 +4323,26 @@
     ],
     "sections": [
       {
-        "heading": "Introduction: Interviewing as a Production Technology",
-        "purpose": "Begin with the economics of producing adaptive evidence, state the thesis, define scope, and preview the article.",
+        "heading": "Introduction and the Seventeen-Study Field Map",
+        "purpose": "Frame interviewing as a production technology, define scope, and position every included study by the margin it identifies.",
         "theme_ids": [],
         "claim_ids": []
       },
       {
-        "heading": "From Virtual Humans to Generative Interviewers",
-        "purpose": "Trace the intellectual lineage and distinguish the behavioral effect of automation from advances in conversational capability.",
+        "heading": "From the Social Meaning of Automation to Conversational Surveys",
+        "purpose": "Trace disclosure, rapport, platform, style, and repeated-use evidence before generative language models.",
         "theme_ids": [
-          "theme_5f67dab8af47"
+          "theme_5f67dab8af47",
+          "theme_81234566d951"
         ],
         "claim_ids": [
-          "claim_61ea2c6b6b95"
+          "claim_61ea2c6b6b95",
+          "claim_0eea6a57de7b"
         ]
       },
       {
-        "heading": "What Adaptivity Produces",
-        "purpose": "Evaluate whether adaptive probes improve answer content, where they work, and what burden they impose.",
+        "heading": "What the Interviewer Does: Listening, Architecture, and Probe Policy",
+        "purpose": "Decompose conversational systems into listening, state management, probe choice, and stopping decisions.",
         "theme_ids": [
           "theme_7cecdb951a7e",
           "theme_81234566d951"
@@ -4217,8 +4352,20 @@
         ]
       },
       {
-        "heading": "Humans, Machines, and the Quality Frontier",
-        "purpose": "Synthesize comparative performance without collapsing different modalities, tasks, and notions of quality into a single ranking.",
+        "heading": "From Short Answers to Qualitative Evidence at Scale",
+        "purpose": "Evaluate economics applications of sustained interviews and distinguish scalable discovery from validated measurement.",
+        "theme_ids": [
+          "theme_7cecdb951a7e",
+          "theme_e645f959df68"
+        ],
+        "claim_ids": [
+          "claim_afb1fe75ab9d",
+          "claim_5e6f2020b1ed"
+        ]
+      },
+      {
+        "heading": "Humans and Machines Are Bundles of Capabilities",
+        "purpose": "Compare performance without collapsing expertise, modality, autonomy, pacing, and failure modes into a single ranking.",
         "theme_ids": [
           "theme_7cecdb951a7e",
           "theme_81234566d951"
@@ -4259,6 +4406,6 @@
       "The most defensible current result is conditional: automation can improve disclosure and selected forms of probing, while trust, burden, task, and modality determine whether those gains survive.",
       "The next generation of studies should pre-specify the measurement target, benchmark against external criteria, report heterogeneous effects, and compare total production costs rather than transcript volume alone."
     ],
-    "updated_at": "2026-08-14T13:03:58Z"
+    "updated_at": "2026-08-14T13:23:08Z"
   }
 }

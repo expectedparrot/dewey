@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Literature review" />
   <title>Interviewing at the Marginal Cost of Computation</title>
   <style>
 code{white-space: pre-wrap;}
@@ -55,495 +56,535 @@ a { color:#286f49; text-underline-offset:2px; }
 <h1 class="title">Interviewing at the Marginal Cost of Computation</h1>
 <p class="subtitle">What AI Interviewers Change About Disclosure,
 Adaptivity, and Measurement</p>
-<p class="date">August 2026</p>
+<p class="author">Literature review</p>
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#introduction-interviewing-as-a-production-technology" id="toc-introduction-interviewing-as-a-production-technology">Introduction:
-Interviewing as a Production Technology</a></li>
-<li><a href="#scope-intellectual-lineage-and-the-included-evidence" id="toc-scope-intellectual-lineage-and-the-included-evidence">Scope,
-Intellectual Lineage, and the Included Evidence</a></li>
-<li><a href="#from-virtual-humans-to-generative-interviewers" id="toc-from-virtual-humans-to-generative-interviewers">From Virtual
-Humans to Generative Interviewers</a></li>
-<li><a href="#what-adaptivity-produces" id="toc-what-adaptivity-produces">What Adaptivity Produces</a></li>
-<li><a href="#humans-machines-and-the-quality-frontier" id="toc-humans-machines-and-the-quality-frontier">Humans, Machines, and
-the Quality Frontier</a></li>
-<li><a href="#the-measurement-problem" id="toc-the-measurement-problem">The Measurement Problem</a></li>
-<li><a href="#an-economics-research-agenda" id="toc-an-economics-research-agenda">An Economics Research
-Agenda</a></li>
-<li><a href="#conclusion" id="toc-conclusion">Conclusion</a></li>
+<li><a href="#introduction" id="toc-introduction">1. Introduction</a>
+<ul>
+<li><a href="#the-seventeen-study-field-map" id="toc-the-seventeen-study-field-map">1.1 The seventeen-study field
+map</a></li>
+</ul></li>
+<li><a href="#from-the-social-meaning-of-automation-to-conversational-surveys" id="toc-from-the-social-meaning-of-automation-to-conversational-surveys">2.
+From the Social Meaning of Automation to Conversational Surveys</a></li>
+<li><a href="#what-the-interviewer-does-listening-architecture-and-probe-policy" id="toc-what-the-interviewer-does-listening-architecture-and-probe-policy">3.
+What the Interviewer Does: Listening, Architecture, and Probe Policy</a>
+<ul>
+<li><a href="#listening-and-conversation-management" id="toc-listening-and-conversation-management">3.1 Listening and
+conversation management</a></li>
+<li><a href="#probe-choice-is-a-policy-not-a-switch" id="toc-probe-choice-is-a-policy-not-a-switch">3.2 Probe choice is a
+policy, not a switch</a></li>
+</ul></li>
+<li><a href="#from-short-answers-to-qualitative-evidence-at-scale" id="toc-from-short-answers-to-qualitative-evidence-at-scale">4. From
+Short Answers to Qualitative Evidence at Scale</a></li>
+<li><a href="#humans-and-machines-are-bundles-of-capabilities" id="toc-humans-and-machines-are-bundles-of-capabilities">5. Humans and
+Machines Are Bundles of Capabilities</a></li>
+<li><a href="#the-measurement-problem" id="toc-the-measurement-problem">6. The Measurement Problem</a></li>
+<li><a href="#a-research-agenda-for-the-economics-of-ai-interviewing" id="toc-a-research-agenda-for-the-economics-of-ai-interviewing">7. A
+Research Agenda for the Economics of AI Interviewing</a></li>
+<li><a href="#conclusion" id="toc-conclusion">8. Conclusion</a></li>
 <li><a href="#references" id="toc-references">References</a></li>
 </ul>
 </nav>
 <div class="abstract">
-<p><strong>Abstract.</strong> Adaptive interviewing has traditionally
-exchanged standardization and scale for interviewer judgment and
-conversational depth. AI interviewers relax that production constraint,
-but their value depends on whether conversational gains become valid
-measurements rather than merely longer transcripts. This review connects
-research on virtual humans, conversational surveys, adaptive probing,
-and criterion-based interview evaluation. Across seventeen papers, the
-evidence supports a conditional conclusion: automation can reduce
-evaluation apprehension and improve selected dimensions of probing and
-transcript quality, yet effects depend on trust, probe purpose,
-modality, and the availability of external validity criteria. The field
-has advanced faster on scalable elicitation than on measurement theory.
-Its central agenda is therefore to identify which interviewer decisions
-should be automated, for whom, and against which substantive
-benchmark.</p>
+<p><strong>Abstract.</strong> Interview research has traditionally
+traded standardization and scale for interviewer judgment and
+conversational depth. Automated interviewers alter that production
+constraint: they can administer a common protocol while responding
+contingently to what each person says. This review synthesizes seventeen
+empirical studies spanning virtual humans, conversational surveys,
+language-model probing, scaled qualitative research, and criterion-based
+interviews. The literature has developed in three waves. Early systems
+established that perceived automation changes disclosure and rapport.
+Conversational-survey research then showed that platform, listening
+behavior, and probe design—not conversation alone—shape response quality
+and burden. Recent language-model studies make adaptivity inexpensive
+and flexible, but their strongest results concern transcript richness
+rather than measurement validity. Across the field, the evidence
+supports a conditional conclusion: automated interviewing can improve
+particular elicitation tasks, but performance depends on the respondent,
+modality, probe policy, comparator, and intended use of the data. The
+research frontier is therefore not machine-versus-human equivalence. It
+is the design and validation of an interview production function that
+allocates decisions among protocols, models, respondents, and human
+reviewers.</p>
+</div>
 <p><strong>Keywords:</strong> artificial intelligence; interview
 methods; survey methodology; measurement; qualitative research;
-disclosure <strong>JEL codes:</strong> C81, C83, C93, D91</p>
-</div>
-<div class="related-resource">
-<p><strong>Explore the evidence behind the review.</strong> Use the
-interactive dashboard below to inspect paper-level metadata, summaries,
-notes, and citation relationships. <a href="../ai-interviewers-explorer.html">Open the literature explorer
-full screen</a>.</p>
+disclosure</p>
+<p><strong>JEL codes:</strong> C81, C83, C93, D91</p>
+<div class="explorer-callout">
+<p><strong>Explore the evidence.</strong> The embedded literature
+explorer contains the 17 included papers, 38 unscreened metadata leads,
+source summaries, structured findings, appraisals, and citation
+relationships. <a href="../ai-interviewers-explorer.html">Open the
+explorer full screen</a>.</p>
 </div>
 <figure id="explorer-embed" class="explorer-panel">
 <iframe role="img" id="literature-explorer" src="../ai-interviewers-explorer.html" title="Interactive explorer for the AI interviewer literature" loading="lazy">
 </iframe>
 <figcaption>
-Interactive literature explorer. Select a paper to inspect its summary
-and source record, or open the dashboard full screen for a larger
-workspace.
+Interactive literature explorer. Select an included paper to inspect its
+evidence record, or switch on the full traversal network to examine
+discovery leads.
 </figcaption>
 </figure>
-<h1 id="introduction-interviewing-as-a-production-technology">Introduction:
-Interviewing as a Production Technology</h1>
-<p>Interviews occupy an awkward place in empirical social science. They
-can recover context, language, and causal narratives that fixed-response
-instruments often miss, but the very discretion that makes an interview
-informative also makes it expensive and difficult to standardize. A
-skilled interviewer decides when an answer is incomplete, which
-ambiguity is worth pursuing, how to ask a follow-up without leading the
-respondent, and when another question would impose more burden than it
-yields information. These decisions consume scarce labor. Consequently,
-large-scale data collection has usually purchased comparability and low
-marginal cost by limiting conversational adaptation.</p>
-<p>Generative artificial intelligence changes this production
-constraint. Once an interview protocol and model are in place, a system
-can generate contingent follow-up questions for another respondent at
-close to the marginal cost of computation. It can apply the same
-high-level rules across thousands of conversations while varying the
-words and sequence used in each one. The economically relevant
-comparison is therefore not simply “AI versus human.” It is between
-feasible systems for producing evidence: fixed forms, lightly
-conversational surveys, autonomous interviews, and human interviews with
-different levels of training and supervision.</p>
-<p>Lower elicitation costs do not imply better measurement. A fluent
-system may produce a longer transcript without recovering more of the
-construct a researcher intends to measure. Respondents may disclose more
-because they feel less judged, or disclose less because they distrust an
-automated agent. A probe may increase specificity while also increasing
-attrition. Expert raters may prefer a transcript whose claims are no
-more accurate than those in a shorter answer. The same technology can
-thus improve conversational output, respondent experience, and criterion
-validity by different amounts—or move them in opposite directions.</p>
-<p>This article reviews seventeen empirical papers that illuminate these
-margins. The sample is deliberately analytic rather than exhaustive. It
-includes foundational virtual-human work, survey chatbots, recent
-experiments with language-model probing, economics applications of
-AI-led qualitative interviews, and a child-witness experiment with an
-observable ground truth. It excludes systems used only to code
-human-conducted interviews and generic service chatbots without a
-data-elicitation objective. The organizing claim is that AI relaxes the
-cost and standardization constraints on adaptive interviewing but does
-not remove the measurement problem. Whether it improves evidence depends
-on respondent beliefs, the purpose and timing of probes, modality, and
-validation against outcomes beyond transcript length or user
-preference.</p>
-<p>The literature supports this claim in four steps. Early virtual-human
-experiments isolate a behavioral channel: perceived automation can
-reduce evaluation apprehension. More recent conversational-survey
-studies show that adaptivity has selective benefits rather than a
-uniform effect on answer quality. Direct human comparisons place some AI
-modes near trained-human transcript quality but reveal persistent
-differences in rapport and modality. Finally, criterion-based studies
-demonstrate why disclosure and richness cannot substitute for validity.
-Together these results point toward an economics of task allocation and
-measurement rather than a horse race between interviewer types.</p>
-<h1 id="scope-intellectual-lineage-and-the-included-evidence">Scope,
-Intellectual Lineage, and the Included Evidence</h1>
-<p>The relevant literature did not begin with large language models. Its
-intellectual lineage starts with embodied virtual humans designed for
-sensitive or health-related conversations, passes through rule-based and
-conversational survey interfaces, and only then reaches generative
-systems capable of producing open-ended follow-ups. That sequence
-matters because contemporary AI bundles two distinct treatments: being
-interviewed by something perceived as nonhuman, and being interviewed by
-a system capable of linguistic adaptation. Early work helps separate the
-first mechanism from the second.</p>
+<h1 id="introduction">1. Introduction</h1>
+<p>Interviews are a production technology for evidence. A questionnaire
+fixes most interviewer decisions before data collection; a qualitative
+interview delegates many of them to a person who can clarify, probe,
+repair misunderstandings, and pursue unanticipated material. That
+discretion can reveal mechanisms and meanings that a fixed form would
+miss. It is also expensive, difficult to reproduce, and a source of
+interviewer effects. The familiar methodological trade-off is therefore
+not simply between quantitative and qualitative data. It is between
+standardization, adaptivity, scale, and judgment.</p>
+<p>Automated conversational systems change this feasible set. A system
+can ask thousands of respondents the same opening question while
+generating a different follow-up for each answer. It can record every
+intervention, enforce stopping rules, and operate in text or voice at
+low marginal cost. Those properties matter for economics because they
+potentially lower the price of producing contextual evidence and make
+experimental variation in interviewer behavior unusually tractable.</p>
+<p>But elicitation is not measurement. Longer answers may contain more
+relevant information, more repetition, or more model-induced framing. A
+respondent may disclose more to a machine because it seems
+nonjudgmental, or less because it seems untrustworthy. A probe may
+improve specificity among completers while increasing attrition. An
+expert may prefer a transcript that is no more accurate than a short
+answer. The appropriate question is thus not whether an AI can sustain a
+plausible conversation. It is when machine-mediated conversation
+produces evidence that is more useful for a specified research
+purpose.</p>
+<p>This article reviews seventeen empirical papers selected for that
+question. The corpus includes foundational virtual-human experiments,
+pre-LLM survey chatbots, recent systems that generate adaptive probes,
+economics applications of long-form AI interviews, matched human
+comparisons, and an interview task with observable ground truth. Papers
+used only to analyze human-conducted interviews and generic service
+chatbots are outside scope. The review is analytic rather than
+exhaustive: studies enter because they identify a mechanism, design
+margin, comparator, or validity problem.</p>
+<p>The literature is best understood as three overlapping generations.
+The first studied the <em>social meaning of automation</em>: whether a
+virtual interviewer changes evaluation apprehension, disclosure,
+rapport, or usability. The second studied the <em>design of
+conversational surveys</em>: whether interactivity, listening, style,
+and topic management improve answers relative to static forms or simpler
+chatbots. The third studies <em>generative adaptivity</em>: whether
+language models can choose useful probes, conduct extended interviews,
+and approach human performance. This history matters because current
+systems combine all three channels. A modern AI interview treatment
+changes who appears to be listening, how the exchange is presented, and
+what follow-up is asked.</p>
+<p>The central result is conditional. Automation can improve selected
+elicitation outcomes, but there is no general conversational advantage
+and no general human-equivalence result. Effects depend on the function
+being automated, the comparison condition, modality, duration,
+respondent beliefs, and the criterion used to define quality. The field
+has advanced much further in making rich conversation scalable than in
+establishing when the resulting evidence is valid.</p>
+<h2 id="the-seventeen-study-field-map">1.1 The seventeen-study field
+map</h2>
+<p>The corpus does not contain seventeen estimates of a common effect.
+It contains a sequence of designs that move different margins:</p>
 <table>
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
 </colgroup>
 <thead>
 <tr>
-<th>Period</th>
-<th>Development</th>
-<th>Papers</th>
-<th>Interpretive importance</th>
+<th>Research margin</th>
+<th>Studies</th>
+<th>What the comparison identifies</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>2014</td>
-<td>Virtual-human interviewing establishes feasibility and manipulates
-perceived automation</td>
-<td><a href="#ref-devault2014">DeVault et al. (2014)</a>; <a href="#ref-lucas2014">Lucas et al. (2014)</a></td>
-<td>Identifies evaluation apprehension and perceived agency as
-mechanisms before modern language models</td>
+<td>Perceived automation and embodied agents</td>
+<td><a href="#ref-devault2014">DeVault et al. (2014)</a>; <a href="#ref-lucas2014">Lucas et al. (2014)</a>; <a href="#ref-duka2021">Đuka and Njeguš (2021)</a></td>
+<td>Disclosure, rapport, usability, and trust when the apparent
+interviewer changes</td>
 </tr>
 <tr>
-<td>2021</td>
-<td>Conversational interfaces enter ordinary survey and service
-settings</td>
-<td><a href="#ref-duka2021">Đuka and Njeguš (2021)</a></td>
-<td>Shifts attention from technical feasibility to familiarity, trust,
-and acceptance</td>
+<td>Platform and conversational presentation</td>
+<td><a href="#ref-kim2019">Kim et al. (2019)</a>; <a href="#ref-xiao2020tell">Xiao et al. (2020a)</a>; <a href="#ref-zarouali2024">Zarouali et al. (2024)</a></td>
+<td>Chatbot versus web form, conversational style, and repeated-use
+effects</td>
 </tr>
 <tr>
-<td>2025</td>
-<td>Generative systems enable experiments on probing, coding, and
-factual recall</td>
-<td><a href="#ref-barari2025">Barari et al. (2025)</a>; <a href="#ref-jacobsen2025">Jacobsen et al. (2025)</a>; <a href="#ref-sun2025">Sun et al. (2025)</a></td>
-<td>Decomposes design choices and introduces stronger measures of answer
-quality and validity</td>
+<td>Listening and conversation architecture</td>
+<td><a href="#ref-xiao2020hear">Xiao et al. (2020b)</a>; <a href="#ref-jiang2023">Jiang et al. (2023)</a>; <a href="#ref-cuevas2025">Cuevas et al. (2025)</a></td>
+<td>Active listening, agent specialization, and LLM versus scripted
+follow-up</td>
 </tr>
 <tr>
-<td>2026</td>
-<td>AI-led interviews are proposed as scalable infrastructure for
-qualitative research</td>
-<td><a href="#ref-geiecke2026">Geiecke and Jaravel (2026)</a></td>
-<td>Moves the frontier toward deployment, human benchmarks, and the
-economics of scale</td>
+<td>Probe policy</td>
+<td><a href="#ref-seltzer2023">Seltzer et al. (2023)</a>; <a href="#ref-barari2025">Barari et al. (2025)</a>; <a href="#ref-jacobsen2025">Jacobsen et al. (2025)</a></td>
+<td>Respondent-specific versus generic probes, probe type, timing,
+response quality, and burden</td>
+</tr>
+<tr>
+<td>Long-form and scaled qualitative interviewing</td>
+<td><a href="#ref-chopra2023">Chopra and Haaland (2023)</a>; <a href="#ref-geiecke2026">Geiecke and Jaravel (2026)</a></td>
+<td>Feasibility, thematic discovery, modality, respondent reflection,
+and production at scale</td>
+</tr>
+<tr>
+<td>Matched AI-human performance</td>
+<td><a href="#ref-guven2025">Guven et al. (2025)</a>; <a href="#ref-wuttke2024">Wuttke et al. (2024)</a></td>
+<td>Differences in pacing, follow-up, guideline adherence, and failure
+modes under more comparable protocols</td>
+</tr>
+<tr>
+<td>Criterion-based accuracy</td>
+<td><a href="#ref-sun2025">Sun et al. (2025)</a></td>
+<td>Correct and false information when the researcher knows what
+occurred</td>
 </tr>
 </tbody>
 </table>
-<p>The papers also play different evidentiary roles. <a href="#ref-devault2014">DeVault et al.</a> establish the system lineage
-and show the feasibility of a semi-automated, multimodal interview. <a href="#ref-lucas2014">Lucas et al.</a> provide the cleanest mechanism
-evidence on disclosure. <a href="#ref-duka2021">Đuka and Njeguš</a>
-bridge specialized virtual humans and broadly accessible chatbots,
-albeit with limited causal leverage. <a href="#ref-barari2025">Barari et
-al.</a> and <a href="#ref-jacobsen2025">Jacobsen et al.</a> evaluate
-modern conversational designs and decompose probing into distinct
-interventions. <a href="#ref-geiecke2026">Geiecke and Jaravel</a>
-provide the frontier scale application and comparisons across human and
-AI modalities. <a href="#ref-sun2025">Sun et al.</a> serve as a crucial
-counterpoint because the witnessed event supplies an external criterion
-against which elicited information can be checked.</p>
-<p>These are not seventeen estimates of a common treatment effect. The
-systems differ in embodiment, autonomy, voice, task, population,
-interviewer benchmark, and outcome. Treating them as interchangeable
-votes would erase precisely the design margins a useful review should
-expose. The synthesis below therefore asks what each design identifies
-and uses disagreements to locate boundary conditions.</p>
-<h1 id="from-virtual-humans-to-generative-interviewers">From Virtual
-Humans to Generative Interviewers</h1>
-<p>The early virtual-human literature suggests a reason automated
-interviewers might elicit information that respondents withhold from
-people. In the experiment reported by <a href="#ref-lucas2014">Lucas et
-al. (2014)</a>, participants interacted with the same virtual
-interviewer but received different information about whether a person
-was operating it. Those assigned to the computer-operated framing
-reported less fear of self-disclosure and less impression management
-than those who believed a human operator was involved. Blind observers
-also rated their interview transcripts as showing greater willingness to
-disclose, and participants displayed more intense sadness. Because the
-visible interface was held comparatively stable, the result points to
-perceived human judgment—not merely conversational fluency—as a
-mechanism.</p>
-<p>This mechanism is economically and methodologically important. An
-automated agent may lower the perceived social price of reporting
-stigmatized behavior or distress. If so, the relevant design variable is
-not just model capability but the respondent’s belief about observation,
-storage, and evaluation. The result also makes clear what has
-<em>not</em> been shown: willingness to disclose is neither truthfulness
-nor population validity. Reduced impression management could reveal
-otherwise hidden information, but it could also change how respondents
-narrate themselves without bringing reports closer to an external
-criterion.</p>
-<p>Evidence from the companion system literature appropriately narrows
-the claim. <a href="#ref-devault2014">DeVault et al. (2014)</a> describe
-SimSensei, a virtual-human interviewer combining speech, nonverbal
-sensing, and an automated dialogue manager. In its evaluation, automatic
-and Wizard-of-Oz cohorts reported similar willingness and comfort
-sharing, but the fully automatic system scored lower as a good listener
-and on usability and rapport. The comparison provides useful feasibility
-and design evidence, though it is weaker as a causal estimate because
-system assignment and implementation differences complicate
-interpretation.</p>
-<p>Nor should low evaluation apprehension be mistaken for universal
-acceptance. In the smaller survey reported by <a href="#ref-duka2021">Đuka and Njeguš (2021)</a>, familiarity with the
-idea of a chatbot was much greater than actual use, and respondents
-strongly preferred waiting for a human service agent. The setting
-differs from confidential research interviewing, but the tension is
-revealing. Automation can reduce fear of human judgment while
-simultaneously lowering trust in competence, empathy, privacy, or
-recourse. A disclosure advantage is therefore conditional: it depends on
-which source of apprehension dominates for a respondent and task.</p>
-<p>The transition to generative AI does not supersede this older
-literature. It adds a second channel—adaptive language generation—to the
-social response produced by perceived automation. Modern evaluations
-should measure both. Otherwise, a better answer may be attributed to the
-model’s probe when it actually reflects reduced evaluation apprehension,
-or a capable probe may look ineffective because respondents distrust the
-agent delivering it.</p>
-<h1 id="what-adaptivity-produces">What Adaptivity Produces</h1>
-<p>The clearest recent result is that “probing” is not a single
-treatment. Follow-ups can ask for elaboration, request a reason, test
-relevance, confirm a classification, or pursue respondent-specific
-material. Their value depends on what is missing from the initial answer
-and on where the interview sits in its sequence.</p>
-<p><a href="#ref-barari2025">Barari et al. (2025)</a> experimentally
-evaluate AI-assisted conversational interviewing across open-ended
-tasks. Elaboration and relevance probes increased specificity and
-explanation on two opinion questions and produced longer answers with
-higher Shannon entropy. Yet the treatment did not consistently improve
+<p>This map also clarifies the evidentiary hierarchy. Randomized feature
+comparisons identify particular design margins more cleanly than bundled
+platform comparisons. Matched human comparisons are more interpretable
+than comparisons across modality and interviewer expertise. External
+criteria support stronger measurement claims than word count,
+satisfaction, or transcript preference. These differences govern the
+synthesis below.</p>
+<h1 id="from-the-social-meaning-of-automation-to-conversational-surveys">2.
+From the Social Meaning of Automation to Conversational Surveys</h1>
+<p>The intellectual starting point is not language generation. It is the
+observation that respondents react socially to an interviewer even when
+the interviewer is a computer. <a href="#ref-devault2014">DeVault et
+al. (2014)</a> demonstrated the feasibility of an embodied,
+semi-structured health interviewer combining speech, nonverbal sensing,
+and dialogue management. Its fully automatic version maintained
+willingness and comfort sharing at levels similar to an earlier
+Wizard-of-Oz implementation, but it was rated lower as a listener and on
+usability and rapport. Because the cohorts were separately recruited,
+this is not a clean causal estimate of automation. It nevertheless
+established an enduring distinction: a system may successfully elicit
+personal material while remaining detectably worse at interactional
+repair and relationship management.</p>
+<p><a href="#ref-lucas2014">Lucas et al. (2014)</a> isolated a more
+specific mechanism by varying whether participants believed a virtual
+interviewer was controlled by a human or a computer. Computer framing
+reduced fear of self-disclosure and impression management; blind
+observers also rated the resulting transcripts as showing greater
+willingness to disclose, and participants displayed more intense
+sadness. The mechanism is evaluation apprehension. If a respondent
+expects less social judgment from a machine, the private cost of
+revealing stigmatized or emotional material can fall.</p>
+<p>That result is foundational but bounded. Willingness to disclose is
+not truthfulness, and lower human judgment does not imply greater trust
+in data storage, competence, or recourse. <a href="#ref-duka2021">Đuka
+and Njeguš (2021)</a> illustrate the countervailing channel. In their
+small survey, awareness of chatbots greatly exceeded actual use and
+respondents strongly preferred waiting for a human service agent. The
+setting was customer service rather than confidential research, but it
+shows why “people prefer machines for sensitive questions” is too
+simple. Human evaluation can deter disclosure; perceived machine
+incompetence or opacity can deter participation.</p>
+<p>The next wave moved from embodied agents to ordinary survey
+interfaces. <a href="#ref-kim2019">Kim et al. (2019)</a> crossed chatbot
+versus web presentation with formal versus casual conversational style.
+Chatbot administration reduced nondifferentiation, but the effect
+depended on style: platform and tone interacted rather than contributing
+separable, universal gains. Ease and dropout did not differ
+significantly. The treatment was therefore not “conversation” in the
+abstract; it was a particular combination of interface conventions and
+language.</p>
+<p><a href="#ref-xiao2020tell">Xiao et al. (2020a)</a> shifted the focus
+toward open-ended elicitation. Their conversational survey produced 39
+percent more information and 25.7 percent higher aggregate coded
+response quality than a conventional open-ended survey across more than
+5,200 responses. This is important evidence that a bounded, pre-LLM
+system can improve more than respondent preference. Yet its
+outcomes—informativeness, relevance, specificity, and clarity—remain
+properties of answers, not independent tests of construct validity.</p>
+<p>The later longitudinal comparison by <a href="#ref-zarouali2024">Zarouali et al. (2024)</a> supplies a valuable
+negative case. Across fourteen days, conventional web surveys often
+performed better on response characteristics, data quality, and user
+evaluation; chatbot participants supplied fewer words over time and
+rated enjoyment, usefulness, and security less favorably. The chatbot
+performed better on attention checks. Repetition changes the result: an
+interface that seems engaging in a single session may impose friction or
+privacy concerns when it becomes routine.</p>
+<p>Together, these studies overturn a platform-level account. A
+conversational shell can alter disclosure, satisficing, attention, and
+burden, but the direction is not stable. What matters is the behavioral
+mechanism activated by the interface and how that mechanism interacts
+with topic and duration.</p>
+<h1 id="what-the-interviewer-does-listening-architecture-and-probe-policy">3.
+What the Interviewer Does: Listening, Architecture, and Probe
+Policy</h1>
+<p>The core design advance in this literature is a move from asking
+whether a chatbot works to asking which interviewer functions create
+value. Three functions recur: demonstrating understanding, managing the
+structure of a conversation, and selecting a follow-up question.</p>
+<h2 id="listening-and-conversation-management">3.1 Listening and
+conversation management</h2>
+<p><a href="#ref-xiao2020hear">Xiao et al. (2020b)</a> experimentally
+added comprehension and active-listening skills to an interview chatbot.
+Relative to a baseline system, the full design improved perceived
+comprehension, user interest, chat experience, engagement duration,
+response length, and manually coded response quality. Because the
+comparison varies a defined bundle of listening functions within the
+same general medium, it is more informative for design than a
+chatbot-versus-form contrast. The caveat is that intent recognition
+varied across topics, revealing that apparent listening depends on
+classification quality beneath the conversational surface.</p>
+<p><a href="#ref-jiang2023">Jiang et al. (2023)</a> decomposed
+architecture differently. CommunityBots assigned topics to multiple
+coordinated agents and compared that design with a single-agent chatbot.
+Participants were more engaged, gave more specific, clear, and expansive
+responses, and experienced fewer conversational interruptions. Agent
+multiplicity itself is unlikely to be the causal primitive; the
+treatment bundled topic specialization, handoffs, and conversation
+management. The useful result is that state management and topical
+organization are part of interview quality, not merely engineering
+details.</p>
+<p><a href="#ref-cuevas2025">Cuevas et al. (2025)</a> provide the
+necessary counterweight. Comparing a dynamic prober, a member-checking
+LLM, and a hard-coded baseline, they found high average relevance and
+clarity but low cognitive empathy and palpability. Aside from follow-up
+quality, the LLM conditions did not reliably outperform the scripted
+system. Fluent contingency therefore need not produce the concrete,
+respondent-centered evidence valued in qualitative research. A cheap
+deterministic policy may perform competitively when the task is narrow
+and the evaluation criterion is conventional response quality.</p>
+<h2 id="probe-choice-is-a-policy-not-a-switch">3.2 Probe choice is a
+policy, not a switch</h2>
+<p>Generative models make it tempting to treat probing as a binary
+treatment: either a system follows up or it does not. The evidence
+instead describes a policy problem. A useful probe must diagnose what is
+missing, select an objective, formulate a nonleading question, and
+decide whether the expected informational value exceeds respondent
+burden.</p>
+<p><a href="#ref-seltzer2023">Seltzer et al. (2023)</a> demonstrate
+respondent-specific generation in SmartProbe. Market researchers rated
+69 percent of 300 generated probes as good or very good. In parallel
+samples, 76 percent of SmartProbe-elicited responses received those
+ratings, compared with 25 percent under generic probing. This is strong
+feasibility evidence for conditioning on the preceding answer, but weak
+causal evidence: the samples were not randomized, systems were bundled,
+and the evaluation was conducted in-house.</p>
+<p><a href="#ref-barari2025">Barari et al. (2025)</a> provide a broader
+experimental test. Elaboration and relevance probes increased
+specificity and explanation for two opinion questions, as well as word
+count and Shannon entropy. They did not consistently improve
 completeness, relevance, lexical diversity, or distributional
-similarity. Confirmation probes, meanwhile, had little effect on
-respondent experience. These patterns reject both an easy optimistic
-account—conversation improves data quality—and an easy null—probing does
-nothing. It changes some dimensions of the response and leaves others
-largely intact.</p>
-<p><a href="#ref-jacobsen2025">Jacobsen et al. (2025)</a> sharpen this
-point by comparing four theory-based probe types across 1,287 responses.
-Explanatory probes were less relevant, specific, and clear than several
-alternatives. Idiographic probes, which pursue material particular to
-the respondent, performed better than explanatory probes on multiple
-outcomes during the requirements and evaluation stages. No overall
-difference emerged for informativeness. The useful unit of analysis is
-therefore a probe policy conditioned on interview purpose and stage, not
-the presence of a chatbot.</p>
-<p><a href="#ref-seltzer2023">Seltzer et al. (2023)</a> provide an
-earlier LLM application of that respondent-specific logic.
-Market-research experts rated 69 percent of 300 generated SmartProbe
-follow-ups as good or very good. In parallel samples, 76 percent of
-responses elicited by SmartProbe received those ratings, compared with
-25 percent under generic probing. The contrast supports tailoring
-follow-ups to the preceding answer, but it is not a clean treatment
-effect: the samples were not randomized, the systems were bundled, and
-the ratings were produced in-house. SmartProbe is therefore useful
-evidence about feasibility and design, not an independent validation
-benchmark.</p>
-<p>Adaptivity also consumes respondent attention. In <a href="#ref-barari2025">Barari et al.</a>, elaboration and relevance
-probing raised first-question dropout by roughly two to three percentage
-points and doubled mean completed-interview duration from about three to
-six minutes. Average movements in normalized ease, frustration, and
-satisfaction were small, but attrition and time are real components of
-data-production cost. A probe that enriches the answers of completers
-can still worsen the realized sample or increase selection if burden
-falls unevenly across respondents.</p>
-<p>These findings suggest a decision rule rather than a blanket design
-recommendation. Probe when the expected value of resolving a
-consequential ambiguity exceeds the expected burden and risk of inducing
-or steering an answer. That rule requires an explicit measurement
-target. If a study needs a categorical classification, confirmation may
-be more valuable than narrative elaboration. If it seeks mechanisms or
-language, respondent-specific follow-up may dominate generic requests
-for explanation. Systems should also be permitted to stop: universal
-persistence is not the same as intelligent adaptivity.</p>
-<p>The expanded evidence makes the design dependence clearer. <a href="#ref-xiao2020tell">Xiao et al. (2020a)</a> found that a pre-LLM
-conversational survey elicited 39 percent more information and 25.7
-percent higher aggregate response quality than a conventional open-ended
-survey. In a separate experiment, <a href="#ref-xiao2020hear">Xiao et
-al. (2020b)</a> showed that adding comprehension and active-listening
-capabilities improved engagement, word count, user experience, and
-manually coded response quality relative to a baseline chatbot. <a href="#ref-jiang2023">Jiang et al. (2023)</a> similarly found that a
-managed multi-agent design produced more specific, clear, and expansive
-responses with fewer conversational interruptions than a single-agent
-baseline. These studies locate value in particular interviewer functions
-rather than in conversational presentation alone.</p>
-<p>But richer interaction is not automatic. <a href="#ref-cuevas2025">Cuevas et al. (2025)</a> report high relevance
-and clarity across three chatbots while finding low cognitive empathy
-and palpability and little substantive advantage of the LLM conditions
-over a hard-coded baseline. <a href="#ref-chopra2023">Chopra and Haaland
-(2023)</a>, by contrast, document sustained engagement in roughly
-half-hour AI interviews and show how follow-ups reveal risk beliefs and
-misconceptions hidden beneath respondents’ initial explanations.
-Together they sharpen the relevant distinction: adaptivity is valuable
-when it changes what the researcher learns, not merely how smoothly the
-exchange proceeds.</p>
-<h1 id="humans-machines-and-the-quality-frontier">Humans, Machines, and
-the Quality Frontier</h1>
-<p>Comparisons with humans are attractive because they offer an
-intuitive benchmark, but “the human interviewer” is not a stable control
-condition. A trained qualitative researcher, an untrained online worker,
-a face-to-face interviewer, and a text-chat interviewer produce
-different interactions at very different costs. AI performance likewise
-depends on voice, embodiment, prompting, and the degree of autonomous
-control. Rankings are meaningful only within a specified task and
-modality.</p>
-<p><a href="#ref-geiecke2026">Geiecke and Jaravel (2026)</a> offer a
-revealing set of expert transcript comparisons. Against an online-text
-expert benchmark, average grades were 3.93 for AI voice, 3.51 for human
-face-to-face, 2.98 for AI text, and 2.42 for human text, based on 40
-ratings per modality. Against a face-to-face benchmark, AI voice and
-human face-to-face were essentially level at 3.50 and 3.53, while both
-text modes scored lower. These results show that an AI-led voice
-interview can approach a trained-human benchmark under the evaluated
-conditions. They also show that modality may matter at least as much as
-the human-machine distinction.</p>
-<p>The finding should not be generalized into human equivalence. Expert
-transcript ratings capture dimensions of conversational and substantive
-quality, but not every feature of rapport, sampling, construct validity,
-or downstream usefulness. The small and heterogeneous comparison cells
-also limit precision. <a href="#ref-devault2014">DeVault et al.’s</a>
-earlier results point in the opposite direction on relational outcomes:
-full automation reduced ratings of listening, usability, and rapport
-relative to Wizard-of-Oz operation, even as willingness and comfort
-sharing changed little.</p>
-<p>The combined evidence places systems on a multidimensional frontier
-rather than a single ladder. Automation offers replicability and low
-marginal cost. Human interviewers may contribute situated judgment,
-repair, empathy, and accountability. Voice can restore social cues lost
-in text while potentially increasing evaluation apprehension. The design
-problem is consequently one of allocation: which decisions should be
-fixed in advance, delegated to a model, escalated to a human, or audited
-afterward? Hybrid systems may dominate either pure mode when rare,
-consequential conversational failures can be detected and escalated
-cheaply.</p>
-<p>Two matched comparisons reinforce the caution about a single ranking.
-<a href="#ref-guven2025">Guven et al. (2025)</a> randomly assigned forty
+similarity. The same probes increased first-question dropout by roughly
+two to three percentage points and doubled mean completed-interview
+duration from about three to six minutes. Small average changes in
+reported ease or frustration do not remove these production costs:
+attrition can alter the realized sample even if completers tolerate the
+experience.</p>
+<p><a href="#ref-jacobsen2025">Jacobsen et al. (2025)</a> compare four
+theory-based probe types across 1,287 responses. Explanatory probes were
+less relevant, specific, and clear than several alternatives.
+Idiographic probes, which pursue material particular to the respondent,
+performed better on multiple outcomes during requirements and evaluation
+stages, while informativeness showed no overall probe difference. There
+is consequently no universally optimal follow-up. Probe value is indexed
+to the interview stage, the deficiency in the initial answer, and the
+target outcome.</p>
+<p>The combined evidence suggests a decision rule. Probe when resolving
+a consequential ambiguity is worth the added time, selection risk, and
+possibility of steering the respondent. Confirmation may be appropriate
+for a classification target; idiographic follow-up may be better for
+mechanisms; a scripted probe may dominate an LLM when the relevant
+deficiency is predictable. Intelligent adaptivity also requires
+stopping. A system that always asks another plausible question is
+persistent, not necessarily informative.</p>
+<h1 id="from-short-answers-to-qualitative-evidence-at-scale">4. From
+Short Answers to Qualitative Evidence at Scale</h1>
+<p>Two studies make the economic promise of generative interviewing
+especially concrete. <a href="#ref-chopra2023">Chopra and Haaland
+(2023)</a> conducted roughly half-hour text interviews with U.S.
+stock-market nonparticipants. More than 95 percent of 395 participants
+completed; the median respondent produced about 610 words. Follow-up
+questions revealed risk beliefs and misconceptions that were obscured by
+initial explanations centered on low income. This is evidence that
+adaptive interviews can uncover candidate mechanisms beneath a one-shot
+response. It is not, by itself, proof that the discovered themes are
+correct or complete.</p>
+<p><a href="#ref-geiecke2026">Geiecke and Jaravel (2026)</a> push the
+production frontier further, applying a common interview architecture
+across subjective well-being, political choice, education and
+occupation, and policy mental models. In expert transcript comparisons,
+AI voice interviews approached human face-to-face performance and
+outperformed both text modes under the reported benchmarks. In a
+randomized meaning-in-life application, AI-interview respondents were
+more likely than open-text respondents to say they could clearly
+identify sources of meaning. The applications demonstrate versatility,
+large-sample deployment, and the possibility of discovering
+unanticipated categories.</p>
+<p>These papers change the role of qualitative evidence in economics.
+When interview cost falls, qualitative work need not be confined to a
+small preparatory sample. Researchers can examine heterogeneity in
+mechanisms, estimate the prevalence of themes, and connect narratives to
+experimental assignments or administrative outcomes. But scale does not
+dissolve the epistemic role of the interviewer. The prompt, model,
+stopping rule, and coding pipeline jointly produce the data. A system
+that helps respondents articulate a belief may also change that belief;
+an interview can be both measurement and treatment.</p>
+<p>The appropriate comparison is therefore total research production,
+not API cost. Design labor, piloting, respondent time, monitoring,
+privacy safeguards, transcript validation, coding, and failure
+correction remain inputs. AI makes contingent language cheap. It does
+not make the interpretation of that language free.</p>
+<h1 id="humans-and-machines-are-bundles-of-capabilities">5. Humans and
+Machines Are Bundles of Capabilities</h1>
+<p>Human comparisons are attractive because they promise a simple
+ranking. The studies instead show why “human interviewer” and “AI
+interviewer” are underspecified treatments.</p>
+<p><a href="#ref-guven2025">Guven et al. (2025)</a> held modality and
+interview guide relatively constant by randomly assigning forty
 participants to human or locally hosted AI text interviewers using the
-same interface and guide. Humans elicited longer answers per question,
-while the AI moved faster; coded specificity and relevance did not
-differ significantly. <a href="#ref-wuttke2024">Wuttke et al. (2024)</a>
-likewise found broadly similar aggregate response quality and guideline
-adherence in a small political-interview study, but different errors:
-the AI missed follow-up opportunities and sometimes offered evaluative
-encouragement, whereas humans more often omitted active listening or
-suggested answers. Similar averages can therefore conceal different
-risks.</p>
-<h1 id="the-measurement-problem">The Measurement Problem</h1>
-<p>The emerging literature commonly reports answer length, specificity,
-transcript ratings, respondent satisfaction, or willingness to disclose.
-Each is potentially useful, but none is synonymous with measurement
-validity. More text may contain more signal, more noise, or both. A
-pleasant interaction may improve completion without improving the
-measure. Agreement between a respondent and an AI-generated code may
-reflect acquiescence rather than correct classification.</p>
-<p><a href="#ref-sun2025">Sun et al. (2025)</a> illustrate the value of
-an external criterion. Children were interviewed about a witnessed mock
-event, allowing elicited statements to be classified against known
-details. The language-model interviews produced a similar number of
-unique correct details to interviews by naive humans (8.50 versus 7.50),
-more unique correct information per question (0.90 versus 0.46), and
-less false information overall, while asking 471 questions rather than
-872. This is stronger evidence of task-specific measurement performance
-than a transcript preference because the researcher can distinguish
-correct from incorrect content. It remains bounded by a structured
-child-witness setting and a comparison with naive rather than expert
-interviewers.</p>
-<p><a href="#ref-barari2025">Barari et al.’s</a> live-coding results
-expose another validity margin. Respondent-confirmed accuracy ranged
-from 66.1 to 96.2 percent across tasks, while agreement with independent
-human coding was lower for several tasks. Respondents also selected
-“none of the above” less frequently. Confirmation may correct a proposed
-code, but it can also anchor respondents or encourage acquiescence. A
-respondent’s endorsement and an independent coder’s assessment answer
-different questions; neither should silently become ground truth.</p>
-<p>Reflective interviews introduce yet another complication. In <a href="#ref-geiecke2026">Geiecke and Jaravel’s</a> randomized
-meaning-in-life application, 51.69 percent of AI-interview respondents
-said they could clearly pinpoint sources of meaning, compared with 41.18
-percent in an open-text condition; fewer said their thoughts were still
-evolving. This may be a valuable treatment effect of guided reflection.
-But if the goal is to measure a preexisting state, the interview may
-partly create the object it records. Interactive measurement is not
-necessarily defective—many interviews are intended to help respondents
-articulate beliefs—but researchers must distinguish elicitation from
-intervention.</p>
-<p>Even conventional chatbot comparisons resist a universal direction.
-<a href="#ref-kim2019">Kim et al. (2019)</a> found less satisficing in a
-chatbot survey, but the advantage depended on conversational style. In a
-fourteen-day study, <a href="#ref-zarouali2024">Zarouali et
-al. (2024)</a> found that web surveys often performed better on response
-characteristics, data quality, and user evaluation, while the chatbot
-performed better on attention checks. Duration, repetition, tone, and
-perceived security are therefore parts of the measurement technology
-rather than incidental interface details.</p>
-<p>The general lesson is to define success outside the conversational
-surface whenever possible. Factual tasks can use known events or
-records. Construct measurement can use reliability, convergent and
-discriminant validity, or prediction of later behavior. Qualitative
-discovery can test whether independent analysts recover novel,
-consequential themes and whether those themes survive follow-up work.
-Without such criteria, claims should remain about disclosure, richness,
-or rated quality rather than validity writ large.</p>
-<h1 id="an-economics-research-agenda">An Economics Research Agenda</h1>
-<p>The next phase of research should treat AI interviewing as a problem
-in the economics of information production. Five questions are
-especially important.</p>
-<p>First, studies should estimate a production frontier rather than
-report output alone. Relevant inputs include design labor, model and
-transcription costs, interview duration, monitoring, human escalation,
-respondent incentives, attrition, and the cost of correcting failures.
-Relevant outputs depend on the application: factual recall, predictive
-power, conceptual novelty, classification accuracy, or decision value.
-Near-zero marginal interviewing cost is not near-zero total cost if
-validation and oversight are expensive.</p>
-<p>Second, designs should decompose interviewer decisions. Randomizing
-an entire conversational system reveals whether a bundle works in one
-setting but offers little guidance for improvement. Experiments can
-separately vary disclosure framing, voice versus text, probe objective,
-timing, stopping rules, memory, and human escalation. <a href="#ref-jacobsen2025">Jacobsen et al.’s</a> probe comparison is
-useful precisely because it opens this black box.</p>
-<p>Third, average effects are unlikely to be sufficient. Evaluation
-apprehension, digital familiarity, language proficiency, topic
-sensitivity, disability, and prior experience with AI may all change
-both engagement and measurement error. A system that lowers social
-pressure for one group may signal surveillance or low accountability to
-another. Attrition caused by probing can also change composition even
-when satisfaction among completers barely moves.</p>
-<p>Fourth, researchers should study respondent adaptation. As people
-learn how automated interviewers store, summarize, and act on
-information, their disclosure strategies may change. Novelty effects in
-early experiments need not describe equilibrium behavior. Institutional
-commitments about privacy, human review, and recourse are therefore part
-of the treatment, not merely implementation details.</p>
-<p>Fifth, validation should follow the intended use of the data. An
-interview used to generate hypotheses faces a different loss function
-from one used to allocate benefits, diagnose risk, or estimate a
-population parameter. High-stakes uses require evidence on false
-statements, leading questions, omitted groups, and auditability. For
-exploratory research, the important benchmark may instead be whether
-scaled conversations reveal mechanisms that a structured survey would
-not have anticipated.</p>
-<h1 id="conclusion">Conclusion</h1>
-<p>AI does not make interviewing costless, neutral, or automatically
-valid. It changes the feasible set. Standardized protocols can now
-support contingent conversation at a scale previously associated with
-fixed surveys, while voice and language generation can reproduce parts
-of the interaction once supplied by trained labor.</p>
-<p>The evidence reviewed here gives qualified reasons for optimism.
-Perceived automation can reduce evaluation apprehension; well-chosen
-probes can improve specificity and explanation; AI voice interviews can
-approach trained-human transcript ratings; and, in one criterion-based
-setting, a language model elicited correct information efficiently while
-producing less false information than naive interviewers. Each result
-has a boundary. Trust can offset disclosure gains, probes impose burden
-and work selectively, modality changes comparisons, and richer
-transcripts do not establish validity.</p>
-<p>The field has therefore progressed further in scalable elicitation
-than in measurement theory. Its most valuable next studies will specify
-the target construct before choosing the conversational technology,
-identify which interviewer decisions create value, benchmark claims
-against independent criteria, and compare total production costs. The
-central question is no longer whether a machine can conduct something
-recognizable as an interview. It is when machine-mediated conversation
-produces evidence worth using.</p>
+same interface. Humans elicited longer responses per question; the AI
+asked questions faster and the sessions lasted longer overall. Coded
+specificity and relevance did not differ significantly. The small sample
+cannot establish equivalence, but it shows that pacing and answer
+quality need not move together.</p>
+<p><a href="#ref-wuttke2024">Wuttke et al. (2024)</a> compared AI and
+student interviewers conducting political interviews from identical
+questionnaires. Aggregate response quality and guideline adherence were
+broadly similar, yet the failure modes differed. The AI missed follow-up
+opportunities and sometimes gave evaluative encouragement; humans more
+often omitted active listening or suggested answers. Similar averages
+can conceal errors with different consequences for measurement and
+audit.</p>
+<p><a href="#ref-geiecke2026">Geiecke and Jaravel (2026)</a> add trained
+interviewers and modality variation. Against an online-text expert
+benchmark, mean grades were 3.93 for AI voice, 3.51 for human
+face-to-face, 2.98 for AI text, and 2.42 for human text; against a
+face-to-face benchmark, AI voice and human face-to-face were nearly
+level. These cells are small and the ratings subjective, but the
+ordering makes an essential point: modality can matter at least as much
+as whether the interviewer is human.</p>
+<p>The earlier SimSensei evidence completes the picture. <a href="#ref-devault2014">DeVault et al. (2014)</a> found that full
+automation reduced perceived listening, usability, and rapport relative
+to Wizard-of-Oz operation even when willingness to share was similar.
+Human control, voice, embodiment, expertise, and interface are separate
+dimensions. A single machine-human coefficient averages over them.</p>
+<p>The design problem is consequently one of task allocation. Protocols
+are good at consistency; models at low-cost contingent generation;
+humans at situated repair, accountability, and handling rare
+consequential cases. Hybrid systems may dominate pure modes when
+failures can be detected and escalated. But escalation itself must be
+studied: a nominally automated interview may recreate human evaluation
+apprehension if respondents expect hidden review.</p>
+<h1 id="the-measurement-problem">6. The Measurement Problem</h1>
+<p>Most studies in this field evaluate the conversational surface:
+words, specificity, engagement, satisfaction, rapport, or expert
+transcript ratings. These outcomes are useful intermediate products.
+They should not silently become evidence that an interview measures the
+intended construct.</p>
+<p><a href="#ref-sun2025">Sun et al. (2025)</a> offer the corpus’s
+clearest external criterion. Children were interviewed about a witnessed
+mock event, so statements could be checked against known details. The
+language-model interviews elicited a similar number of unique correct
+details to naive-human interviews (8.50 versus 7.50), more correct
+information per question (0.90 versus 0.46), and less false information
+while asking 471 rather than 872 questions. This is stronger
+task-specific performance evidence than transcript preference. It
+remains bounded by a structured event, child witnesses, and naive rather
+than expert human interviewers.</p>
+<p><a href="#ref-barari2025">Barari et al. (2025)</a> expose a different
+validity problem in respondent-confirmed coding. Confirmation accuracy
+ranged from 66.1 to 96.2 percent across tasks, while agreement with
+independent human coding was lower for several tasks. Respondents
+selected “none of the above” less frequently. Confirmation can repair a
+proposed code, but it can also anchor or invite acquiescence. Respondent
+endorsement and independent coding are different criteria, and neither
+automatically supplies ground truth.</p>
+<p>The rest of the corpus can be organized by distance from the target
+construct. Word count and duration measure production. Relevance,
+specificity, clarity, and differentiation measure answer properties, as
+in <a href="#ref-kim2019">Kim et al. (2019)</a>, <a href="#ref-xiao2020tell">Xiao et al. (2020a)</a>, and <a href="#ref-jacobsen2025">Jacobsen et al. (2025)</a>. Engagement and
+satisfaction measure respondent experience. Expert transcript ratings,
+used by <a href="#ref-geiecke2026">Geiecke and Jaravel (2026)</a>,
+measure professional judgment about the evidence available in a
+transcript. Known events, records, later behavior, or validated
+constructs are closer to external validity.</p>
+<p>No single level is always required. A hypothesis-generation interview
+may be successful if independent analysts recover novel themes that
+survive later investigation. A diagnostic or allocation interview
+requires calibration, false-positive and false-negative analysis, and
+auditability. A population measure requires sampling and measurement
+invariance in addition to good conversation. Claims should therefore
+name the level supported: richer responses, better experience, stronger
+rated transcripts, or valid measurement.</p>
+<h1 id="a-research-agenda-for-the-economics-of-ai-interviewing">7. A
+Research Agenda for the Economics of AI Interviewing</h1>
+<p>The literature now supports a more demanding experimental agenda.</p>
+<p>First, estimate production frontiers. Studies should report design
+and monitoring labor, model and transcription expense, respondent time,
+attrition, human escalation, and correction costs alongside the relevant
+output. Cheap interviews can be expensive evidence if validation is
+labor intensive.</p>
+<p>Second, randomize interviewer decisions rather than entire opaque
+systems. Disclosure framing, voice, embodiment, probe objective, timing,
+memory, stopping, and escalation can be varied separately. The
+active-listening experiment of <a href="#ref-xiao2020hear">Xiao et
+al. (2020b)</a>, the architecture comparison of <a href="#ref-jiang2023">Jiang et al. (2023)</a>, and the probe comparison
+of <a href="#ref-jacobsen2025">Jacobsen et al. (2025)</a> are useful
+because they begin to open the bundle.</p>
+<p>Third, measure heterogeneity and selection. Evaluation apprehension,
+digital familiarity, language, disability, topic sensitivity, and prior
+AI experience can change both participation and response error.
+Probe-induced attrition may alter sample composition even when average
+satisfaction among completers changes little.</p>
+<p>Fourth, benchmark against the intended use. Factual interviews can
+use known events or administrative records. Construct measurement can
+use reliability, convergent validity, and prediction. Discovery studies
+can test whether themes replicate across interviewers, models, and
+follow-up samples. The criterion should be specified before a
+conversational metric is chosen.</p>
+<p>Fifth, study equilibrium trust. Respondents’ beliefs about storage,
+model training, hidden human review, and recourse are part of the
+treatment. Early novelty effects may not survive routine deployment. The
+contrast between lower evaluation apprehension in <a href="#ref-lucas2014">Lucas et al. (2014)</a> and weaker repeated
+chatbot evaluations in <a href="#ref-zarouali2024">Zarouali et
+al. (2024)</a> makes this an empirical, not merely ethical, issue.</p>
+<p>Finally, compare failure distributions rather than only averages.
+Humans and models omit different probes, lead in different ways, and
+fail at different times. A useful system may not minimize average error;
+it may make consequential errors observable, auditable, and cheap to
+escalate.</p>
+<h1 id="conclusion">8. Conclusion</h1>
+<p>AI interviewing is neither a fluent replacement for qualitative
+researchers nor simply a richer survey widget. It is a reallocation of
+decisions in the production of evidence. The seventeen studies reviewed
+here show a field moving from the social effects of virtual
+interviewers, through conversational interface and listening design, to
+flexible language-model probing and scaled qualitative deployment.</p>
+<p>Three conclusions survive that broader synthesis. First, automation
+changes respondent behavior, but disclosure advantages are conditional
+on trust and do not establish truth. Second, adaptivity has value when a
+probe is matched to a particular informational deficiency; generic
+conversation and indiscriminate follow-up do not reliably improve data.
+Third, promising human comparisons remain task- and modality-specific,
+while the strongest measurement claim in the corpus comes from the
+unusual study that observes the underlying event.</p>
+<p>The field’s achievement is to make standardized adaptivity
+inexpensive. Its unresolved problem is to decide when that adaptivity
+improves the evidence a researcher ultimately needs. Progress will come
+from defining the target first, decomposing interviewer decisions,
+measuring total costs and heterogeneous effects, and validating beyond
+the conversational surface.</p>
 <h1 id="references">References</h1>
-<div id="ref-seltzer2023" class="reference">
+<div id="ref-barari2025" class="reference">
 
 </div>
-<p>Seltzer, Josh, James Pan, Kathy Cheng, Yichen Sun, Sreekar Kolagati,
-Junchen Lin, and Sarah Zong. 2023. “SmartProbe: A Virtual Moderator for
-Market Research Surveys.” arXiv:2305.08271. <a href="https://doi.org/10.48550/arXiv.2305.08271">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_20b583c660b2">Explorer
+<p>Barari, Soubhik, Jarret Angbazo, Natalie Wang, Leah M. Christian,
+Elizabeth Dean, Zoe Slowinski, and Brandon Sepulvado. 2025. “AI-Assisted
+Conversational Interviewing: Effects on Data Quality and Respondent
+Experience.” <a href="https://doi.org/10.48550/arXiv.2504.13908">DOI</a>
+· <a href="../ai-interviewers-explorer.html#source=src_2a843bf69441">Explorer
 record</a>.</p>
 <div id="ref-chopra2023" class="reference">
 
@@ -559,12 +600,39 @@ Entenmann, and Madeleine I. G. Daepp. 2025. “Collecting Qualitative Data
 at Scale with Large Language Models: A Case Study.” <em>Proceedings of
 the ACM on Human-Computer Interaction</em>. <a href="https://doi.org/10.1145/3710947">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_0876e37522c7">Explorer
 record</a>.</p>
+<div id="ref-devault2014" class="reference">
+
+</div>
+<p>DeVault, David, Ron Artstein, Grace Benn, Teresa Dey, Ed Fast, Alesia
+Gainer, Kallirroi Georgila, Jonathan Gratch, Arno Hartholt, Margaux
+Lhommet, and others. 2014. “SimSensei Kiosk: A Virtual Human Interviewer
+for Healthcare Decision Support.” <a href="https://doi.org/10.5555/2615731.2617415">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_ca3e033a6b39">Explorer
+record</a>.</p>
+<div id="ref-duka2021" class="reference">
+
+</div>
+<p>Đuka, Isidora, and Angelina Njeguš. 2021. “Conversational Survey
+Chatbot: User Experience and Perception.” <a href="https://doi.org/10.15308/Sinteza-2021-322-327">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_db7efbce68d9">Explorer
+record</a>.</p>
+<div id="ref-geiecke2026" class="reference">
+
+</div>
+<p>Geiecke, Friedrich, and Xavier Jaravel. 2026. “Conversations at
+Scale: Robust AI-led Interviews.” <a href="https://doi.org/10.2139/ssrn.4974382">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_6541b25ef96e">Explorer
+record</a>.</p>
 <div id="ref-guven2025" class="reference">
 
 </div>
 <p>Guven, Semra Yuksel, Tobias Gårdhus, Andreas Bjerre-Nielsen, and
 Hjalmar Bang Carlsen. 2025. “Comparing AI-led to Human-led Chat-based
 Interviews: Motivations, Initial Results, and Challenges.” <a href="../ai-interviewers-explorer.html#source=src_8f39b52d2f72">Explorer
+record</a>.</p>
+<div id="ref-jacobsen2025" class="reference">
+
+</div>
+<p>Jacobsen, Rune M., Samuel Rhys Cox, Carla F. Griggio, and Niels van
+Berkel. 2025. “Chatbots for Data Collection in Surveys: A Comparison of
+Four Theory-Based Interview Probes.” <a href="https://doi.org/10.1145/3706598.3714128">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_af8750017209">Explorer
 record</a>.</p>
 <div id="ref-jiang2023" class="reference">
 
@@ -581,6 +649,30 @@ record</a>.</p>
 <p>Kim, Soomin, Joonhwan Lee, and Gahgene Gweon. 2019. “Comparing Data
 from Chatbot and Web Surveys: Effects of Platform and Conversational
 Style on Survey Response Quality.” <em>CHI 2019</em>. <a href="https://doi.org/10.1145/3290605.3300316">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_aa3e71d53846">Explorer
+record</a>.</p>
+<div id="ref-lucas2014" class="reference">
+
+</div>
+<p>Lucas, Gale M., Jonathan Gratch, Aisha King, and Louis-Philippe
+Morency. 2014. “It’s Only a Computer: Virtual Humans Increase
+Willingness to Disclose.” <em>Computers in Human Behavior</em> 37:
+94–100. <a href="https://doi.org/10.1016/j.chb.2014.04.043">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_418b4c4f1a21">Explorer
+record</a>.</p>
+<div id="ref-seltzer2023" class="reference">
+
+</div>
+<p>Seltzer, Josh, James Pan, Kathy Cheng, Yichen Sun, Sreekar Kolagati,
+Junchen Lin, and Sarah Zong. 2023. “SmartProbe: A Virtual Moderator for
+Market Research Surveys.” arXiv:2305.08271. <a href="https://doi.org/10.48550/arXiv.2305.08271">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_20b583c660b2">Explorer
+record</a>.</p>
+<div id="ref-sun2025" class="reference">
+
+</div>
+<p>Sun, Yongjie, Haohai Pang, Liisa Järvilehto, Ophelia Zhang, David
+Shapiro, Julia Korkman, Shumpei Haginoya, and Pekka Santtila. 2025.
+“Comparing the Performance of a Large Language Model and Naive Human
+Interviewers in Interviewing Children about a Witnessed Mock-Event.”
+<em>PLOS ONE</em> 20. <a href="https://doi.org/10.1371/journal.pone.0316317">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_5e242e942988">Explorer
 record</a>.</p>
 <div id="ref-wuttke2024" class="reference">
 
@@ -613,59 +705,6 @@ record</a>.</p>
 “Comparing Chatbots and Online Surveys for (Longitudinal) Data
 Collection.” <em>Communication Methods and Measures</em> 18 (1): 72–91.
 <a href="https://doi.org/10.1080/19312458.2022.2156489">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_43270b46dc12">Explorer
-record</a>.</p>
-<div id="ref-barari2025" class="reference">
-
-</div>
-<p>Barari, Soubhik, Jarret Angbazo, Natalie Wang, Leah M. Christian,
-Elizabeth Dean, Zoe Slowinski, and Brandon Sepulvado. 2025. “AI-Assisted
-Conversational Interviewing: Effects on Data Quality and Respondent
-Experience.” <a href="https://doi.org/10.48550/arXiv.2504.13908">DOI</a>
-· <a href="../ai-interviewers-explorer.html#source=src_2a843bf69441">Explorer
-record</a>.</p>
-<div id="ref-devault2014" class="reference">
-
-</div>
-<p>DeVault, David, Ron Artstein, Grace Benn, Teresa Dey, Ed Fast, Alesia
-Gainer, Kallirroi Georgila, Jonathan Gratch, Arno Hartholt, Margaux
-Lhommet, and others. 2014. “SimSensei Kiosk: A Virtual Human Interviewer
-for Healthcare Decision Support.” <a href="https://doi.org/10.5555/2615731.2617415">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_ca3e033a6b39">Explorer
-record</a>.</p>
-<div id="ref-duka2021" class="reference">
-
-</div>
-<p>Đuka, Isidora, and Angelina Njeguš. 2021. “Conversational Survey
-Chatbot: User Experience and Perception.” <a href="https://doi.org/10.15308/Sinteza-2021-322-327">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_db7efbce68d9">Explorer
-record</a>.</p>
-<div id="ref-geiecke2026" class="reference">
-
-</div>
-<p>Geiecke, Friedrich, and Xavier Jaravel. 2026. “Conversations at
-Scale: Robust AI-led Interviews.” <a href="https://doi.org/10.2139/ssrn.4974382">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_6541b25ef96e">Explorer
-record</a>.</p>
-<div id="ref-jacobsen2025" class="reference">
-
-</div>
-<p>Jacobsen, Rune M., Samuel Rhys Cox, Carla F. Griggio, and Niels van
-Berkel. 2025. “Chatbots for Data Collection in Surveys: A Comparison of
-Four Theory-Based Interview Probes.” <a href="https://doi.org/10.1145/3706598.3714128">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_af8750017209">Explorer
-record</a>.</p>
-<div id="ref-lucas2014" class="reference">
-
-</div>
-<p>Lucas, Gale M., Jonathan Gratch, Aisha King, and Louis-Philippe
-Morency. 2014. “It’s Only a Computer: Virtual Humans Increase
-Willingness to Disclose.” <em>Computers in Human Behavior</em> 37:
-94–100. <a href="https://doi.org/10.1016/j.chb.2014.04.043">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_418b4c4f1a21">Explorer
-record</a>.</p>
-<div id="ref-sun2025" class="reference">
-
-</div>
-<p>Sun, Yongjie, Haohai Pang, Liisa Järvilehto, Ophelia Zhang, David
-Shapiro, Julia Korkman, Shumpei Haginoya, and Pekka Santtila. 2025.
-“Comparing the Performance of a Large Language Model and Naive Human
-Interviewers in Interviewing Children about a Witnessed Mock-Event.”
-<em>PLOS ONE</em> 20. <a href="https://doi.org/10.1371/journal.pone.0316317">DOI</a> · <a href="../ai-interviewers-explorer.html#source=src_5e242e942988">Explorer
 record</a>.</p>
 </body>
 </html>
