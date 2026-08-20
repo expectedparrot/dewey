@@ -8,6 +8,7 @@ import sqlite3
 import subprocess
 import tempfile
 import urllib.error
+import urllib.parse
 import urllib.request
 import uuid
 from dataclasses import dataclass
@@ -48,7 +49,7 @@ class RenderResult:
     status: MarkdownStatus
     markdown_path: str | None
     stderr: str | None
-    generator_name: str = "paper2md"
+    generator_name: str = "firecrawl"
     generator_version: str | None = None
 
 
@@ -647,7 +648,7 @@ def convert_pdf_with_paper2md(pdf_path: Path, output_dir: Path) -> tuple[str, st
     return markdown_path.read_text(encoding="utf-8"), _paper2md_version()
 
 
-def convert_pdf_with_firecrawl(pdf_path: Path) -> tuple[str, str | None]:
+def _firecrawl_api_key() -> str:
     api_key = os.environ.get("FIRECRAWL_API_KEY")
     if not api_key:
         raise DeweyError(
@@ -655,6 +656,130 @@ def convert_pdf_with_firecrawl(pdf_path: Path) -> tuple[str, str | None]:
             "FIRECRAWL_API_KEY is required for the Firecrawl backend",
             exit_code=2,
         )
+    return api_key
+
+
+def convert_url_with_firecrawl(url: str) -> tuple[str, str | None]:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise DeweyError("invalid_url", f"Expected an HTTP(S) URL, got: {url}", exit_code=2)
+    mcp_url = os.environ.get("FIRECRAWL_API_URL")
+    if mcp_url:
+        return _convert_url_with_firecrawl_mcp(url, mcp_url), "mcp"
+
+    payload = json.dumps(
+        {
+            "url": url,
+            "formats": ["markdown"],
+            "parsers": [{"type": "pdf", "mode": "auto"}],
+            "timeout": 300000,
+        }
+    ).encode()
+    request = urllib.request.Request(
+        "https://api.firecrawl.dev/v2/scrape",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {_firecrawl_api_key()}",
+            "Content-Type": "application/json",
+            "User-Agent": "dewey/0.1",
+        },
+        method="POST",
+    )
+    markdown = _read_firecrawl_markdown(request, "scrape")
+    return markdown, "v2"
+
+
+def _convert_url_with_firecrawl_mcp(url: str, mcp_url: str) -> str:
+    payload = json.dumps(
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {
+                "name": "firecrawl_scrape",
+                "arguments": {"url": url, "formats": ["markdown"]},
+            },
+        }
+    ).encode()
+    request = urllib.request.Request(
+        mcp_url,
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {_firecrawl_api_key()}",
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/event-stream",
+            "User-Agent": "dewey/0.1",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=330) as response:
+            body = response.read().decode("utf-8")
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")[:500]
+        raise DeweyError("firecrawl_failed", f"Firecrawl MCP returned HTTP {exc.code}: {detail}") from exc
+    except (urllib.error.URLError, TimeoutError) as exc:
+        raise DeweyError("firecrawl_failed", f"Firecrawl MCP scrape failed: {exc}") from exc
+
+    payloads: list[dict[str, Any]] = []
+    for line in body.splitlines():
+        candidate = line.removeprefix("data:").strip() if line.startswith("data:") else line.strip()
+        if not candidate or candidate == "[DONE]":
+            continue
+        try:
+            decoded = json.loads(candidate)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(decoded, dict):
+            payloads.append(decoded)
+    for response_payload in payloads:
+        result = response_payload.get("result", {})
+        if result.get("isError"):
+            raise DeweyError("firecrawl_failed", _mcp_error_text(result) or "Firecrawl MCP returned an error")
+        for block in result.get("content", []):
+            if not isinstance(block, dict) or block.get("type") != "text":
+                continue
+            text = block.get("text")
+            if not isinstance(text, str):
+                continue
+            try:
+                tool_payload = json.loads(text)
+            except json.JSONDecodeError:
+                if text.strip():
+                    return text
+                continue
+            markdown = _find_markdown(tool_payload)
+            if markdown:
+                return markdown
+    raise DeweyError("firecrawl_failed", "Firecrawl MCP returned no Markdown")
+
+
+def _find_markdown(value: Any) -> str | None:
+    if isinstance(value, dict):
+        markdown = value.get("markdown")
+        if isinstance(markdown, str) and markdown.strip():
+            return markdown
+        for child in value.values():
+            found = _find_markdown(child)
+            if found:
+                return found
+    elif isinstance(value, list):
+        for child in value:
+            found = _find_markdown(child)
+            if found:
+                return found
+    return None
+
+
+def _mcp_error_text(result: dict[str, Any]) -> str | None:
+    for block in result.get("content", []):
+        if isinstance(block, dict) and isinstance(block.get("text"), str):
+            return block["text"]
+    return None
+
+
+def convert_pdf_with_firecrawl(pdf_path: Path) -> tuple[str, str | None]:
+    api_key = _firecrawl_api_key()
     if pdf_path.stat().st_size > 50 * 1024 * 1024:
         raise DeweyError("firecrawl_file_too_large", "Firecrawl Parse accepts files up to 50 MB", exit_code=2)
 
@@ -693,6 +818,10 @@ def convert_pdf_with_firecrawl(pdf_path: Path) -> tuple[str, str | None]:
         },
         method="POST",
     )
+    return _read_firecrawl_markdown(request, "parse"), "v2"
+
+
+def _read_firecrawl_markdown(request: urllib.request.Request, operation: str) -> str:
     try:
         with urllib.request.urlopen(request, timeout=330) as response:
             payload = json.load(response)
@@ -700,11 +829,11 @@ def convert_pdf_with_firecrawl(pdf_path: Path) -> tuple[str, str | None]:
         detail = exc.read().decode("utf-8", errors="replace")[:500]
         raise DeweyError("firecrawl_failed", f"Firecrawl returned HTTP {exc.code}: {detail}") from exc
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
-        raise DeweyError("firecrawl_failed", f"Firecrawl Parse failed: {exc}") from exc
+        raise DeweyError("firecrawl_failed", f"Firecrawl {operation} failed: {exc}") from exc
     markdown = payload.get("data", {}).get("markdown") if payload.get("success") else None
     if not markdown:
         raise DeweyError("firecrawl_failed", "Firecrawl returned no Markdown")
-    return markdown, "v2"
+    return markdown
 
 
 def _paper2md_version() -> str | None:

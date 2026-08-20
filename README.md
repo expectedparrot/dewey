@@ -46,18 +46,24 @@ dewey next
 
 Follow `dewey next` after every material step. Use `--json` for structured output. Run `dewey doctor` before relying on project state.
 
-For PDFs, local `paper2md` is the default. Firecrawl is explicit and uploads the document:
+For publicly reachable papers, pass the URL directly. Dewey uses Firecrawl to
+retrieve clean Markdown and records the URL as source provenance:
 
 ```bash
-dewey add source paper.pdf
+dewey add source https://example.org/paper.pdf
 dewey add source paper.pdf --backend firecrawl
+dewey add source paper.pdf --backend paper2md  # optional local backend
 dewey add document <source-id> retrieved-paper.pdf
 ```
 
 Use `add document` after screening a metadata-only citation and retrieving its full text;
 it preserves the existing source identifier and discovery provenance.
 
-Firecrawl reads `FIRECRAWL_API_KEY` from the environment or `.env`. Ask before external uploads, paid services, or model inference.
+Firecrawl is the default Markdown backend and reads `FIRECRAWL_API_KEY` from the
+environment or `.env`. When `FIRECRAWL_API_URL` is set, Dewey calls the
+`firecrawl_scrape` MCP tool at that URL; this supports scoped proxy credentials
+in hosted sandboxes. The optional local `paper2md` backend must be installed
+separately. Ask before external uploads, paid services, or model inference.
 
 Share the complete managed project with:
 

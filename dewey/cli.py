@@ -6,6 +6,7 @@ import json
 import shutil
 import sqlite3
 import sys
+import urllib.parse
 from pathlib import Path
 from typing import Any
 
@@ -41,8 +42,10 @@ from dewey.repo import (
     DeweyError,
     DeweyRepo,
     atomic_write_text,
+    convert_url_with_firecrawl,
     parse_entry_file,
     sha256_file,
+    slugify_key,
     utc_now,
 )
 from dewey.reporting import article_brief, embed_explorer, render_with_pandoc
@@ -1222,18 +1225,71 @@ def export_zip(
 
 @add_app.command("source")
 def add_source(
-    path: Path,
+    source: str,
     bibtex_key: str | None = typer.Option(None, "--bibtex-key"),
     no_md: bool = typer.Option(False, "--no-md"),
     force_duplicate: bool = typer.Option(False, "--force-duplicate"),
     copy_mode: bool = typer.Option(False, "--copy"),
     reference_mode: bool = typer.Option(False, "--reference"),
-    backend: str = typer.Option("paper2md", "--backend", help="Markdown backend: paper2md or firecrawl"),
+    backend: str = typer.Option("firecrawl", "--backend", help="Markdown backend: firecrawl or paper2md"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     action = "source.add"
     repo = load_repo(action, json_output)
-    path = path.resolve()
+    parsed_source = urllib.parse.urlparse(source)
+    is_url = parsed_source.scheme in {"http", "https"} and bool(parsed_source.netloc)
+    if is_url:
+        if backend != "firecrawl":
+            fail(action, "invalid_backend", "URL sources require the firecrawl backend", 2, json_output)
+        for existing_id in repo.list_source_ids():
+            if repo.load_metadata(existing_id).markdown_source == source and not force_duplicate:
+                emit(
+                    {
+                        "ok": True,
+                        "action": action,
+                        "source_id": existing_id,
+                        "duplicate": True,
+                        "reused_source_id": existing_id,
+                        "text": f"Reused existing source {existing_id}",
+                    },
+                    json_output,
+                )
+                return
+        name = Path(parsed_source.path).stem or parsed_source.netloc
+        key = bibtex_key or slugify_key(name)
+        entry = BibEntry(entry_type="misc", key=key, fields={"title": name, "url": source})
+        try:
+            source_id = repo.create_source(entry, markdown_source=source)
+            if not no_md:
+                markdown, version = convert_url_with_firecrawl(source)
+                source_dir = repo.require_source_dir(source_id)
+                markdown_path = source_dir / "source.md"
+                atomic_write_text(markdown_path, markdown)
+                metadata = repo.load_metadata(source_id)
+                metadata.markdown_status = MarkdownStatus.ready
+                metadata.markdown_path = str(markdown_path.relative_to(repo.root))
+                metadata.markdown_generator.name = "firecrawl"
+                metadata.markdown_generator.version = version
+                metadata.updated_at = utc_now()
+                repo.write_metadata(source_id, metadata)
+            update_source_index(repo, source_id)
+            repo.append_log(action, source_id=source_id, duplicate=False, input_type="url", url=source)
+            emit(
+                {
+                    "ok": True,
+                    "action": action,
+                    "source_id": source_id,
+                    "duplicate": False,
+                    "input_type": "url",
+                    "text": f"Added source {source_id}",
+                },
+                json_output,
+            )
+        except DeweyError as exc:
+            fail(action, exc.code, exc.message, exc.exit_code, json_output)
+        return
+
+    path = Path(source).resolve()
     if not path.exists():
         fail(action, "file_not_found", f"No file exists at {path}", 4, json_output)
     if copy_mode and reference_mode:
@@ -1915,7 +1971,7 @@ def instructions_append(text: str, json_output: bool = typer.Option(False, "--js
 def render_md(
     source_id: str | None = typer.Argument(None),
     all: bool = typer.Option(False, "--all"),
-    backend: str = typer.Option("paper2md", "--backend", help="Markdown backend: paper2md or firecrawl"),
+    backend: str = typer.Option("firecrawl", "--backend", help="Markdown backend: firecrawl or paper2md"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     action = "render.md"

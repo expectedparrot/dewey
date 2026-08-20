@@ -5,6 +5,7 @@ import os
 import tempfile
 import unittest
 import zipfile
+from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -12,7 +13,7 @@ from typer.testing import CliRunner
 
 from dewey.cli import app
 from dewey.reporting import embed_explorer
-from dewey.repo import convert_pdf_with_paper2md
+from dewey.repo import convert_pdf_with_paper2md, convert_url_with_firecrawl
 
 
 class DeweyCliTests(unittest.TestCase):
@@ -115,7 +116,7 @@ class DeweyCliTests(unittest.TestCase):
             payload = json.loads(result.stdout)
             source_id = payload["source_id"]
 
-            result = self.invoke(["render", "md", source_id, "--json"])
+            result = self.invoke(["render", "md", source_id, "--backend", "paper2md", "--json"])
             self.assertEqual(result.exit_code, 0)
 
         source_dir = self.root / ".dewey" / "sources" / source_id
@@ -183,6 +184,68 @@ class DeweyCliTests(unittest.TestCase):
         source_id = json.loads(result.stdout)["source_id"]
         metadata = json.loads((self.root / ".dewey" / "sources" / source_id / "metadata.json").read_text())
         self.assertEqual(metadata["markdown_generator"], {"name": "firecrawl", "version": "v2"})
+
+    def test_add_url_uses_firecrawl_and_records_provenance(self) -> None:
+        self.init_repo()
+        url = "https://example.org/papers/useful-paper.pdf"
+
+        with patch("dewey.cli.convert_url_with_firecrawl", return_value=("# Remote paper\n", "v2")):
+            result = self.invoke(["add", "source", url, "--json"])
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["input_type"], "url")
+        source_dir = self.root / ".dewey" / "sources" / payload["source_id"]
+        metadata = json.loads((source_dir / "metadata.json").read_text())
+        self.assertEqual(metadata["markdown_source"], url)
+        self.assertEqual(metadata["markdown_generator"], {"name": "firecrawl", "version": "v2"})
+        self.assertEqual((source_dir / "source.md").read_text(), "# Remote paper\n")
+        self.assertIn(f"url={{{url}}}", (source_dir / "entry.bib").read_text())
+
+    def test_add_url_reuses_existing_source(self) -> None:
+        self.init_repo()
+        url = "https://example.org/paper.pdf"
+        with patch("dewey.cli.convert_url_with_firecrawl", return_value=("# Paper\n", "v2")) as convert:
+            first = self.invoke(["add", "source", url, "--json"])
+            second = self.invoke(["add", "source", url, "--json"])
+
+        self.assertEqual(first.exit_code, 0)
+        self.assertEqual(second.exit_code, 0)
+        self.assertTrue(json.loads(second.stdout)["duplicate"])
+        self.assertEqual(convert.call_count, 1)
+
+    def test_url_firecrawl_uses_configured_mcp_proxy(self) -> None:
+        response_payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+                "content": [
+                    {"type": "text", "text": json.dumps({"success": True, "markdown": "# Via MCP\n"})}
+                ]
+            },
+        }
+
+        class Response(BytesIO):
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                self.close()
+
+        with (
+            patch.dict(
+                os.environ,
+                {"FIRECRAWL_API_URL": "https://proxy.example/firecrawl", "FIRECRAWL_API_KEY": "scoped-token"},
+                clear=False,
+            ),
+            patch("urllib.request.urlopen", return_value=Response(json.dumps(response_payload).encode())) as open_url,
+        ):
+            markdown, version = convert_url_with_firecrawl("https://example.org/paper.pdf")
+
+        self.assertEqual((markdown, version), ("# Via MCP\n", "mcp"))
+        request = open_url.call_args.args[0]
+        self.assertEqual(request.full_url, "https://proxy.example/firecrawl")
+        self.assertEqual(request.headers["Authorization"], "Bearer scoped-token")
 
     @patch("paper2md.converter.convert")
     @patch("dewey.repo._paper2md_version", return_value="0.1.0")

@@ -38,10 +38,11 @@ interpretive detail and quotations in notes. Mark inclusion separately from havi
 Summaries should be useful without reopening the paper, but should not overstate findings.
 Distinguish the authors' claims from the agent's assessment.
 
-PDF rendering is local through `paper2md` by default. If the user has authorized cloud
-upload and `FIRECRAWL_API_KEY` is present, `--backend firecrawl` can use Firecrawl Parse
-for OCR and layout-aware Markdown. A key's presence is not itself permission to disclose
-a document or incur credits.
+Firecrawl is the default Markdown backend. For publicly reachable papers, pass the URL
+directly to `dewey add source`; Dewey records the URL and saves Firecrawl's Markdown.
+Local PDFs can be uploaded with `--backend firecrawl`, or processed with the separately
+installed `--backend paper2md`. A key's presence is not itself permission to disclose a
+document or incur credits.
 
 ## 4. Extract findings and appraise studies
 

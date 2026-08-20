@@ -47,7 +47,7 @@ class Config(BaseModel):
 
 
 class MarkdownGenerator(BaseModel):
-    name: str = "paper2md"
+    name: str = "firecrawl"
     version: str | None = None
 
 
