@@ -151,6 +151,10 @@ class DeweyCliTests(unittest.TestCase):
         self.assertEqual(metadata["managed_pdf_path"], f".dewey/sources/{source_id}/source.pdf")
         self.assertEqual((source_dir / "source.pdf").read_text(encoding="utf-8"), "%PDF-1.4\nretrieved\n")
 
+        marked = self.invoke(["state", "mark-read", source_id, "--json"])
+        self.assertEqual(marked.exit_code, 0)
+        self.assertEqual(json.loads(marked.stdout)["read_depth"], "full-text")
+
         duplicate = self.invoke(["add", "document", source_id, str(pdf), "--json"])
         self.assertEqual(duplicate.exit_code, 2)
         self.assertEqual(json.loads(duplicate.stdout)["error"]["code"], "document_exists")
@@ -334,7 +338,13 @@ class DeweyCliTests(unittest.TestCase):
 
         self.assertEqual(self.invoke(["state", "set", source_id, "included", "--json"]).exit_code, 0)
         self.assertEqual(self.invoke(["state", "set-priority", source_id, "3", "--json"]).exit_code, 0)
-        self.assertEqual(self.invoke(["state", "mark-read", source_id, "--json"]).exit_code, 0)
+        blocked = self.invoke(["state", "mark-read", source_id, "--json"])
+        self.assertEqual(blocked.exit_code, 2)
+        self.assertEqual(json.loads(blocked.stdout)["error"]["code"], "full_text_unavailable")
+        self.assertEqual(
+            self.invoke(["state", "mark-read", source_id, "--depth", "abstract", "--json"]).exit_code,
+            0,
+        )
 
         result = self.invoke(["state", "show", source_id, "--json"])
         payload = json.loads(result.stdout)
@@ -343,6 +353,9 @@ class DeweyCliTests(unittest.TestCase):
         self.assertTrue(state["included"])
         self.assertEqual(state["priority"], 3)
         self.assertIsNotNone(state["last_read_at"])
+        self.assertEqual(state["read_depth"], "abstract")
+        status = json.loads(self.invoke(["status", "--json"]).stdout)
+        self.assertEqual(status["counts"]["by_read_depth"]["abstract"], 1)
 
     def test_notes_instructions_and_paths(self) -> None:
         self.init_repo()

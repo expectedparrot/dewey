@@ -22,6 +22,12 @@ class SourceStatus(str, Enum):
     excluded = "excluded"
 
 
+class ReadDepth(str, Enum):
+    metadata = "metadata-only"
+    abstract = "abstract"
+    full_text = "full-text"
+
+
 class LinkType(str, Enum):
     cites = "cites"
     builds_on = "builds_on"
@@ -70,6 +76,7 @@ class State(BaseModel):
     status: SourceStatus = SourceStatus.unread
     added_at: str
     last_read_at: str | None = None
+    read_depth: ReadDepth | None = None
     included: bool | None = None
     priority: int | None = None
 

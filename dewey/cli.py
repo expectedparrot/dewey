@@ -33,6 +33,7 @@ from dewey.models import (
     LinkRecord,
     LinkType,
     MarkdownStatus,
+    ReadDepth,
     ScreeningDecision,
     ScreeningDecisionValue,
     ScreeningStage,
@@ -244,10 +245,15 @@ def status(json_output: bool = typer.Option(False, "--json")) -> None:
     md_ready = 0
     stale_or_failed = 0
     summarized = 0
+    read_depth_counts = {depth.value: 0 for depth in ReadDepth}
+    read_depth_counts["unspecified"] = 0
     for source_id in source_ids:
         metadata = repo.load_metadata(source_id)
         state = repo.load_state(source_id)
         counts[state.status.value] += 1
+        if state.last_read_at is not None:
+            key = state.read_depth.value if state.read_depth is not None else "unspecified"
+            read_depth_counts[key] += 1
         if metadata.managed_pdf_path or metadata.original_pdf_path:
             pdf_count += 1
         if metadata.markdown_status == MarkdownStatus.ready:
@@ -268,6 +274,7 @@ def status(json_output: bool = typer.Option(False, "--json")) -> None:
         f"Sources: {len(source_ids)} | PDFs: {pdf_count} | Markdown ready: {md_ready} | "
         f"Summarized: {summarized} | Candidates: {candidate_counts['candidate']} "
         f"({discovery_sightings} sightings) | "
+        f"Full-text read: {read_depth_counts['full-text']} | Abstract read: {read_depth_counts['abstract']} | "
         f"Ordered: {len(order.order)} | Links: {count_total_links(repo)} | Markdown stale/failed: {stale_or_failed}"
     )
     emit(
@@ -279,6 +286,7 @@ def status(json_output: bool = typer.Option(False, "--json")) -> None:
                 "with_pdf": pdf_count,
                 "with_markdown_ready": md_ready,
                 "by_status": counts,
+                "by_read_depth": read_depth_counts,
                 "ordered_sources": len(order.order),
                 "total_links": count_total_links(repo),
                 "stale_or_failed_markdown": stale_or_failed,
@@ -1712,17 +1720,45 @@ def state_set_priority(source_id: str, priority: int, json_output: bool = typer.
 
 
 @state_app.command("mark-read")
-def state_mark_read(source_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+def state_mark_read(
+    source_id: str,
+    depth: ReadDepth = typer.Option(ReadDepth.full_text, "--depth"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
     action = "state.mark_read"
     repo = load_repo(action, json_output)
     ensure_source_exists(repo, source_id, action, json_output)
+    metadata = repo.load_metadata(source_id)
+    has_pdf = bool(metadata.managed_pdf_path or metadata.original_pdf_path)
+    has_markdown = metadata.markdown_status == MarkdownStatus.ready
+    if depth == ReadDepth.full_text and not (has_pdf or has_markdown):
+        fail(
+            action,
+            "full_text_unavailable",
+            (
+                f"Cannot mark {source_id} full-text read: it has no PDF or ready Markdown. "
+                "Retrieve the document first, or use --depth abstract for abstract-only screening."
+            ),
+            2,
+            json_output,
+        )
     state = repo.load_state(source_id)
     state.status = SourceStatus.read
     state.last_read_at = utc_now()
+    state.read_depth = depth
     repo.write_state(source_id, state)
     update_source_index(repo, source_id)
-    repo.append_log(action, source_id=source_id)
-    emit({"ok": True, "action": action, "source_id": source_id, "text": f"Marked {source_id} as read"}, json_output)
+    repo.append_log(action, source_id=source_id, read_depth=depth.value)
+    emit(
+        {
+            "ok": True,
+            "action": action,
+            "source_id": source_id,
+            "read_depth": depth.value,
+            "text": f"Marked {source_id} as read ({depth.value})",
+        },
+        json_output,
+    )
 
 
 @notes_app.command("show")

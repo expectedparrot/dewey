@@ -612,7 +612,7 @@ Returns `state.json`.
 
 Sets integer priority.
 
-### `dewey state mark-read <source-id>`
+### `dewey state mark-read <source-id> [--depth full-text|abstract|metadata-only]`
 
 Convenience command.
 
@@ -620,6 +620,8 @@ Behavior:
 
 * set status to `read`
 * set `last_read_at` to now
+* record the declared `read_depth`
+* default to `full-text`; reject that depth unless the source has a PDF or ready Markdown
 
 ---
 
