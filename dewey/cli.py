@@ -13,6 +13,8 @@ from typing import Any
 import typer
 from dotenv import load_dotenv
 
+from dewey import __version__
+from dewey.academic import DiscoveryPage, fetch_page
 from dewey.archive import write_project_archive
 from dewey.bibtex import BibTeXError, dump_entry
 from dewey.evidence import EvidenceStore
@@ -25,10 +27,12 @@ from dewey.discovery import (
 )
 from dewey.guide import GUIDE
 from dewey.html_export import write_explorer
+from dewey.identity import ARXIV_RE, normalize_doi
 from dewey.models import (
     BibEntry,
     CandidateStatus,
     DiscoveryCandidate,
+    DiscoveryProvenance,
     ExclusionReason,
     LinkRecord,
     LinkType,
@@ -49,7 +53,8 @@ from dewey.repo import (
     slugify_key,
     utc_now,
 )
-from dewey.reporting import article_brief, embed_explorer, render_with_pandoc
+from dewey.reporting import article_brief, embed_explorer, render_with_pandoc, report_citations
+from dewey.retrieval import fetch_source_pdf
 
 app = typer.Typer(no_args_is_help=True)
 load_dotenv()
@@ -69,6 +74,7 @@ discover_app = typer.Typer(no_args_is_help=True)
 screen_app = typer.Typer(no_args_is_help=True)
 traverse_app = typer.Typer(no_args_is_help=True)
 export_app = typer.Typer(no_args_is_help=True)
+fetch_app = typer.Typer(no_args_is_help=True)
 study_app = typer.Typer(no_args_is_help=True)
 finding_app = typer.Typer(no_args_is_help=True)
 appraisal_app = typer.Typer(no_args_is_help=True)
@@ -94,6 +100,7 @@ app.add_typer(discover_app, name="discover")
 app.add_typer(screen_app, name="screen")
 app.add_typer(traverse_app, name="traverse")
 app.add_typer(export_app, name="export")
+app.add_typer(fetch_app, name="fetch")
 app.add_typer(study_app, name="study")
 app.add_typer(finding_app, name="finding")
 app.add_typer(appraisal_app, name="appraisal")
@@ -102,6 +109,27 @@ app.add_typer(synthesis_app, name="synthesis")
 app.add_typer(theme_app, name="theme")
 app.add_typer(claim_app, name="claim")
 app.add_typer(report_app, name="report")
+
+
+def version_callback(value: bool) -> None:
+    if value:
+        typer.echo(f"dewey {__version__}")
+        raise typer.Exit()
+
+
+@app.callback()
+def main_options(
+    version: bool = typer.Option(False, "--version", callback=version_callback, is_eager=True),
+) -> None:
+    """Build and manage a traceable literature review."""
+
+
+def has_full_text(repo: DeweyRepo, source_id: str) -> bool:
+    metadata = repo.load_metadata(source_id)
+    paths = [metadata.managed_pdf_path, metadata.original_pdf_path]
+    if metadata.markdown_status == MarkdownStatus.ready:
+        paths.append(metadata.markdown_path)
+    return any(path and (repo.root / path).is_file() for path in paths)
 
 
 def wants_json(json_output: bool = False) -> bool:
@@ -468,14 +496,17 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
     unsummarized = [
         source_id
         for source_id in source_ids
-        if not (repo.source_dir(source_id) / "summary.txt").read_text(encoding="utf-8").strip()
+        if repo.load_state(source_id).status != SourceStatus.excluded
+        and not (repo.source_dir(source_id) / "summary.txt").read_text(encoding="utf-8").strip()
     ]
     missing_documents = [
         source_id
         for source_id in unsummarized
-        if not repo.load_metadata(source_id).managed_pdf_path
-        and not repo.load_metadata(source_id).original_pdf_path
+        if not has_full_text(repo, source_id)
     ]
+    included = [source_id for source_id in source_ids if repo.load_state(source_id).status == SourceStatus.included]
+    included_missing_documents = [source_id for source_id in included if not has_full_text(repo, source_id)]
+    included_unread = [source_id for source_id in included if repo.load_state(source_id).read_depth != ReadDepth.full_text]
     coverage = synthesis_coverage(repo)
     included_unsummarized = [
         source_id for source_id in unsummarized if repo.load_state(source_id).status == SourceStatus.included
@@ -492,17 +523,24 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
     elif relevant:
         phase = "promote"
         recommendations = [
-            f"dewey discover accept {relevant[0].candidate_id}",
+            f"dewey discover accept {relevant[0].candidate_id} --fetch-pdf",
             f"Accept or reject {len(relevant)} relevant candidate(s)",
         ]
     elif not source_ids:
         phase = "seed"
         recommendations = ["The last candidate set yielded no sources; broaden or revise the search"]
-    elif included_unsummarized and included_unsummarized[0] in missing_documents:
+    elif included_missing_documents:
         phase = "retrieve"
         recommendations = [
-            f"dewey add document {included_unsummarized[0]} <paper.pdf>",
-            f"Retrieve full text for {len([source_id for source_id in included_unsummarized if source_id in missing_documents])} included source(s) before summarizing",
+            pdf_retrieval_step(repo, included_missing_documents[0]),
+            f"Retrieve full text for {len(included_missing_documents)} included source(s) before summarizing",
+        ]
+    elif included_unread:
+        phase = "read"
+        recommendations = [
+            f"Read the stored full text for {included_unread[0]}",
+            f"dewey state mark-read {included_unread[0]} --depth full-text",
+            f"Read {len(included_unread)} included source(s) before extracting findings",
         ]
     elif included_unsummarized:
         phase = "read"
@@ -569,7 +607,7 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
     elif unsummarized and unsummarized[0] in missing_documents:
         phase = "retrieve"
         recommendations = [
-            f"dewey add document {unsummarized[0]} <paper.pdf>",
+            pdf_retrieval_step(repo, unsummarized[0]),
             f"Retrieve and screen {len(missing_documents)} metadata-only source(s)",
         ]
     elif unsummarized:
@@ -580,7 +618,11 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
         ]
     else:
         phase = "expand"
-        recommendations = ["Traverse citations from a strong included source", "dewey traverse references <source-id>"]
+        recommendations = [
+            "Follow forward citations from relevant anchors; screen each wave before expanding again",
+            "dewey traverse citations <source-id> --provider openalex --json",
+            "Also inspect anchor bibliographies: dewey traverse references <source-id>",
+        ]
     emit(
         {
             "ok": True,
@@ -677,10 +719,18 @@ def discover_add(
     doi: str | None = typer.Option(None, "--doi"),
     url: str | None = typer.Option(None, "--url"),
     abstract: str | None = typer.Option(None, "--abstract"),
+    via_source: str | None = typer.Option(None, "--via-source", help="Seed source that led to this candidate."),
+    relation: str = typer.Option("related", "--relation", help="citations (cites seed), references, or related."),
+    provider: str | None = typer.Option(None, "--provider"),
+    query: str | None = typer.Option(None, "--query"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     action = "discovery.add"
     repo = load_repo(action, json_output)
+    if relation not in {"references", "citations", "related"}:
+        fail(action, "invalid_relation", "Use references, citations, or related", 2, json_output)
+    if via_source:
+        ensure_source_exists(repo, via_source, action, json_output)
     config = repo.load_config()
     candidate = DiscoveryCandidate(
         candidate_id=candidate_id(),
@@ -694,8 +744,14 @@ def discover_add(
             " ".join([title, abstract or ""]), config.topic or config.research_question or ""
         ),
         created_at=utc_now(),
+        provenance=[DiscoveryProvenance(
+            source_id=via_source, relation=relation, provider=provider, query=query,
+            method="external_discovery", discovered_at=utc_now(),
+        )],
     )
     stored = repo.add_candidate(candidate)
+    if stored.added_source_id:
+        add_discovery_citation_links(repo, stored, stored.added_source_id, "Additional citation discovery")
     repo.append_log(action, candidate_id=stored.candidate_id)
     emit(
         {
@@ -773,14 +829,15 @@ def add_discovery_citation_links(repo: DeweyRepo, candidate: DiscoveryCandidate,
     added = 0
     for provenance in candidate.provenance:
         parent = provenance.source_id
-        if not parent or parent not in repo.list_source_ids():
+        if not parent or parent == source_id or parent not in repo.list_source_ids() or provenance.relation == "related":
             continue
-        links = repo.load_links(parent)
-        if any(link.target == source_id and link.type == LinkType.cites for link in links.outgoing):
+        origin, target = (source_id, parent) if provenance.relation == "citations" else (parent, source_id)
+        links = repo.load_links(origin)
+        if any(link.target == target and link.type == LinkType.cites for link in links.outgoing):
             continue
-        links.outgoing.append(LinkRecord(target=source_id, type=LinkType.cites, note=note, created_at=utc_now()))
-        repo.write_links(parent, links)
-        repo.index_source(parent)
+        links.outgoing.append(LinkRecord(target=target, type=LinkType.cites, note=note, created_at=utc_now()))
+        repo.write_links(origin, links)
+        repo.index_source(origin)
         added += 1
     return added
 
@@ -1033,6 +1090,7 @@ def screen_audit(json_output: bool = typer.Option(False, "--json")) -> None:
 @discover_app.command("accept")
 def discover_accept(
     candidate_id_value: str = typer.Argument(..., metavar="CANDIDATE_ID"),
+    fetch_pdf: bool = typer.Option(False, "--fetch-pdf", help="Try recorded URLs for a PDF; failed retrieval keeps the source."),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     action = "discovery.accept"
@@ -1057,23 +1115,34 @@ def discover_accept(
             fields["year"] = str(item.year)
         if item.doi:
             fields["doi"] = item.doi
-        if item.url:
-            fields["url"] = item.url
+        if item.url or item.open_access_url:
+            fields["url"] = item.url or item.open_access_url
         source_id = repo.create_source(BibEntry(entry_type="article", key=key, fields=fields))
-        add_discovery_citation_links(repo, item, source_id, "Discovered from bibliography")
+        metadata = repo.load_metadata(source_id)
+        metadata.open_access_url = item.open_access_url
+        repo.write_metadata(source_id, metadata)
+        add_discovery_citation_links(repo, item, source_id, "Discovered through citation traversal")
         repo.index_source(source_id)
         discovery.candidates[index] = item.model_copy(
             update={"status": CandidateStatus.added, "added_source_id": source_id}
         )
         repo.write_discovery(discovery)
         repo.append_log(action, candidate_id=candidate_id_value, source_id=source_id)
+        retrieval = None
+        if fetch_pdf:
+            try:
+                retrieval = fetch_source_pdf(repo, source_id)
+            except DeweyError as exc:
+                retrieval = {"ok": False, "status": "unavailable", "error": {"code": exc.code, "message": exc.message}}
+        retrieval_text = f"; PDF: {retrieval['status']}" if retrieval else ""
         emit(
             {
                 "ok": True,
                 "action": action,
                 "candidate_id": candidate_id_value,
                 "source_id": source_id,
-                "text": f"Added {source_id}: {item.title}",
+                "pdf_retrieval": retrieval,
+                "text": f"Added {source_id}: {item.title}{retrieval_text}",
             },
             json_output,
         )
@@ -1102,7 +1171,7 @@ def discover_resolve(
                 2,
                 json_output,
             )
-        add_discovery_citation_links(repo, item, source_id, "Resolved from bibliography")
+        add_discovery_citation_links(repo, item, source_id, "Resolved through citation traversal")
         discovery.candidates[index] = item.model_copy(
             update={"status": CandidateStatus.added, "added_source_id": source_id}
         )
@@ -1145,6 +1214,89 @@ def discover_export_triage(
         },
         json_output,
     )
+
+
+def record_academic_page(
+    repo: DeweyRepo, page: DiscoveryPage, action: str, provider: str,
+    query: str, source_id: str | None, cursor: str | None, json_output: bool,
+    limit: int, paper_id: str | None = None,
+) -> None:
+    before = len(repo.load_discovery().candidates)
+    candidate_ids = []
+    for candidate in page.candidates:
+        stored = repo.add_candidate(candidate)
+        candidate_ids.append(stored.candidate_id)
+        if stored.added_source_id:
+            add_discovery_citation_links(repo, stored, stored.added_source_id, "Additional citation discovery")
+    added = len(repo.load_discovery().candidates) - before
+    payload = {
+        "provider": provider, "query": query, "source_id": source_id,
+        "limit": limit, "paper_id": paper_id,
+        "cursor": cursor, "next_cursor": page.next_cursor, "complete": page.complete,
+        "total": page.total, "fetched": len(page.candidates), "added": added,
+        "candidate_ids": candidate_ids,
+    }
+    repo.append_log(action, ok=True, **payload)
+    emit({"ok": True, "action": action, **payload, "text": (
+        f"Queued {added} new candidate(s) from {len(page.candidates)} results via {provider}. "
+        f"Next cursor: {page.next_cursor!r}; complete: {page.complete!r}. Screen before accepting."
+    )}, json_output)
+
+
+@discover_app.command("search")
+def discover_search(
+    query: str,
+    provider: str = typer.Option("openalex", "--provider"),
+    limit: int = typer.Option(50, "--limit", min=1, max=100),
+    cursor: str | None = typer.Option(None, "--cursor"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Queue one page of academic search results for screening."""
+    action = "discovery.search"
+    repo = load_repo(action, json_output)
+    try:
+        page = fetch_page(provider, query, limit=limit, cursor=cursor)
+    except DeweyError as exc:
+        repo.append_log(action, provider=provider, query=query, cursor=cursor, limit=limit, ok=False, error=exc.code)
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    record_academic_page(repo, page, action, provider, query, None, cursor, json_output, limit)
+
+
+@traverse_app.command("citations")
+def traverse_citations(
+    source_id: str,
+    provider: str = typer.Option("openalex", "--provider"),
+    paper_id: str | None = typer.Option(None, "--paper-id", help="Verified provider ID; defaults to source DOI/arXiv URL."),
+    intent: str | None = typer.Option(None, "--intent", help="Research question used for Firecrawl ranking."),
+    limit: int = typer.Option(50, "--limit", min=1, max=100),
+    cursor: str | None = typer.Option(None, "--cursor"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Queue papers citing a seed. Acceptance creates new-paper -> seed cites links."""
+    action = "traversal.citations"
+    repo = load_repo(action, json_output)
+    ensure_source_exists(repo, source_id, action, json_output)
+    entry = repo.load_entry(source_id)
+    if not paper_id:
+        doi = entry.fields.get("doi")
+        if doi:
+            paper_id = "doi:" + (normalize_doi(doi) or "")
+        else:
+            url = entry.fields.get("url", "")
+            match = ARXIV_RE.search(url)
+            if match and provider in {"firecrawl", "semantic-scholar"}:
+                paper_id = ("ARXIV:" if provider == "semantic-scholar" else "arxiv:") + match.group(1)
+            elif "openalex.org/W" in url and provider == "openalex":
+                paper_id = url
+    config = repo.load_config()
+    query = intent or config.research_question or config.topic or entry.title()
+    try:
+        page = fetch_page(provider, query, seed_source_id=source_id, paper_id=paper_id, limit=limit, cursor=cursor)
+    except DeweyError as exc:
+        repo.append_log(action, provider=provider, source_id=source_id, query=query, paper_id=paper_id,
+                        cursor=cursor, limit=limit, ok=False, error=exc.code)
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    record_academic_page(repo, page, action, provider, query, source_id, cursor, json_output, limit, paper_id)
 
 
 @traverse_app.command("references")
@@ -1191,6 +1343,52 @@ def traverse_references(
         },
         json_output,
     )
+
+
+def pdf_retrieval_step(repo: DeweyRepo, source_id: str) -> str:
+    if repo.load_metadata(source_id).pdf_retrieval_status == "unavailable":
+        return f"dewey add document {source_id} <full-text-url-or-paper.pdf>"
+    return f"dewey fetch pdf {source_id}"
+
+
+@fetch_app.command("pdf")
+def fetch_pdf_command(
+    source_id: str,
+    url: str | None = typer.Option(None, "--url", help="Try this full-text URL before recorded URLs."),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Try recorded open-access, paper, and DOI URLs; store a PDF when available."""
+    action = "source.fetch_pdf"
+    repo = load_repo(action, json_output)
+    ensure_source_exists(repo, source_id, action, json_output)
+    try:
+        result = fetch_source_pdf(repo, source_id, url)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    emit({"action": action, "source_id": source_id, **result,
+          "text": f"PDF for {source_id}: {result['status']}"}, json_output)
+    if not result["ok"]:
+        raise typer.Exit(1)
+
+
+@export_app.command("bibtex")
+def export_bibtex(
+    output: Path = typer.Option(Path("references.bib"), "--output"),
+    status: SourceStatus | None = typer.Option(None, "--status", help="Filter sources, e.g. included."),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Export source records as BibTeX. Unaccepted discovery candidates are never exported."""
+    action = "export.bibtex"
+    repo = load_repo(action, json_output)
+    source_ids = [source_id for source_id in repo.list_source_ids()
+                  if status is None or repo.load_state(source_id).status == status]
+    ordered = repo.load_order().order
+    source_ids.sort(key=lambda source_id: (ordered.index(source_id) if source_id in ordered else len(ordered),
+                                           repo.load_entry(source_id).key))
+    atomic_write_text(output, "\n".join(dump_entry(repo.load_entry(source_id)) for source_id in source_ids))
+    repo.append_log(action, output=str(output), sources=len(source_ids), status=status.value if status else None)
+    emit({"ok": True, "action": action, "output": str(output), "sources": len(source_ids),
+          "text": f"Exported {len(source_ids)} BibTeX entries to {output}"}, json_output)
 
 
 @export_app.command("html")
@@ -1476,14 +1674,42 @@ def show(source_id: str, json_output: bool = typer.Option(False, "--json")) -> N
 @add_app.command("document")
 def add_document(
     source_id: str,
-    path: Path,
+    path: str,
     replace: bool = typer.Option(False, "--replace"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
-    """Attach a retrieved PDF to an existing metadata-only source."""
+    """Attach a PDF or retrieve a public full-text URL without creating a new source."""
     action = "source.attach_document"
     repo = load_repo(action, json_output)
     ensure_source_exists(repo, source_id, action, json_output)
+    if urllib.parse.urlparse(path).scheme in {"http", "https"}:
+        metadata = repo.load_metadata(source_id)
+        if has_full_text(repo, source_id) and not replace:
+            fail(action, "document_exists", f"Full text already exists for {source_id}; use --replace", 2, json_output)
+        try:
+            markdown, version = convert_url_with_firecrawl(path)
+        except DeweyError as exc:
+            fail(action, exc.code, exc.message, exc.exit_code, json_output)
+        destination = repo.source_dir(source_id) / "source.md"
+        atomic_write_text(destination, markdown)
+        metadata.markdown_path = str(destination.relative_to(repo.root))
+        metadata.markdown_status = MarkdownStatus.ready
+        metadata.markdown_source = path
+        metadata.markdown_generator.name = "firecrawl"
+        metadata.markdown_generator.version = version
+        metadata.updated_at = utc_now()
+        repo.write_metadata(source_id, metadata)
+        if replace:
+            state = repo.load_state(source_id)
+            state.read_depth = None
+            state.last_read_at = None
+            repo.write_state(source_id, state)
+        repo.index_source(source_id)
+        repo.append_log(action, source_id=source_id, url=path, replaced=replace)
+        emit({"ok": True, "action": action, "source_id": source_id,
+              "markdown": metadata.markdown_path, "text": f"Attached URL full text to {source_id}"}, json_output)
+        return
+    path = Path(path)
     if not path.exists() or not path.is_file():
         fail(action, "file_not_found", f"No file exists at {path}", 4, json_output)
     if path.suffix.casefold() != ".pdf":
@@ -1728,10 +1954,7 @@ def state_mark_read(
     action = "state.mark_read"
     repo = load_repo(action, json_output)
     ensure_source_exists(repo, source_id, action, json_output)
-    metadata = repo.load_metadata(source_id)
-    has_pdf = bool(metadata.managed_pdf_path or metadata.original_pdf_path)
-    has_markdown = metadata.markdown_status == MarkdownStatus.ready
-    if depth == ReadDepth.full_text and not (has_pdf or has_markdown):
+    if depth == ReadDepth.full_text and not has_full_text(repo, source_id):
         fail(
             action,
             "full_text_unavailable",
@@ -1743,7 +1966,8 @@ def state_mark_read(
             json_output,
         )
     state = repo.load_state(source_id)
-    state.status = SourceStatus.read
+    if state.status not in (SourceStatus.included, SourceStatus.excluded):
+        state.status = SourceStatus.read
     state.last_read_at = utc_now()
     state.read_depth = depth
     repo.write_state(source_id, state)
@@ -2819,6 +3043,18 @@ def report_readiness_issues(repo: DeweyRepo) -> list[dict[str, Any]]:
     store = EvidenceStore(repo.root)
     coverage = synthesis_coverage(repo)
     issues: list[dict[str, Any]] = []
+    if not coverage["included_sources"]:
+        issues.append({"code": "no_included_sources"})
+    for source_id in repo.list_source_ids():
+        state = repo.load_state(source_id)
+        if state.status != SourceStatus.included:
+            continue
+        if not has_full_text(repo, source_id):
+            issues.append({"code": "included_source_without_full_text", "source_id": source_id})
+        if state.read_depth != ReadDepth.full_text:
+            issues.append({"code": "included_source_not_full_text_read", "source_id": source_id})
+        if not (repo.source_dir(source_id) / "summary.txt").read_text(encoding="utf-8").strip():
+            issues.append({"code": "included_source_without_summary", "source_id": source_id})
     for source_id in coverage["missing_study_sources"]:
         issues.append({"code": "included_source_without_study", "source_id": source_id})
     for study_id in coverage["missing_finding_studies"]:
@@ -3036,11 +3272,16 @@ def report_context(
 
 
 @report_app.command("audit")
-def report_audit(json_output: bool = typer.Option(False, "--json")) -> None:
+def report_audit(
+    json_output: bool = typer.Option(False, "--json"),
+    strict: bool = typer.Option(False, "--strict", help="Exit nonzero when reporting gaps remain."),
+) -> None:
     action = "report.audit"
     repo = load_repo(action, json_output)
     issues = report_readiness_issues(repo)
     emit({"ok": not issues, "action": action, "issues": issues, "text": f"Report audit found {len(issues)} issue(s)"}, json_output)
+    if strict and issues:
+        raise typer.Exit(1)
 
 
 @report_app.command("article-template")
@@ -3115,25 +3356,46 @@ def report_brief(
     emit({"ok": True, "action": action, "output": str(output), "text": f"Wrote article brief to {output}"}, json_output)
 
 
+@report_app.command("citations")
+def report_citations_command(
+    status: SourceStatus | None = typer.Option(None, "--status", help="Filter sources, e.g. included."),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """List Markdown citation syntax and available paper links from the corpus."""
+    action = "report.citations"
+    repo = load_repo(action, json_output)
+    try:
+        records = report_citations(repo)
+    except DeweyError as exc:
+        fail(action, exc.code, exc.message, exc.exit_code, json_output)
+    if status is not None:
+        records = [record for record in records if record["status"] == status.value]
+    emit({"ok": True, "action": action, "sources": records,
+          "text": "\n".join(f"{record['citation']} — {record['title']} ({record['status']})"
+                            for record in records) or "No corpus sources."}, json_output)
+
+
 @report_app.command("render")
 def report_render(
     markdown: Path,
     output: Path = typer.Option(..., "--output"),
     css: Path | None = typer.Option(None, "--css"),
+    csl: Path | None = typer.Option(None, "--csl", help="Optional CSL citation style."),
     embed_explorer_path: Path | None = typer.Option(None, "--embed-explorer"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     action = "report.render"
-    load_repo(action, json_output)
+    repo = load_repo(action, json_output)
     if not markdown.exists():
         fail(action, "file_not_found", f"No file exists at {markdown}", 4, json_output)
     try:
-        render_with_pandoc(markdown, output, css)
+        result = render_with_pandoc(markdown, output, css, repo=repo, csl_path=csl)
         if embed_explorer_path is not None:
             embed_explorer(output, embed_explorer_path)
     except DeweyError as exc:
         fail(action, exc.code, exc.message, exc.exit_code, json_output)
-    emit({"ok": True, "action": action, "input": str(markdown), "output": str(output), "text": f"Rendered {output} from {markdown}"}, json_output)
+    emit({"ok": True, "action": action, "input": str(markdown), "output": str(output), **result,
+          "text": f"Rendered {output} from {markdown}"}, json_output)
 
 
 def evidence_matrix_rows(repo: DeweyRepo) -> list[dict[str, Any]]:

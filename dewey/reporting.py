@@ -2,14 +2,19 @@ from __future__ import annotations
 
 import html
 import json
+import os
 import re
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote, urlsplit
 
+from dewey.bibtex import dump_entry
+from dewey.identity import normalize_doi
 from dewey.models import ArticleSpec
-from dewey.repo import DeweyError, atomic_write_text
+from dewey.repo import DeweyError, DeweyRepo, atomic_write_text
 
 
 ARTICLE_CSS = """
@@ -29,7 +34,8 @@ h3 { font-size:1.18rem; margin-top:1.8rem; }
 .explorer-panel { margin:2rem 0 2.5rem; }
 .explorer-panel iframe { width:100%; height:560px; border:1px solid var(--rule); border-radius:6px; background:#f5f1e8; }
 .explorer-panel figcaption { margin-top:.5rem; color:var(--muted); font:0.84rem/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
-.reference { scroll-margin-top:1rem; }
+.reference, .csl-entry { scroll-margin-top:1rem; }
+.source-links { font-size:.85rem; margin:.25rem 0 1rem; }
 nav#TOC { margin:2rem 0; padding:1rem 1.25rem; border:1px solid var(--rule); background:#fafafa; }
 nav#TOC:before { content:'Contents'; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-weight:700; }
 nav#TOC ul { margin-bottom:0; }
@@ -136,7 +142,12 @@ def article_brief(spec: ArticleSpec, bundle: dict[str, Any]) -> str:
         lines.append("")
     lines.extend(["## Intended conclusion", ""])
     lines.extend(f"- {item}" for item in spec.conclusion)
-    lines.extend(["", "## Source metadata", ""])
+    lines.extend(["", "## Citation workflow", "",
+                  "Use `dewey report citations --status included --json` for citation keys and paper links.",
+                  "Write Pandoc citations such as `[@key, p. 7]` or narrative `@key`. Render with",
+                  "`dewey report render article.md --output article.html --json` to generate linked references.",
+                  "Deliver the returned PDF assets beside the HTML, preserving relative paths.",
+                  "", "## Source metadata", ""])
     for source in bundle["sources"]:
         lines.append(
             f"- `{source['source_id']}` / `@{source['bibtex_key']}` — {source['author']} ({source['year']}), "
@@ -145,30 +156,159 @@ def article_brief(spec: ArticleSpec, bundle: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def render_with_pandoc(markdown_path: Path, output_path: Path, css_path: Path | None = None) -> None:
+def local_pdf(repo: DeweyRepo, source_id: str) -> Path | None:
+    metadata = repo.load_metadata(source_id)
+    for value in (metadata.managed_pdf_path, metadata.original_pdf_path):
+        if value:
+            path = repo.root / value
+            if path.is_file():
+                return path
+    return None
+
+
+def report_citations(repo: DeweyRepo) -> list[dict[str, Any]]:
+    """Citation instructions and available paper links; discovery leads are excluded."""
+    records = []
+    keys: set[str] = set()
+    for source_id in repo.list_source_ids():
+        entry = repo.load_entry(source_id)
+        if entry.key in keys:
+            raise DeweyError("duplicate_citation_key", f"Duplicate citation key: {entry.key}", exit_code=2)
+        keys.add(entry.key)
+        metadata = repo.load_metadata(source_id)
+        doi = normalize_doi(entry.fields.get("doi"))
+        links = []
+        for label, url in (
+            ("DOI", f"https://doi.org/{quote(doi, safe='/():')}" if doi else None),
+            ("Source page", entry.fields.get("url")),
+            ("Open access", metadata.open_access_url),
+            ("PDF online", metadata.pdf_source_url),
+        ):
+            if url and urlsplit(url).scheme in {"http", "https"} and urlsplit(url).netloc:
+                links.append({"label": label, "url": url})
+        records.append({
+            "source_id": source_id, "bibtex_key": entry.key,
+            "title": entry.fields.get("title", ""), "status": repo.load_state(source_id).status.value,
+            "citation": f"[@{entry.key}]", "narrative_citation": f"@{entry.key}",
+            "reference_id": f"ref-{entry.key}", "links": links,
+            "has_local_pdf": local_pdf(repo, source_id) is not None,
+        })
+    return sorted(records, key=lambda record: record["bibtex_key"])
+
+
+def pandoc_nodes(value: Any):
+    """Walk parsed nodes, so citation-like text in code is never treated as a citation."""
+    if isinstance(value, dict):
+        yield value
+        for child in value.values():
+            yield from pandoc_nodes(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from pandoc_nodes(child)
+
+
+def run_pandoc(command: list[str], input_text: str | None = None) -> subprocess.CompletedProcess:
+    completed = subprocess.run(command, input=input_text, text=True, capture_output=True)
+    if completed.returncode != 0:
+        raise DeweyError("pandoc_failed", completed.stderr.strip() or "pandoc rendering failed", exit_code=3)
+    return completed
+
+
+def linked_report_document(
+    pandoc: str, markdown_path: Path, output_path: Path, repo: DeweyRepo, csl_path: Path | None,
+) -> tuple[str, dict[str, Any]]:
+    records = {record["bibtex_key"]: record for record in report_citations(repo)}
+    with tempfile.TemporaryDirectory(prefix="dewey-report-") as temporary:
+        bibliography = Path(temporary) / "references.bib"
+        bibliography.write_text("\n".join(
+            dump_entry(repo.load_entry(record["source_id"])) for record in records.values()
+        ), encoding="utf-8")
+        command = [pandoc, str(markdown_path), "--from=markdown", "--to=json", "--citeproc",
+                   "--metadata=link-citations:true", "--metadata=reference-section-title:References"]
+        if records:
+            command.extend(["--bibliography", str(bibliography)])
+        if csl_path:
+            command.extend(["--csl", str(csl_path)])
+        completed = run_pandoc(command)
+        document = json.loads(completed.stdout)
+    nodes = list(pandoc_nodes(document))
+    cited = {citation["citationId"] for node in nodes if node.get("t") == "Cite"
+             for citation in node["c"][0]} - {"*"}
+    unknown = cited - records.keys()
+    if unknown:
+        raise DeweyError("unknown_citation", "Citation keys absent from the Dewey corpus: "
+                         + ", ".join(sorted(unknown)), exit_code=2)
+    references = {node["c"][0][0][4:]: node for node in nodes
+                  if node.get("t") == "Div" and "csl-entry" in node["c"][0][1]
+                  and node["c"][0][0].startswith("ref-")}
+    missing = cited - references.keys()
+    if missing:
+        raise DeweyError("missing_references", "No reference entries for: " + ", ".join(sorted(missing))
+                         + ". Remove suppress-bibliography or use a CSL style with a bibliography.", exit_code=2)
+    assets = []
+    for key, node in references.items():
+        if key not in records:
+            raise DeweyError("unknown_citation", f"Reference absent from the Dewey corpus: {key}", exit_code=2)
+        record = records[key]
+        links = list(record["links"])
+        pdf = local_pdf(repo, record["source_id"])
+        if pdf:
+            relative = Path(output_path.stem + ".assets") / "papers" / (record["source_id"] + ".pdf")
+            destination = output_path.parent / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            if pdf.resolve() != destination.resolve():
+                shutil.copyfile(pdf, destination)
+            assets.append(str(destination))
+            links.append({"label": "PDF (local copy)", "url": quote(relative.as_posix(), safe="/")})
+        inlines: list[dict[str, Any]] = []
+        for link in links:
+            if inlines:
+                inlines.extend([{"t": "Space"}, {"t": "Str", "c": "·"}, {"t": "Space"}])
+            inlines.append({"t": "Link", "c": [["", [], []], [{"t": "Str", "c": link["label"]}],
+                                                   [link["url"], ""]]})
+        if inlines:
+            node["c"][1].append({"t": "Div", "c": [["", ["source-links"], []],
+                                                        [{"t": "Para", "c": inlines}]]})
+    return json.dumps(document), {"citation_keys": sorted(references), "pdf_assets": assets,
+                                  "warnings": completed.stderr.strip().splitlines()}
+
+
+def render_with_pandoc(
+    markdown_path: Path, output_path: Path, css_path: Path | None = None,
+    *, repo: DeweyRepo | None = None, csl_path: Path | None = None,
+) -> dict[str, Any]:
     pandoc = shutil.which("pandoc")
     if pandoc is None:
         raise DeweyError("pandoc_not_found", "pandoc is required for HTML rendering", exit_code=4)
+    if markdown_path.resolve() == output_path.resolve():
+        raise DeweyError("invalid_output", "HTML output must differ from the Markdown manuscript", exit_code=2)
+    document = None
+    result: dict[str, Any] = {"citation_keys": [], "pdf_assets": [], "warnings": []}
+    if repo is not None:
+        document, result = linked_report_document(pandoc, markdown_path, output_path, repo, csl_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     stylesheet = css_path or output_path.with_suffix(".css")
     if css_path is None:
         atomic_write_text(stylesheet, ARTICLE_CSS)
     command = [
         pandoc,
-        str(markdown_path),
+        *(["--from=json"] if document is not None else [str(markdown_path)]),
+        "--to=html5",
+        "--resource-path", os.pathsep.join([str(markdown_path.resolve().parent), str(Path.cwd())]),
         "--standalone",
         "--toc",
         "--toc-depth=2",
         "--metadata",
         "lang=en",
         "--css",
-        str(stylesheet),
+        str(stylesheet.resolve()),
         "--embed-resources",
         "--output",
         str(output_path),
     ]
-    completed = subprocess.run(command, text=True, capture_output=True)
-    if completed.returncode != 0:
-        raise DeweyError("pandoc_failed", completed.stderr.strip() or "pandoc rendering failed", exit_code=3)
+    completed = run_pandoc(command, document)
+    result["warnings"].extend(completed.stderr.strip().splitlines())
+    return result
 
 
 def embed_explorer(output_path: Path, explorer_path: Path) -> None:

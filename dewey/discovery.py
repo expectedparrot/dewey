@@ -81,5 +81,6 @@ def edsl_triage_record(candidate: DiscoveryCandidate, topic: str, research_quest
             "year": candidate.year,
             "abstract": candidate.abstract,
             "citation_provenance": candidate.cited_by_source_id,
+            "discovery_provenance": [item.model_dump(mode="json") for item in candidate.provenance],
         },
     }

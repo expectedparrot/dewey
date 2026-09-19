@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 from typer.testing import CliRunner
 
+from dewey import __version__
 from dewey.cli import app
 from dewey.reporting import embed_explorer
 from dewey.repo import convert_pdf_with_paper2md, convert_url_with_firecrawl
@@ -48,6 +49,59 @@ class DeweyCliTests(unittest.TestCase):
         result = self.invoke(["add", "source", str(bib), "--json"])
         self.assertEqual(result.exit_code, 0)
         return json.loads(result.stdout)["source_id"]
+
+    def test_version_does_not_require_repository(self) -> None:
+        result = self.invoke(["--version"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(result.stdout.strip(), f"dewey {__version__}")
+
+    def test_next_recognizes_url_markdown_and_requires_reading_before_extraction(self) -> None:
+        self.init_repo()
+        self.invoke(["topic", "set", "--topic", "Interviews", "--question", "What works?"])
+        with patch("dewey.cli.convert_url_with_firecrawl", return_value=("# Full paper\n", "v2")):
+            source_id = json.loads(self.invoke(["add", "source", "https://example.org/paper", "--json"]).stdout)["source_id"]
+        self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "read")
+        self.invoke(["state", "set", source_id, "included"])
+        self.invoke(["summary", "set", source_id, "--text", "A preliminary summary."])
+        result = json.loads(self.invoke(["next", "--json"]).stdout)
+        self.assertEqual(result["phase"], "read")
+        self.assertIn(f"dewey state mark-read {source_id} --depth full-text", result["next_steps"])
+        self.assertEqual(self.invoke(["state", "mark-read", source_id]).exit_code, 0)
+        self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "extract")
+
+        # A summary and a stale ready flag must not hide a missing document.
+        (self.root / ".dewey" / "sources" / source_id / "source.md").unlink()
+        self.assertEqual(self.invoke(["state", "mark-read", source_id]).exit_code, 2)
+        self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "retrieve")
+
+    def test_mark_read_preserves_exclusion_and_next_skips_excluded_sources(self) -> None:
+        self.init_repo()
+        self.invoke(["topic", "set", "--topic", "Interviews", "--question", "What works?"])
+        source_id = self.add_bib_source("excluded.bib", "@misc{excluded, title={Excluded lead}}")
+        self.invoke(["state", "set", source_id, "excluded"])
+        self.invoke(["state", "mark-read", source_id, "--depth", "abstract"])
+        state = json.loads(self.invoke(["state", "show", source_id, "--json"]).stdout)["state"]
+        self.assertEqual(state["status"], "excluded")
+        self.assertFalse(state["included"])
+        self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "expand")
+
+    def test_report_audit_strict_rejects_empty_and_abstract_only_reviews(self) -> None:
+        self.init_repo()
+        result = self.invoke(["report", "audit", "--strict", "--json"])
+        self.assertEqual(result.exit_code, 1)
+        self.assertIn({"code": "no_included_sources"}, json.loads(result.stdout)["issues"])
+        source_id = self.add_bib_source("abstract.bib", "@misc{abstract, title={Abstract only}}")
+        self.invoke(["state", "mark-read", source_id, "--depth", "abstract"])
+        self.invoke(["state", "set", source_id, "included"])
+        result = self.invoke(["report", "audit", "--strict", "--json"])
+        self.assertEqual(result.exit_code, 1)
+        issues = json.loads(result.stdout)["issues"]
+        for code in ("included_source_without_full_text", "included_source_not_full_text_read", "included_source_without_summary"):
+            self.assertIn({"code": code, "source_id": source_id}, issues)
+        # Keep the existing non-strict audit's inspectable JSON/exit contract.
+        result = self.invoke(["report", "audit", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertFalse(json.loads(result.stdout)["ok"])
 
     def test_init_add_search_and_doctor(self) -> None:
         bib = self.write_file(
@@ -176,7 +230,7 @@ class DeweyCliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["phase"], "retrieve")
-        self.assertIn(f"dewey add document {source_id}", payload["next_steps"][0])
+        self.assertEqual(payload["next_steps"][0], f"dewey fetch pdf {source_id}")
 
     def test_render_md_can_use_firecrawl_backend(self) -> None:
         pdf = self.write_file("cloud-paper.pdf", "%PDF-1.4\nfake pdf\n")
@@ -349,13 +403,15 @@ class DeweyCliTests(unittest.TestCase):
         result = self.invoke(["state", "show", source_id, "--json"])
         payload = json.loads(result.stdout)
         state = payload["state"]
-        self.assertEqual(state["status"], "read")
+        self.assertEqual(state["status"], "included")
         self.assertTrue(state["included"])
         self.assertEqual(state["priority"], 3)
         self.assertIsNotNone(state["last_read_at"])
         self.assertEqual(state["read_depth"], "abstract")
         status = json.loads(self.invoke(["status", "--json"]).stdout)
         self.assertEqual(status["counts"]["by_read_depth"]["abstract"], 1)
+        included = json.loads(self.invoke(["list", "--status", "included", "--json"]).stdout)["sources"]
+        self.assertEqual([item["source_id"] for item in included], [source_id])
 
     def test_notes_instructions_and_paths(self) -> None:
         self.init_repo()
@@ -843,6 +899,9 @@ Body.
         )
         self.invoke(["summary", "set", source_id, "--text", "A randomized interview experiment."])
         self.invoke(["state", "set", source_id, "included"])
+        pdf = self.write_file("study.pdf", "%PDF-1.4\nFull study text\n")
+        self.invoke(["add", "document", source_id, str(pdf)])
+        self.invoke(["state", "mark-read", source_id])
         self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "extract")
 
         study_file = self.write_file(
@@ -982,6 +1041,28 @@ Body.
         self.assertEqual(report["bundle"]["themes"][0]["claim_ids"], [claim["claim_id"]])
         self.assertEqual(report["bundle"]["claims"][0]["evidence"][0]["finding"]["finding_id"], finding_id)
         self.assertFalse(report["bundle"]["readiness"]["ready"])
+        # Complete a qualified, reviewed claim to exercise the strict gate's success path.
+        qualification_file = self.write_file("qualification.json", json.dumps({
+            "author_claim": "Generalization needs further study.",
+            "evidence_statement": "Only short online interviews were evaluated.",
+            "reviewer_interpretation": "Evidence does not establish longer-term effects.",
+            "outcome": "applicability",
+            "locators": [{"section": "Limitations"}],
+        }))
+        qualification = json.loads(self.invoke([
+            "finding", "add", study_id, "--file", str(qualification_file), "--json",
+        ]).stdout)["finding"]
+        claim_update = self.write_file("claim-reviewed.json", json.dumps({
+            "status": "reviewed",
+            "evidence": [
+                {"finding_id": finding_id, "relationship": "supports", "rationale": "Direct experiment."},
+                {"finding_id": qualification["finding_id"], "relationship": "qualifies", "rationale": "Only one short online experiment."},
+            ],
+        }))
+        self.assertEqual(self.invoke(["claim", "update", claim["claim_id"], "--file", str(claim_update)]).exit_code, 0)
+        strict_audit = self.invoke(["report", "audit", "--strict", "--json"])
+        self.assertEqual(strict_audit.exit_code, 0)
+        self.assertTrue(json.loads(strict_audit.stdout)["ok"])
         result = self.invoke(
             ["report", "context", "--format", "markdown", "--output", "report-context.md", "--json"]
         )
@@ -1031,7 +1112,7 @@ Body.
         self.assertEqual(json.loads(guarded.stdout)["error"]["code"], "study_has_evidence")
         deleted = self.invoke(["study", "delete", study_id, "--cascade", "--json"])
         self.assertEqual(deleted.exit_code, 0)
-        self.assertEqual(json.loads(deleted.stdout)["deleted"], {"studies": 1, "findings": 1, "appraisals": 1})
+        self.assertEqual(json.loads(deleted.stdout)["deleted"], {"studies": 1, "findings": 2, "appraisals": 1})
 
     def test_evidence_templates_are_writable_json(self) -> None:
         self.init_repo()
@@ -1048,10 +1129,25 @@ Body.
     def test_report_render_is_markdown_first(self) -> None:
         self.init_repo()
         markdown = self.write_file("article.md", "# Article\n\nSubstantive prose.\n")
-        with patch("dewey.cli.render_with_pandoc") as render:
+        with patch("dewey.cli.render_with_pandoc", return_value={"citation_keys": [], "pdf_assets": []}) as render:
             result = self.invoke(["report", "render", str(markdown), "--output", "article.html", "--json"])
         self.assertEqual(result.exit_code, 0)
-        render.assert_called_once_with(markdown, Path("article.html"), None)
+        self.assertEqual(render.call_args.args, (markdown, Path("article.html"), None))
+        self.assertEqual(render.call_args.kwargs["repo"].root, self.root.resolve())
+        self.assertIsNone(render.call_args.kwargs["csl_path"])
+
+    def test_report_citations_lists_copyable_syntax_and_filters_status(self) -> None:
+        self.init_repo()
+        source_id = self.add_bib_source("paper.bib", "@article{smith2024, title={Paper}, doi={10.1234/test}}")
+        self.add_bib_source("other.bib", "@misc{other, title={Other}}")
+        self.invoke(["state", "set", source_id, "included"])
+        result = self.invoke(["report", "citations", "--status", "included", "--json"])
+        self.assertEqual(result.exit_code, 0)
+        records = json.loads(result.stdout)["sources"]
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["citation"], "[@smith2024]")
+        self.assertEqual(records[0]["reference_id"], "ref-smith2024")
+        self.assertEqual(records[0]["links"], [{"label": "DOI", "url": "https://doi.org/10.1234/test"}])
 
     def test_embed_explorer_creates_single_html_document(self) -> None:
         report = self.write_file(

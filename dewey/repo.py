@@ -161,9 +161,12 @@ class DeweyRepo:
     @staticmethod
     def merge_candidates(existing: DiscoveryCandidate, incoming: DiscoveryCandidate) -> DiscoveryCandidate:
         provenance = list(existing.provenance)
-        seen = {(item.source_id, item.method, item.raw_citation) for item in provenance}
+        seen = {
+            (item.source_id, item.method, item.raw_citation, item.relation, item.provider, item.query, item.record_id)
+            for item in provenance
+        }
         for item in incoming.provenance:
-            key = (item.source_id, item.method, item.raw_citation)
+            key = (item.source_id, item.method, item.raw_citation, item.relation, item.provider, item.query, item.record_id)
             if key not in seen:
                 provenance.append(item)
                 seen.add(key)

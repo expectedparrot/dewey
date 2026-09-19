@@ -70,6 +70,11 @@ class Metadata(BaseModel):
     created_at: str
     updated_at: str
     markdown_source: str | None = None
+    open_access_url: str | None = None
+    pdf_source_url: str | None = None
+    pdf_retrieved_at: str | None = None
+    pdf_last_attempt_at: str | None = None
+    pdf_retrieval_status: Literal["downloaded", "unavailable"] | None = None
 
 
 class State(BaseModel):
@@ -175,6 +180,10 @@ class DiscoveryProvenance(BaseModel):
     method: str = "manual"
     raw_citation: str | None = None
     discovered_at: str
+    relation: Literal["references", "citations", "related"] = "references"
+    provider: str | None = None
+    query: str | None = None
+    record_id: str | None = None
 
 
 class DiscoveryCandidate(BaseModel):
@@ -199,6 +208,8 @@ class DiscoveryCandidate(BaseModel):
 
     @model_validator(mode="after")
     def migrate_legacy_provenance(self) -> "DiscoveryCandidate":
+        if self.provenance and not self.cited_by_source_id and not self.raw_citation:
+            return self
         legacy_key = (self.cited_by_source_id, self.discovery_method, self.raw_citation)
         existing_keys = {(item.source_id, item.method, item.raw_citation) for item in self.provenance}
         if legacy_key not in existing_keys:
