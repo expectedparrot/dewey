@@ -289,7 +289,7 @@ e0316317. https://doi.org/10.1371/journal.pone.0316317
 ## Reproducibility
 
 The machine-readable reporting context is stored at
-`.dewey/synthesis/report-context.json`. The inspectable claim scaffold is
+`synthesis/report-context.json`. The inspectable claim scaffold is
 `reports/report-context.md`, and the evidence matrix is `evidence-matrix.csv`. Every empirical
 statement in this report derives from a structured finding with a source locator and study
 appraisal. `dewey report audit`, `dewey claim audit`, and `dewey doctor` report no structural

@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 from dewey import __version__
 from dewey.academic import DiscoveryPage, fetch_page
 from dewey.archive import write_project_archive
-from dewey.bibtex import BibTeXError, dump_entry
+from dewey.bibtex import dump_entry
 from dewey.evidence import EvidenceStore
 from dewey.discovery import (
     candidate_from_citation,
@@ -26,6 +26,8 @@ from dewey.discovery import (
     relevance_score,
 )
 from dewey.guide import GUIDE
+from dewey.git_backend import GitProject
+from dewey.git_cli import register_git_commands
 from dewey.html_export import write_explorer
 from dewey.identity import ARXIV_RE, normalize_doi
 from dewey.models import (
@@ -55,6 +57,7 @@ from dewey.repo import (
 )
 from dewey.reporting import article_brief, embed_explorer, render_with_pandoc, report_citations
 from dewey.retrieval import fetch_source_pdf
+from dewey.validation import project_issues
 
 app = typer.Typer(no_args_is_help=True)
 load_dotenv()
@@ -246,18 +249,24 @@ def count_total_links(repo: DeweyRepo) -> int:
 
 
 @app.command()
-def init(json_output: bool = typer.Option(False, "--json")) -> None:
+def init(
+    path: Path = typer.Argument(Path("."), help="Directory for the research project; created if needed."),
+    git: bool = typer.Option(False, "--git", help="Enable Git, reusing an enclosing repository if present."),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
     action = "project.init"
     try:
-        repo = DeweyRepo.init(Path.cwd())
+        repo = DeweyRepo.init(path)
+        git_root = str(GitProject.init(repo).root) if git else None
     except DeweyError as exc:
         fail(action, exc.code, exc.message, exc.exit_code, json_output)
     emit(
         {
             "ok": True,
             "action": action,
-            "path": str(repo.dewey_dir),
-            "text": "Initialized Dewey repository at .dewey/",
+            "path": str(repo.root),
+            "git_root": git_root,
+            "text": f"Initialized Dewey project at {repo.root}",
         },
         json_output,
     )
@@ -333,103 +342,7 @@ def status(json_output: bool = typer.Option(False, "--json")) -> None:
 def doctor(json_output: bool = typer.Option(False, "--json")) -> None:
     action = "project.doctor"
     repo = load_repo(action, json_output)
-    issues: list[dict[str, Any]] = []
-    top_level = [repo.config_path, repo.instructions_path, repo.order_path, repo.discovery_path, repo.log_path]
-    for path in top_level:
-        if not path.exists():
-            issues.append({"code": "missing_file", "path": str(path)})
-    source_ids = set(repo.list_source_ids())
-    for source_id in sorted(source_ids):
-        source_dir = repo.require_source_dir(source_id)
-        for name in ("entry.bib", "metadata.json", "state.json", "summary.txt", "notes.md", "links.json"):
-            if not (source_dir / name).exists():
-                issues.append({"code": "missing_source_file", "source_id": source_id, "path": str(source_dir / name)})
-        try:
-            entry = repo.load_entry(source_id)
-        except (DeweyError, BibTeXError, FileNotFoundError) as exc:
-            issues.append({"code": "invalid_entry", "source_id": source_id, "message": str(exc)})
-            continue
-        try:
-            metadata = repo.load_metadata(source_id)
-            state = repo.load_state(source_id)
-            links = repo.load_links(source_id)
-        except DeweyError as exc:
-            issues.append({"code": exc.code, "source_id": source_id, "message": exc.message})
-            continue
-        if metadata.source_id != source_id:
-            issues.append({"code": "source_id_mismatch", "source_id": source_id})
-        if metadata.bibtex_key != entry.key:
-            issues.append({"code": "bibtex_key_mismatch", "source_id": source_id})
-        if metadata.entry_type != entry.entry_type:
-            issues.append({"code": "entry_type_mismatch", "source_id": source_id})
-        for link in links.outgoing:
-            if link.target not in source_ids:
-                issues.append({"code": "broken_link", "source_id": source_id, "target": link.target})
-        if metadata.content_hash and metadata.managed_pdf_path:
-            pdf_path = repo.root / metadata.managed_pdf_path
-            if pdf_path.exists() and sha256_file(pdf_path) != metadata.content_hash:
-                issues.append({"code": "content_hash_mismatch", "source_id": source_id})
-        if metadata.markdown_path and not (metadata.managed_pdf_path or metadata.original_pdf_path):
-            if metadata.markdown_source != "non_pdf_import":
-                issues.append({"code": "orphan_markdown", "source_id": source_id})
-        _ = state
-    order = repo.load_order()
-    if len(order.order) != len(set(order.order)):
-        issues.append({"code": "duplicate_order_entries"})
-    for source_id in order.order:
-        if source_id not in source_ids:
-            issues.append({"code": "missing_order_source", "source_id": source_id})
-    for group in repo.duplicate_candidate_groups():
-        issues.append({"code": "duplicate_candidates", **group})
-    evidence = EvidenceStore(repo.root)
-    try:
-        studies = evidence.studies()
-        findings = evidence.findings()
-        appraisals = evidence.appraisals()
-        themes = evidence.themes()
-        claims = evidence.claims()
-    except DeweyError as exc:
-        issues.append({"code": exc.code, "message": exc.message})
-        studies, findings, appraisals, themes, claims = [], [], [], [], []
-    study_ids = {study.study_id for study in studies}
-    for study in studies:
-        for source_id in study.source_ids:
-            if source_id not in source_ids:
-                issues.append({"code": "missing_study_source", "study_id": study.study_id, "source_id": source_id})
-    for finding in findings:
-        if finding.study_id not in study_ids:
-            issues.append(
-                {"code": "missing_finding_study", "finding_id": finding.finding_id, "study_id": finding.study_id}
-            )
-    appraisal_study_ids: set[str] = set()
-    for appraisal in appraisals:
-        if appraisal.study_id not in study_ids:
-            issues.append(
-                {
-                    "code": "missing_appraisal_study",
-                    "appraisal_id": appraisal.appraisal_id,
-                    "study_id": appraisal.study_id,
-                }
-            )
-        if appraisal.study_id in appraisal_study_ids:
-            issues.append({"code": "duplicate_study_appraisal", "study_id": appraisal.study_id})
-        appraisal_study_ids.add(appraisal.study_id)
-    theme_ids = {theme.theme_id for theme in themes}
-    finding_ids = {finding.finding_id for finding in findings}
-    for claim in claims:
-        for theme_id in claim.theme_ids:
-            if theme_id not in theme_ids:
-                issues.append({"code": "missing_claim_theme", "claim_id": claim.claim_id, "theme_id": theme_id})
-        for link in claim.evidence:
-            if link.finding_id not in finding_ids:
-                issues.append(
-                    {"code": "missing_claim_finding", "claim_id": claim.claim_id, "finding_id": link.finding_id}
-                )
-    try:
-        repo.init_index()
-        repo.stats()
-    except sqlite3.Error as exc:
-        issues.append({"code": "index_error", "message": str(exc)})
+    issues = project_issues(repo)
     if issues:
         payload = {"ok": False, "action": action, "issues": issues, "text": f"Doctor found {len(issues)} issue(s)"}
         emit(payload, json_output)
@@ -551,7 +464,7 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
     elif coverage["missing_study_sources"]:
         phase = "extract"
         recommendations = [
-            f"dewey study template --output study.json",
+            "dewey study template --output study.json",
             f"dewey study create {coverage['missing_study_sources'][0]} --file study.json",
             f"Create study records for {len(coverage['missing_study_sources'])} included source(s)",
         ]
@@ -590,18 +503,18 @@ def next_command(json_output: bool = typer.Option(False, "--json")) -> None:
             "Curate the field context, thesis, literature streams, study roles, timeline, and section logic",
             "dewey report article-set --file article.json",
         ]
-    elif coverage["claims"] and not (repo.root / ".dewey" / "synthesis" / "article-brief.md").exists():
+    elif coverage["claims"] and not (repo.root / "synthesis" / "article-brief.md").exists():
         phase = "report"
         recommendations = [
             "dewey report audit",
-            "dewey report brief --output .dewey/synthesis/article-brief.md",
+            "dewey report brief --output synthesis/article-brief.md",
             "Use the brief to write the substantive Markdown article, then render it with Pandoc",
         ]
-    elif coverage["claims"] and not (repo.root / ".dewey" / "synthesis" / "report-context.json").exists():
+    elif coverage["claims"] and not (repo.root / "synthesis" / "report-context.json").exists():
         phase = "report"
         recommendations = [
             "dewey report audit",
-            "dewey report context --output .dewey/synthesis/report-context.json",
+            "dewey report context --output synthesis/report-context.json",
             "Use the report bundle to draft a traceable thematic report",
         ]
     elif unsummarized and unsummarized[0] in missing_documents:
@@ -1393,7 +1306,7 @@ def export_bibtex(
 
 @export_app.command("html")
 def export_html(
-    output: Path = typer.Option(Path("dewey-explorer.html"), "--output"),
+    output: Path = typer.Option(Path("docs/index.html"), "--output"),
     title: str | None = typer.Option(None, "--title"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
@@ -1550,7 +1463,6 @@ def add_source(
         source_id = repo.create_source(
             entry,
             original_pdf_path=str(path),
-            managed_pdf_path=".dewey/sources/PENDING/source.pdf" if mode == "copy" else None,
             content_hash=content_hash,
             markdown_status=MarkdownStatus.missing,
         )
@@ -2365,7 +2277,8 @@ def search(
 ) -> None:
     action = "search.query"
     repo = load_repo(action, json_output)
-    repo.init_index()
+    # Canonical files may have changed through Git or direct editing.
+    repo.rebuild_index()
     conn = sqlite3.connect(repo.index_db)
     conn.row_factory = sqlite3.Row
     try:
@@ -3500,6 +3413,9 @@ def matrix_evidence(
         },
         json_output,
     )
+
+
+register_git_commands(app, emit, fail, load_repo)
 
 
 def main() -> None:

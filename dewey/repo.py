@@ -95,22 +95,23 @@ def read_json(path: Path) -> Any:
 def find_repo_root(start: Path | None = None) -> Path:
     current = (start or Path.cwd()).resolve()
     for candidate in [current, *current.parents]:
-        if (candidate / ".dewey").is_dir():
+        if (candidate / "dewey.json").is_file():
             return candidate
     raise DeweyError("repo_not_found", "No Dewey repository found in this directory tree", exit_code=3)
 
 
 class DeweyRepo:
     def __init__(self, root: Path) -> None:
-        self.root = root
-        self.dewey_dir = root / ".dewey"
-        self.sources_dir = self.dewey_dir / "sources"
-        self.index_db = self.dewey_dir / "indexes" / "search.sqlite"
-        self.log_path = self.dewey_dir / "logs" / "activity.jsonl"
-        self.instructions_path = self.dewey_dir / "instructions.md"
-        self.order_path = self.dewey_dir / "review_order.json"
-        self.config_path = self.dewey_dir / "config.json"
-        self.discovery_path = self.dewey_dir / "discovery.json"
+        self.root = root.resolve()
+        self.local_dir = self.root / ".dewey"
+        self.sources_dir = self.root / "sources"
+        self.index_db = self.local_dir / "cache" / "search.sqlite"
+        self.log_path = self.local_dir / "diagnostics" / "activity.jsonl"
+        self.instructions_path = self.root / "instructions.md"
+        self.order_path = self.root / "review_order.json"
+        self.config_path = self.root / "dewey.json"
+        self.discovery_path = self.root / "discovery" / "candidates.json"
+        self.history_path = self.root / "discovery" / "activity.jsonl"
 
     @classmethod
     def discover(cls) -> "DeweyRepo":
@@ -119,16 +120,26 @@ class DeweyRepo:
     @classmethod
     def init(cls, root: Path) -> "DeweyRepo":
         repo = cls(root)
-        if repo.dewey_dir.exists():
-            raise DeweyError("repo_exists", f"Dewey repository already exists at {repo.dewey_dir}", exit_code=2)
-        (repo.dewey_dir / "sources").mkdir(parents=True)
-        (repo.dewey_dir / "indexes").mkdir(parents=True)
-        (repo.dewey_dir / "logs").mkdir(parents=True)
-        atomic_write_json(repo.config_path, Config().model_dump())
+        if repo.config_path.exists():
+            raise DeweyError("repo_exists", f"Dewey project already exists at {repo.root}", exit_code=2)
+        # Refuse collisions before writing anything into an existing directory.
+        for name in ("sources", "discovery", "synthesis", "reports", "instructions.md", "review_order.json"):
+            if (repo.root / name).exists():
+                raise DeweyError("path_exists", f"Project path already exists: {repo.root / name}", exit_code=2)
+        for name in ("sources", "discovery", "synthesis", "reports"):
+            (repo.root / name).mkdir(parents=True)
+        atomic_write_json(repo.config_path, Config(project_name=repo.root.name).model_dump())
         atomic_write_text(repo.instructions_path, "")
         atomic_write_json(repo.order_path, ReviewOrder().model_dump())
         atomic_write_json(repo.discovery_path, DiscoveryFile().model_dump())
-        atomic_write_text(repo.log_path, "")
+        atomic_write_text(repo.history_path, "")
+        ignore_path = repo.root / ".gitignore"
+        existing = ignore_path.read_text(encoding="utf-8") if ignore_path.exists() else ""
+        rules = ["/.dewey/", ".env", ".env.*", "!.env.example", "*.dewey.zip"]
+        missing = [rule for rule in rules if rule not in existing.splitlines()]
+        if missing:
+            separator = "\n" if existing and not existing.endswith("\n") else ""
+            atomic_write_text(ignore_path, existing + separator + "\n".join(missing) + "\n")
         repo.init_index()
         return repo
 
@@ -304,12 +315,21 @@ class DeweyRepo:
     def load_metadata(self, source_id: str) -> Metadata:
         path = self.require_source_dir(source_id) / "metadata.json"
         try:
-            return Metadata.model_validate(read_json(path))
+            data = read_json(path)
+            local_path = self.local_dir / "sources" / source_id / "local.json"
+            data["original_pdf_path"] = read_json(local_path).get("original_pdf_path") if local_path.exists() else None
+            return Metadata.model_validate(data)
         except ValidationError as exc:
             raise DeweyError("invalid_metadata", f"Invalid metadata for {source_id}: {exc}", exit_code=3) from exc
 
     def write_metadata(self, source_id: str, metadata: Metadata) -> None:
-        atomic_write_json(self.require_source_dir(source_id) / "metadata.json", metadata.model_dump())
+        atomic_write_json(
+            self.require_source_dir(source_id) / "metadata.json",
+            metadata.model_dump(exclude={"original_pdf_path"}),
+        )
+        local_path = self.local_dir / "sources" / source_id / "local.json"
+        if metadata.original_pdf_path is not None or local_path.exists():
+            atomic_write_json(local_path, {"original_pdf_path": metadata.original_pdf_path})
 
     def load_state(self, source_id: str) -> State:
         path = self.require_source_dir(source_id) / "state.json"
@@ -336,8 +356,14 @@ class DeweyRepo:
 
     def append_log(self, action: str, **details: Any) -> None:
         record = {"ts": utc_now(), "action": action, **details}
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
         with self.log_path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(record, separators=(",", ":")) + "\n")
+        if action.startswith(("discovery.", "traversal.", "screen.")):
+            # Discovery coverage and screening history are research, not diagnostics.
+            self.history_path.parent.mkdir(parents=True, exist_ok=True)
+            with self.history_path.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(record, separators=(",", ":")) + "\n")
 
     def find_by_hash(self, content_hash: str) -> Metadata | None:
         for source_id in self.list_source_ids():
@@ -377,7 +403,6 @@ class DeweyRepo:
             source_id = generate_source_id()
         source_dir = self.source_dir(source_id)
         source_dir.mkdir(parents=True)
-        (source_dir / "artifacts").mkdir()
         now = utc_now()
         metadata = Metadata(
             source_id=source_id,
@@ -424,7 +449,7 @@ class DeweyRepo:
         if not pdf_path or not pdf_path.exists():
             raise DeweyError("pdf_not_found", f"No PDF exists for {source_id}", exit_code=4)
 
-        stderr_path = source_dir / "artifacts" / "pdf2md.stderr.log"
+        stderr_path = self.local_dir / "diagnostics" / source_id / "pdf2md.stderr.log"
         try:
             if backend == "firecrawl":
                 markdown_text, generator_version = convert_pdf_with_firecrawl(pdf_path)
@@ -494,6 +519,9 @@ class DeweyRepo:
             conn.close()
 
     def index_source(self, source_id: str) -> None:
+        if not self.index_db.exists():
+            self.rebuild_index()
+            return
         metadata = self.load_metadata(source_id)
         state = self.load_state(source_id)
         entry = self.load_entry(source_id)
@@ -558,6 +586,9 @@ class DeweyRepo:
             conn.close()
 
     def drop_source_from_index(self, source_id: str) -> None:
+        if not self.index_db.exists():
+            self.rebuild_index()
+            return
         conn = sqlite3.connect(self.index_db)
         try:
             conn.execute("DELETE FROM source_index WHERE source_id = ?", (source_id,))

@@ -1,0 +1,5 @@
+/.dewey/
+.env
+.env.*
+!.env.example
+*.dewey.zip

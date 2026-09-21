@@ -70,7 +70,7 @@ class DeweyCliTests(unittest.TestCase):
         self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "extract")
 
         # A summary and a stale ready flag must not hide a missing document.
-        (self.root / ".dewey" / "sources" / source_id / "source.md").unlink()
+        (self.root / "sources" / source_id / "source.md").unlink()
         self.assertEqual(self.invoke(["state", "mark-read", source_id]).exit_code, 2)
         self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "retrieve")
 
@@ -173,7 +173,7 @@ class DeweyCliTests(unittest.TestCase):
             result = self.invoke(["render", "md", source_id, "--backend", "paper2md", "--json"])
             self.assertEqual(result.exit_code, 0)
 
-        source_dir = self.root / ".dewey" / "sources" / source_id
+        source_dir = self.root / "sources" / source_id
         metadata = json.loads((source_dir / "metadata.json").read_text(encoding="utf-8"))
         markdown = (source_dir / "source.md").read_text(encoding="utf-8")
 
@@ -200,9 +200,9 @@ class DeweyCliTests(unittest.TestCase):
         payload = json.loads(result.stdout)
         self.assertEqual(payload["source_id"], source_id)
 
-        source_dir = self.root / ".dewey" / "sources" / source_id
+        source_dir = self.root / "sources" / source_id
         metadata = json.loads((source_dir / "metadata.json").read_text(encoding="utf-8"))
-        self.assertEqual(metadata["managed_pdf_path"], f".dewey/sources/{source_id}/source.pdf")
+        self.assertEqual(metadata["managed_pdf_path"], f"sources/{source_id}/source.pdf")
         self.assertEqual((source_dir / "source.pdf").read_text(encoding="utf-8"), "%PDF-1.4\nretrieved\n")
 
         marked = self.invoke(["state", "mark-read", source_id, "--json"])
@@ -240,7 +240,7 @@ class DeweyCliTests(unittest.TestCase):
             result = self.invoke(["add", "source", str(pdf), "--backend", "firecrawl", "--json"])
         self.assertEqual(result.exit_code, 0)
         source_id = json.loads(result.stdout)["source_id"]
-        metadata = json.loads((self.root / ".dewey" / "sources" / source_id / "metadata.json").read_text())
+        metadata = json.loads((self.root / "sources" / source_id / "metadata.json").read_text())
         self.assertEqual(metadata["markdown_generator"], {"name": "firecrawl", "version": "v2"})
 
     def test_add_url_uses_firecrawl_and_records_provenance(self) -> None:
@@ -253,7 +253,7 @@ class DeweyCliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["input_type"], "url")
-        source_dir = self.root / ".dewey" / "sources" / payload["source_id"]
+        source_dir = self.root / "sources" / payload["source_id"]
         metadata = json.loads((source_dir / "metadata.json").read_text())
         self.assertEqual(metadata["markdown_source"], url)
         self.assertEqual(metadata["markdown_generator"], {"name": "firecrawl", "version": "v2"})
@@ -370,7 +370,7 @@ class DeweyCliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(json.loads(result.stdout)["citation"], "smith2025book")
 
-        source_dir = self.root / ".dewey" / "sources" / source_id
+        source_dir = self.root / "sources" / source_id
         metadata = json.loads((source_dir / "metadata.json").read_text(encoding="utf-8"))
         entry = (source_dir / "entry.bib").read_text(encoding="utf-8")
         self.assertEqual(metadata["bibtex_key"], "smith2025book")
@@ -593,7 +593,7 @@ class DeweyCliTests(unittest.TestCase):
 
         self.assertEqual(json.loads(self.invoke(["next", "--json"]).stdout)["phase"], "frame")
 
-        discovery_path = self.root / ".dewey" / "discovery.json"
+        discovery_path = self.root / "discovery" / "candidates.json"
         discovery = json.loads(discovery_path.read_text(encoding="utf-8"))
         discovery["candidates"][0]["cited_by_source_id"] = parent
         discovery_path.write_text(json.dumps(discovery), encoding="utf-8")
@@ -611,7 +611,7 @@ class DeweyCliTests(unittest.TestCase):
         child = self.add_bib_source("child.bib", "@article{child, title={Child}, year={2024}}\n")
         added = self.invoke(["discover", "add", "--title", "Child", "--json"])
         candidate_id = json.loads(added.stdout)["candidate"]["candidate_id"]
-        path = self.root / ".dewey" / "discovery.json"
+        path = self.root / "discovery" / "candidates.json"
         data = json.loads(path.read_text())
         data["candidates"][0]["cited_by_source_id"] = parent
         path.write_text(json.dumps(data))
@@ -629,7 +629,7 @@ class DeweyCliTests(unittest.TestCase):
         first_parent = self.add_bib_source("first.bib", "@article{first, title={First}, year={2025}}\n")
         second_parent = self.add_bib_source("second.bib", "@article{second, title={Second}, year={2025}}\n")
         child = self.add_bib_source("child.bib", "@article{child, title={Shared Work}, year={2024}}\n")
-        discovery_path = self.root / ".dewey" / "discovery.json"
+        discovery_path = self.root / "discovery" / "candidates.json"
         discovery_path.write_text(
             json.dumps(
                 {
@@ -677,7 +677,7 @@ class DeweyCliTests(unittest.TestCase):
 
     def test_dedupe_joins_transitive_identity_matches(self) -> None:
         self.init_repo()
-        discovery_path = self.root / ".dewey" / "discovery.json"
+        discovery_path = self.root / "discovery" / "candidates.json"
         records = [
             {
                 "candidate_id": "by_doi",
@@ -779,7 +779,7 @@ class DeweyCliTests(unittest.TestCase):
 }
 """,
         )
-        source_dir = self.root / ".dewey" / "sources" / parent
+        source_dir = self.root / "sources" / parent
         markdown_path = source_dir / "source.md"
         markdown_path.write_text(
             """# Parent Paper
@@ -859,12 +859,13 @@ Body.
         with zipfile.ZipFile(archive_path) as archive:
             names = archive.namelist()
             root = names[0].split("/", 1)[0]
-            self.assertIn(f"{root}/.dewey/config.json", names)
-            self.assertIn(f"{root}/.dewey/sources/{source_id}/entry.bib", names)
+            self.assertIn(f"{root}/dewey.json", names)
+            self.assertIn(f"{root}/sources/{source_id}/entry.bib", names)
             self.assertIn(f"{root}/analysis/results.csv", names)
             self.assertIn(f"{root}/dewey-export-manifest.json", names)
             self.assertFalse(any(name.endswith("/.env") for name in names))
             self.assertFalse(any("/.git/" in name for name in names))
+            self.assertFalse(any("/.dewey/" in name for name in names))
             manifest = json.loads(archive.read(f"{root}/dewey-export-manifest.json"))
             self.assertTrue(all(len(item["sha256"]) == 64 for item in manifest["files"]))
             self.assertTrue(any(item["path"] == ".env" for item in manifest["excluded"]))
@@ -875,6 +876,9 @@ Body.
         previous_root = self.root
         self.root = extracted / root
         try:
+            self.assertFalse((self.root / ".dewey").exists())
+            search = json.loads(self.invoke(["search", "Portable", "--json"]).stdout)
+            self.assertEqual(search["results"][0]["source_id"], source_id)
             doctor = json.loads(self.invoke(["doctor", "--json"]).stdout)
             self.assertTrue(doctor["ok"])
         finally:
@@ -1096,9 +1100,9 @@ Body.
         result = self.invoke(["report", "article-set", "--file", str(article_file), "--json"])
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(json.loads(result.stdout)["article"]["title"], "Interviewing at Scale")
-        result = self.invoke(["report", "brief", "--output", ".dewey/synthesis/article-brief.md", "--json"])
+        result = self.invoke(["report", "brief", "--output", "synthesis/article-brief.md", "--json"])
         self.assertEqual(result.exit_code, 0)
-        brief = (self.root / ".dewey/synthesis/article-brief.md").read_text(encoding="utf-8")
+        brief = (self.root / "synthesis/article-brief.md").read_text(encoding="utf-8")
         self.assertIn("## Study map", brief)
         self.assertIn("## Timeline", brief)
         self.assertIn("Automation changes costs but does not ensure validity.", brief)

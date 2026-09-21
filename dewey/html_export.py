@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from dewey.bibtex import dump_entry
-from dewey.repo import DeweyRepo, atomic_write_text, utc_now
+from dewey.repo import DeweyError, DeweyRepo, atomic_write_text, utc_now
 
 
 def author_surname(author: str) -> str:
@@ -108,10 +108,13 @@ def build_explorer_html(payload: dict[str, Any], title: str) -> str:
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{safe_title}</title>
+<meta name="generator" content="Dewey">
+<meta name="description" content="Explore the papers, research notes, and citation network in this literature review. Built with Dewey by Expected Parrot.">
 <style>
 :root{{--paper:#f5f1e8;--card:#fffdf8;--ink:#26251f;--muted:#6f6b60;--line:#d8d0bf;--green:#406d4a;--red:#a44b3f;--blue:#456b8c;--gold:#b88a31}}
 *{{box-sizing:border-box}} body{{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 ui-sans-serif,system-ui,-apple-system,sans-serif}}
 header{{padding:28px clamp(18px,4vw,60px);background:#263b2b;color:white}} h1{{margin:0;font:700 clamp(25px,4vw,42px)/1.1 Georgia,serif}}
+.brand-bar{{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:26px}} .brand{{color:white;text-decoration:none;font:700 22px/1.2 Georgia,serif}} .brand small{{display:block;margin-top:5px;color:#c5d8c9;font:11px/1.4 ui-sans-serif,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase}} .product{{color:#e8d59e;border:1px solid #627a65;border-radius:999px;padding:5px 13px;font-size:12px;letter-spacing:.04em}} footer{{padding:22px clamp(18px,4vw,60px);border-top:1px solid var(--line);color:var(--muted);font-size:13px}} footer a{{color:var(--green)}}
 .question{{max-width:980px;margin:10px 0 0;color:#e4eddf;font-size:17px}} .shell{{display:grid;grid-template-columns:310px minmax(0,1fr);min-height:calc(100vh - 130px)}}
 aside{{border-right:1px solid var(--line);padding:18px;position:sticky;top:0;height:100vh;overflow:auto;background:#eee8dc}} main{{padding:24px clamp(18px,4vw,52px);min-width:0}}
 .tabs{{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}} button,.button{{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 12px;border-radius:999px;cursor:pointer}}
@@ -128,12 +131,13 @@ button.active{{background:var(--green);color:white;border-color:var(--green)}} i
 .citation-graph .link{{stroke:#9a917f;stroke-width:1.5;fill:none;marker-end:url(#arrow);transition:opacity .15s,stroke .15s}} .citation-graph .node{{cursor:pointer;transition:opacity .15s}} .citation-graph .node rect{{fill:#fdfaf3;stroke:var(--green);stroke-width:2}} .citation-graph .node:hover rect,.citation-graph .node.active rect{{fill:#e5efe4;stroke-width:3}} .citation-graph text{{font:600 13px ui-sans-serif,system-ui,sans-serif;fill:var(--ink);stroke:none;pointer-events:none}} .citation-graph .dim{{opacity:.14}} .citation-graph .link.active{{stroke:var(--gold);stroke-width:2.5;opacity:1}}
 @media(max-width:800px){{.shell{{display:block}} aside{{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}}}}
 </style></head><body>
-<header><h1>{safe_title}</h1><div id="topic" class="question"></div></header>
+<header><div class="brand-bar"><a class="brand" href="https://www.expectedparrot.com/">Expected Parrot<small>Open-source research tools</small></a><span class="product">Dewey · Literature explorer</span></div><h1>{safe_title}</h1><div id="topic" class="question"></div></header>
 <div class="shell"><aside><div class="tabs"><button data-tab="sources" class="active">Corpus</button><button data-tab="candidates">Discovery</button><button data-tab="graph">Citations</button></div>
-<input id="search" type="search" placeholder="Search titles, authors, summaries…"><select id="filter"><option value="">All states</option></select>
+<input id="search" type="search" aria-label="Search literature" placeholder="Search titles, authors, summaries…"><select id="filter" aria-label="Filter by review status"><option value="">All states</option></select>
 <label id="graph-scope" class="graph-scope hidden"><input id="show-all-citations" type="checkbox"> Show the full traversal network</label>
 <div class="downloads"><button id="download">Download JSON</button><button id="bibtex">Download BibTeX</button></div><p class="muted" id="generated"></p><details><summary>Review instructions</summary><p id="instructions"></p></details></aside>
 <main><div id="stats" class="stats"></div><div id="tab-note" class="tab-note hidden"></div><section id="list" class="list"></section><section id="detail" class="detail hidden"></section></main></div>
+<footer>Built with <a href="https://github.com/expectedparrot/dewey">Dewey</a> by <a href="https://www.expectedparrot.com/">Expected Parrot</a>. Explore the evidence, follow the citations, and download the research records.</footer>
 <script id="dewey-data" type="application/json">{data}</script><script>
 const D=JSON.parse(document.getElementById('dewey-data').textContent); let tab='sources', selected=null;
 const q=document.getElementById('search'), filter=document.getElementById('filter'), list=document.getElementById('list'), detail=document.getElementById('detail'), note=document.getElementById('tab-note'), bibButton=document.getElementById('bibtex'), graphScope=document.getElementById('graph-scope'), showAllCitations=document.getElementById('show-all-citations');
@@ -182,3 +186,15 @@ def write_explorer(repo: DeweyRepo, output: Path, title: str | None = None) -> d
         "candidates": len(payload["candidates"]),
         "links": len(payload["links"]),
     }
+
+
+def write_project_site(repo: DeweyRepo) -> dict[str, Any]:
+    """Refresh the checked-in, self-contained literature explorer for GitHub Pages."""
+    target = repo.root / "docs" / "index.html"
+    if target.is_symlink() or not target.resolve().is_relative_to(repo.root):
+        raise DeweyError("unsafe_site_path", "docs/index.html must be inside the project and not a symlink", 2)
+    if target.exists() and 'id="dewey-data"' not in target.read_text(encoding="utf-8"):
+        raise DeweyError("site_exists", "docs/index.html already contains a different page; move it before generating the explorer", 2)
+    result = write_explorer(repo, target)
+    atomic_write_text(target.parent / ".nojekyll", "")
+    return result

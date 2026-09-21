@@ -4,6 +4,25 @@ GUIDE = """# Dewey agent guide
 
 Dewey builds a literature base iteratively. Do not treat discovery as a one-shot search.
 
+Create a named project with `dewey init my-review`, then `cd my-review`.
+The visible project is identified by `dewey.json`. Version sources/, discovery/,
+synthesis/, instructions.md, review_order.json, and reports as appropriate.
+.dewey/ contains ignored local indexes, diagnostics, and machine-specific PDF paths.
+Discovery search and traversal history lives in discovery/activity.jsonl.
+
+For Git-backed reviews, initialize with `dewey init my-review --git` or enable Git
+in an existing review with `dewey git init`. Use `dewey git clone <url> <directory>`
+to start from a remote; add `--project reviews/my-review` for a nested review.
+Before a research stage, `dewey git pull` fast-forwards a clean checkout. Inspect
+`dewey git status` and `dewey git diff`, then checkpoint with
+`dewey git commit -m "Describe the research stage"`. Commit validates the project
+and refreshes the Expected Parrot explorer at docs/index.html. Preview it with
+`dewey git site`. Push explicitly with `dewey git push` (first push:
+`dewey git push --remote origin`, after `dewey git remote add origin <url>`).
+Commits cover this review; pulls and pushes affect the containing repository branch.
+Use ordinary Git for conflicts. A failed post-pull validation leaves the updated
+checkout intact: inspect `dewey doctor --json` and repair it before continuing.
+
 ## 1. Frame the review
 
 Start with a topic and a research question. The topic supplies broad retrieval terms; the
@@ -159,8 +178,8 @@ and section logic. This prevents an evidence inventory from masquerading as a li
     dewey report audit --strict --json
     dewey report article-template --output article.json
     dewey report article-set --file article.json
-    dewey report context --output .dewey/synthesis/report-context.json
-    dewey report brief --output .dewey/synthesis/article-brief.md
+    dewey report context --output synthesis/report-context.json
+    dewey report brief --output synthesis/article-brief.md
     dewey report citations --status included --json
     # Write article.md from the brief, then:
     dewey report render article.md --output article.html

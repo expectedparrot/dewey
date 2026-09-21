@@ -158,9 +158,27 @@ dewey search "respondent burden"</code></pre>
 </section>
 
 <section id="explorer"><h2><span class="chapter">11</span> Explore the review in a browser</h2>
-  <pre><code>dewey export html --output literature-explorer.html
+  <pre><code>dewey export html --output docs/index.html
 open literature-explorer.html</code></pre>
   <p>The self-contained explorer includes the corpus, summaries, notes, rendered Markdown, discovery candidates, provenance counts, downloadable BibTeX, and an interactive chronological citation diagram. It is a snapshot; rebuild it after changes.</p>
+</section>
+
+<section id="git"><h2>Git checkpoints and a branded literature explorer</h2>
+  <p>Each review can be an ordinary Git repository with its own Expected Parrot literature explorer at <code>docs/index.html</code>. Enable Git with <code>dewey init my-review --git</code> or <code>dewey git init</code> in an existing review.</p>
+  <pre><code>dewey git remote add origin git@github.com:your-account/my-review.git
+dewey git status
+dewey git diff
+dewey git site
+dewey git commit -m "Screen the first citation wave"
+dewey git push --remote origin</code></pre>
+  <p>Commits validate research and refresh the explorer. It includes paper search, notes, discovery decisions, citation graphs, and downloads, and opens directly in a browser. For a standalone review repository, choose your branch and <code>/docs</code> in GitHub Pages settings. The page needs no build step or external assets.</p>
+  <pre><code>dewey git clone &lt;url&gt; my-review
+cd my-review
+dewey git pull
+# Complete a research stage, then:
+dewey git commit -m "Add replication evidence"
+dewey git push</code></pre>
+  <p>Pull requires a clean repository and only fast-forwards. Divergent histories use ordinary Git conflict resolution. A review inside a larger repository gets scoped commits, but pulls and pushes synchronize the containing branch. Use <code>clone --project reviews/my-review</code> to select a nested review. Its site requires a custom Pages deployment.</p>
 </section>
 
 <section id="share"><h2><span class="chapter">12</span> Share the complete project</h2>
@@ -181,25 +199,30 @@ dewey next</code></pre>
 
 <section id="files"><h2><span class="chapter">14</span> What Dewey stores</h2>
   <pre><code>review/
-├── .dewey/
-│   ├── config.json
-│   ├── discovery.json
-│   ├── instructions.md
-│   ├── review_order.json
-│   ├── logs/activity.jsonl
-│   ├── indexes/search.sqlite
-│   └── sources/src_.../
-│       ├── entry.bib
-│       ├── metadata.json
-│       ├── state.json
-│       ├── source.pdf
-│       ├── source.md
-│       ├── summary.txt
-│       ├── notes.md
-│       └── links.json
-├── literature-explorer.html
-└── analysis files</code></pre>
-  <p>Stable source IDs connect notes, links, citations, and commands. The index and explorer are derived; source records, decisions, provenance, notes, and summaries are durable review state.</p>
+├── dewey.json
+├── instructions.md
+├── review_order.json
+├── discovery/
+│   ├── candidates.json
+│   └── activity.jsonl
+├── sources/src_.../
+│   ├── entry.bib
+│   ├── metadata.json
+│   ├── state.json
+│   ├── source.pdf
+│   ├── source.md
+│   ├── summary.txt
+│   ├── notes.md
+│   └── links.json
+├── synthesis/
+├── reports/
+├── .gitignore
+└── .dewey/                 # ignored local state
+    ├── cache/search.sqlite
+    ├── diagnostics/activity.jsonl
+    └── sources/src_.../    # local PDF paths</code></pre>
+  <p>Create a named project with <code>dewey init review</code>, then <code>cd review</code>. Commands find the nearest <code>dewey.json</code>. Research files can be committed to Git; initialization adds ignore rules but does not create a Git repository.</p>
+  <p>Stable source IDs connect notes, links, citations, and commands. Per-source links form the authoritative graph. Source records, screening and discovery history, provenance, notes, summaries, and synthesis are durable research. Search rebuilds its local index from current files. ZIP exports exclude <code>.dewey/</code>; a copied project works without it. PDF reference mode is local only; copy mode stores portable PDFs.</p>
 </section>
 
 <section id="principles"><h2><span class="chapter">15</span> Research principles</h2>

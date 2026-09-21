@@ -9,7 +9,7 @@ from typing import Any
 
 from dewey.repo import DeweyError, DeweyRepo, utc_now
 
-EXCLUDED_PARTS = {".git", ".pytest_cache", ".ruff_cache", "__pycache__"}
+EXCLUDED_PARTS = {".git", ".dewey", ".pytest_cache", ".ruff_cache", "__pycache__"}
 EXCLUDED_NAMES = {".DS_Store", ".env"}
 
 

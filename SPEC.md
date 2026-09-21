@@ -13,7 +13,7 @@ For v1, Dewey is **purely BibTeX-oriented**:
 * if a source has a PDF, Dewey should generate a canonical Markdown representation using `pdf2md`
 * Dewey stores workflow state, notes, links, ordering, and search indexes on the filesystem
 
-The source of truth is the contents of `.dewey/`.
+The source of truth is the visible project identified by `dewey.json`. `.dewey/` contains only ignored machine-local state.
 
 ---
 
@@ -21,7 +21,7 @@ The source of truth is the contents of `.dewey/`.
 
 1. **Filesystem first**
 
-   * All persistent state is stored under `.dewey/`.
+   * Durable research state is stored in visible files in the named project directory.
    * No network service is required.
    * Any derived index must be rebuildable from files.
 
@@ -102,24 +102,33 @@ Recommended generation:
 
 ## 4. On-disk layout
 
-Running `dewey init` creates:
+Running `dewey init my-review` creates:
 
 ```text
-.dewey/
-  config.json
+my-review/
+  dewey.json
   instructions.md
   review_order.json
   sources/
-  indexes/
-    search.sqlite
-  logs/
+  discovery/
+    candidates.json
     activity.jsonl
+  synthesis/
+  reports/
+  docs/index.html
+  docs/.nojekyll
+  .gitignore
+  .dewey/
+    cache/search.sqlite
+    diagnostics/activity.jsonl
+    sources/<source-id>/local.json
+    diagnostics/<source-id>/pdf2md.stderr.log
 ```
 
 Each source lives at:
 
 ```text
-.dewey/sources/<source-id>/
+sources/<source-id>/
   entry.bib
   metadata.json
   state.json
@@ -127,17 +136,19 @@ Each source lives at:
   links.json
   source.pdf                # optional
   source.md                 # optional, generated from PDF
-  artifacts/
-    pdf2md.stderr.log       # optional
+  summary.txt
 ```
 
 ### 4.1 File roles
 
-* `config.json`: project config and feature flags
+* `dewey.json`: project config and feature flags
 * `instructions.md`: project-level review instructions for the agent
 * `review_order.json`: manual ordering of sources
-* `indexes/search.sqlite`: derived local search index
-* `logs/activity.jsonl`: append-only mutation log
+* `.dewey/cache/search.sqlite`: derived local search index, rebuilt from current files on search
+* `.dewey/diagnostics/activity.jsonl`: local diagnostic mutation log
+* `discovery/activity.jsonl`: versioned search, traversal, and screening audit history
+* `discovery/candidates.json`: candidates with provenance and screening decisions
+* `synthesis/`: durable evidence and article planning records
 
 Per source:
 
@@ -148,13 +159,18 @@ Per source:
 * `links.json`: outgoing and incoming logical links between sources
 * `source.pdf`: managed archival copy of source PDF, if present
 * `source.md`: generated canonical Markdown representation of the PDF, if present
-* `artifacts/pdf2md.stderr.log`: conversion stderr for diagnostics
+* `.dewey/diagnostics/<source-id>/pdf2md.stderr.log`: local conversion diagnostics
+* `.dewey/sources/<source-id>/local.json`: original machine-specific PDF path, never part of shared metadata
+
+ZIP exports exclude `.dewey/`. Initialization adds Git ignore rules but does not initialize Git.
+The project remains usable after cloning without `.dewey/`; reference-only PDFs remain local.
+There is no compatibility or migration layer for the former hidden layout.
 
 ---
 
 ## 5. File schemas
 
-## 5.1 `.dewey/config.json`
+## 5.1 `dewey.json`
 
 ```json
 {
@@ -204,10 +220,9 @@ Rules:
   "source_id": "src_3f1c8a91d2ab",
   "bibtex_key": "vaswani2017attention",
   "entry_type": "article",
-  "managed_pdf_path": ".dewey/sources/src_3f1c8a91d2ab/source.pdf",
-  "original_pdf_path": "/abs/path/to/attention.pdf",
+  "managed_pdf_path": "sources/src_3f1c8a91d2ab/source.pdf",
   "content_hash": "3f1c8a91d2ab4e7d...",
-  "markdown_path": ".dewey/sources/src_3f1c8a91d2ab/source.md",
+  "markdown_path": "sources/src_3f1c8a91d2ab/source.md",
   "markdown_status": "ready",
   "markdown_generator": {
     "name": "pdf2md",
@@ -322,7 +337,7 @@ Rules:
 * omitted sources are considered unordered
 * source IDs in `order` must be unique
 
-## 5.8 `logs/activity.jsonl`
+## 5.8 `diagnostics/activity.jsonl`
 
 Each line is one JSON object.
 
@@ -346,25 +361,24 @@ Dewey v1 uses the following command groups.
 
 ## 6.1 Project commands
 
-### `dewey init`
+### `dewey init [path]`
 
-Creates `.dewey/` in current working directory.
+Creates a visible project at the given path, defaulting to the current directory.
 
 Behavior:
 
-* fail if `.dewey/` already exists, unless `--force` is supplied
+* fail if `dewey.json` or a managed research path already exists; do not overwrite research
 * create directory structure
 * create default config, instructions, review order, and empty log/index scaffolding
 
 Flags:
 
-* `--force`: overwrite existing Dewey project only if implementation chooses to support it; otherwise reject for v1
 * `--json`: emit machine-readable result
 
 Success text output example:
 
 ```text
-Initialized Dewey repository at .dewey/
+Initialized Dewey project at /path/to/my-review
 ```
 
 ### `dewey status`
@@ -898,7 +912,7 @@ Exact mapping may vary, but must be consistent.
 
 ## 7.3 Repository discovery
 
-All commands except `init` must locate the nearest `.dewey/` by walking upward from current working directory.
+Project commands locate the nearest `dewey.json` by walking upward from the current working directory. The private `.dewey/` directory is not a project marker.
 
 Failure behavior:
 
@@ -1015,7 +1029,7 @@ Canonical files:
 
 Derived:
 
-* `indexes/search.sqlite`
+* `cache/search.sqlite`
 * any cached snippets or tokenized search tables
 
 ### 10.2 Minimum indexed fields per source
@@ -1158,3 +1172,34 @@ Suggested order of implementation:
 Implementation should favor correctness and clear file semantics over cleverness.
 
 The v1 objective is a small, dependable CLI that an external agent can script safely.
+
+
+## Git synchronization and the project site
+
+Git remains optional. The visible project files are canonical inside a normal Git
+working tree, and the ordinary Git executable handles transport and credentials.
+`dewey init <path> --git` or `dewey git init` initializes Git or reuses an enclosing
+repository. `dewey git clone <url> <destination> [--project <relative-path>]` clones,
+validates the selected project, and rebuilds its ignored local index.
+
+Commands: `git status`, `git diff`, `git commit -m <message>`, `git pull`, `git push
+[--remote <name>]`, `git remote add <name> <url>`, `git remote list`, and `git site`.
+All support the standard `--json` envelope and nonzero exits for failures.
+
+Commits include changes only within the selected project and preserve unrelated
+staging in a containing repository. Private paths cannot be committed by this
+interface. Commit and push validate the selected project's records. Pull and push
+require a clean containing repository and an attached branch. Pull explicitly uses
+`--no-rebase --ff-only`; push uses an explicit current-branch refspec, without force
+or automatic tag following. Divergent histories require normal Git resolution.
+Post-pull validation failures report the updated checkout as needing repair rather
+than rolling it back or claiming success. Neither remote creation nor hosting
+configuration is performed automatically.
+
+`docs/index.html` is the project's self-contained Expected Parrot literature
+explorer, with `docs/.nojekyll` for static hosting. `git site` builds it; `git commit`
+refreshes it before checkpointing research. It is a versioned derived view, while
+source and discovery records remain canonical. Non-explorer pages at this path
+are not overwritten by these commands. The package documentation remains separate
+from generated review sites. GitHub Pages branch publishing can serve `/docs` in
+a standalone review repository; nested project sites require a custom deployment.

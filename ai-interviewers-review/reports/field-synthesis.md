@@ -324,7 +324,7 @@ is more valid, useful, and ethically collected than the feasible alternative.
 
 ## Reproducibility and next step
 
-The structured evidence records are under `.dewey/synthesis/`, and the current seven-finding
+The structured evidence records are under `synthesis/`, and the current seven-finding
 export is `evidence-matrix.csv`. Source-level summaries and detailed notes remain separate. The
 next step is not more discovery: it is to resolve the nine queued summarized studies, promote or
 reject them explicitly, and extend finding-level extraction and appraisal across the studies

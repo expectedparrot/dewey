@@ -26,7 +26,7 @@ identifiers directly: use a verified OpenAlex work ID or a different provider. A
 unresolved seed should be logged as a coverage gap, not silently title-matched.
 
 Successful calls record query, seed, provider, input/next cursor, fetched/new candidate
-counts, candidate IDs, and coverage status in `.dewey/logs/activity.jsonl`.
+counts, candidate IDs, and coverage status in `discovery/activity.jsonl`.
 Each candidate retains provider record ID and direction in its provenance. Existing
 DOI/arXiv/title deduplication preserves sightings from different seeds and providers.
 Acceptance or resolution writes `candidate --cites--> seed` for forward discoveries,

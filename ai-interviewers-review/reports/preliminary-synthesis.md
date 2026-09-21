@@ -203,7 +203,7 @@ https://doi.org/10.1016/j.chb.2014.04.043
 
 ## Evidence and reproducibility
 
-The structured records are stored under `.dewey/synthesis/`. The seven-row export is available
+The structured records are stored under `synthesis/`. The seven-row export is available
 as `evidence-matrix.csv`. Every substantive result above can be traced to a finding record and
 source locator. The next review stage is to summarize the remaining unread sources, then extract
 and appraise additional included studies before upgrading this report from preliminary to

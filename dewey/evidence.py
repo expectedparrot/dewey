@@ -21,7 +21,7 @@ def evidence_id(prefix: str) -> str:
 class EvidenceStore:
     def __init__(self, root: Path) -> None:
         self.root = root
-        self.base = root / ".dewey" / "synthesis"
+        self.base = root / "synthesis"
         self.studies_dir = self.base / "studies"
         self.findings_dir = self.base / "findings"
         self.appraisals_dir = self.base / "appraisals"

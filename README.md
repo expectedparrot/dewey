@@ -36,13 +36,124 @@ uv tool install git+https://github.com/expectedparrot/dewey.git
 
 ## Run
 
-Start or resume inside the intended project directory:
+Create a named project directory, then work inside it:
 
 ```bash
-dewey init
+dewey init my-literature-review
+cd my-literature-review
 dewey guide
 dewey next
 ```
+
+`dewey init` without a path initializes the current directory. Commands find the
+nearest `dewey.json` when run from a project or any of its subdirectories.
+
+## Project files
+
+```text
+my-literature-review/
+  dewey.json                 # Project settings and schema version
+  instructions.md
+  review_order.json
+  sources/<source-id>/        # BibTeX, metadata, PDFs, Markdown, summaries, notes, links
+  discovery/candidates.json  # Leads, screening decisions, and provenance
+  discovery/activity.jsonl   # Search queries, coverage, traversal, and screening history
+  synthesis/                 # Studies, findings, appraisals, themes, claims, article plan
+  reports/
+  docs/index.html            # Expected Parrot literature explorer (generated)
+  .gitignore
+  .dewey/                    # Local indexes, diagnostics, original PDF paths
+```
+
+Research files are ordinary, versionable files. Per-source `links.json` records are
+the authoritative citation and relationship graph; visualizations and SQLite indexes
+are derived. Concise `summary.txt` files remain separate from detailed `notes.md` files.
+Initialization creates Git ignore rules for `.dewey/`, environment files, and ZIP
+exports; it does not initialize Git or commit anything. PDFs are trackable by default.
+Use your own ignore rules or Git LFS if appropriate for your project.
+
+A clone or ZIP export contains the research without local state. Search rebuilds its
+index from current files, including changes made through Git or direct editing.
+Original machine-specific PDF paths and conversion diagnostics stay under `.dewey/`
+and are excluded from ZIP exports. The optional `add source --reference` mode keeps
+only a local PDF reference; use the default copy mode for portable full text.
+
+This layout replaces the old all-in-`.dewey/` layout; no compatibility or migration
+command is provided.
+
+## Git and the literature explorer
+
+Dewey can use an ordinary Git repository to version and synchronize a review. Git is
+optional; local research commands work offline. Use the Git CLI already configured
+on your machine, including its identity, SSH keys, and credential helper.
+
+```bash
+dewey init my-review --git
+cd my-review
+dewey git remote add origin git@github.com:your-account/my-review.git
+# Add and screen papers, then inspect a checkpoint:
+dewey git status
+dewey git diff
+dewey git site
+dewey git commit -m "Screen the first citation wave"
+dewey git push --remote origin
+```
+
+Use `dewey git init` to enable Git in an existing review. Initialization creates no
+commits. `dewey git remote list` shows configured remotes. All Git commands support
+`--json` with the usual Dewey result envelope.
+
+To work from a remote project:
+
+```bash
+dewey git clone git@github.com:your-account/my-review.git my-review
+cd my-review
+dewey git pull
+# Do a research stage, then:
+dewey git commit -m "Add replication evidence"
+dewey git push
+```
+
+`git status` reports the review's changed files and research counts. Ahead/behind
+counts reflect the last fetch; status does not use the network. `git diff` compares
+tracked files with HEAD and lists untracked files separately. A checkpoint commits
+all current review changes, validates the records, and regenerates the explorer.
+Unrelated staged files elsewhere in a containing repository remain staged.
+Private local files and environment files are excluded; if they have already been
+force-tracked, Dewey refuses a commit or push until they are untracked.
+
+Pull and push require the **whole containing repository** to be clean. Pull explicitly
+uses fast-forward-only integration; it does not stash work, merge, or rebase. Resolve
+divergent branches with ordinary Git. Push sends only the current branch to its
+upstream and never force-pushes. Clone and pull validate project structure and rebuild
+the local index. If fetched research is invalid, Dewey returns an error and leaves
+the checkout available for inspection with `dewey doctor --json`.
+
+Each review's **`docs/index.html`** is a self-contained, Expected Parrot branded
+literature explorer. It includes corpus search, summaries, notes, stored Markdown,
+discovery and screening records, the citation graph, and JSON/BibTeX downloads.
+`dewey git site` refreshes it without committing; `dewey git commit` refreshes and
+includes it automatically. `dewey export html` also defaults to this path. Existing
+non-explorer homepages are preserved: move one aside before using `git site` or
+`git commit`. The generated page needs no server, build tools, or external assets.
+
+For a standalone review repository, configure GitHub **Settings → Pages → Deploy
+from a branch**, select the branch you push to and the **`/docs`** folder. Dewey
+writes `docs/.nojekyll`; subsequent pushes update the published explorer. See
+[GitHub's publishing-source instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+Dewey generates the site files; hosting settings are configured separately.
+
+Reviews can also live inside a larger repository: `dewey git init` reuses that
+repository instead of nesting another one. Commits are scoped to the review, while
+pulls and pushes synchronize the repository branch, including any other commits on
+it. Clone such a review with `dewey git clone <url> <destination> --project reviews/my-review`.
+For Pages in this arrangement, use an Actions deployment for the nested site's
+folder; GitHub's branch-based source selector only supports the root or `/docs`.
+
+PDFs use ordinary Git by default. Git LFS can be configured using standard Git LFS
+commands; Dewey does not provision it. Concurrent edits to a single record or the
+shared discovery queue require ordinary Git conflict resolution. Automatic semantic
+merging is not provided.
 
 Follow `dewey next` after every material step. Use `--json` for structured output. Run `dewey doctor` before relying on project state.
 
@@ -160,7 +271,7 @@ section-level argument:
 ```bash
 dewey report article-template --output article.json
 dewey report article-set --file article.json
-dewey report brief --output .dewey/synthesis/article-brief.md
+dewey report brief --output synthesis/article-brief.md
 ```
 
 The brief combines that editorial judgment with the reviewed claims, appraisals, and source
