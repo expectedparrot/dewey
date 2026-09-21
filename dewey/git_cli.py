@@ -96,7 +96,7 @@ def register_git_commands(app: typer.Typer, emit: Callable, fail: Callable, load
 
     @git_app.command("site")
     def git_site(json_output: bool = typer.Option(False, "--json")) -> None:
-        """Build docs/index.html with Expected Parrot branding for GitHub Pages."""
+        """Refresh README.md and docs/index.html for sharing the review."""
         def operation():
             result = write_project_site(load_repo("git.site", json_output))
             return {**result, "text": f"Built literature explorer at {result['path']}"}

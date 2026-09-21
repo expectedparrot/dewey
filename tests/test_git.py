@@ -54,6 +54,8 @@ def test_init_status_commit_diff_and_ignored_state(project):
     assert "dewey.json" in tracked
     assert ".dewey/" not in tracked
     assert ".env" not in tracked
+    assert "README.md" in tracked
+    assert "1 total" in (project.root / "README.md").read_text()
     assert "docs/index.html" in tracked
     assert "docs/.nojekyll" in tracked
     page = (project.root / "docs/index.html").read_text()

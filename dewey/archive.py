@@ -7,6 +7,8 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
+from dewey.html_export import explorer_payload
+from dewey.project_readme import write_project_readme
 from dewey.repo import DeweyError, DeweyRepo, utc_now
 
 EXCLUDED_PARTS = {".git", ".dewey", ".pytest_cache", ".ruff_cache", "__pycache__"}
@@ -53,6 +55,7 @@ def write_project_archive(repo: DeweyRepo, output: Path | None = None) -> dict[s
     if target.exists() and target.is_dir():
         raise DeweyError("invalid_archive_path", "Archive output must be a file, not a directory", exit_code=2)
 
+    write_project_readme(repo, explorer_payload(repo))
     prefix = _safe_stem(repo.root.name)
     included: list[dict[str, Any]] = []
     excluded: list[dict[str, str]] = []

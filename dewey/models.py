@@ -44,6 +44,7 @@ class LinkType(str, Enum):
 class Config(BaseModel):
     version: int = 1
     project_name: str | None = None
+    site_url: str | None = None
     bibtex_encoding: str = "utf-8"
     pdf_copy_mode: str = "copy"
     search_backend: str = "sqlite_fts5"

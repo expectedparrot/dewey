@@ -7,7 +7,8 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from dewey.html_export import write_project_site
+from dewey.html_export import explorer_payload, write_project_site
+from dewey.project_readme import write_project_readme
 from dewey.repo import DeweyError, DeweyRepo
 from dewey.validation import project_issues
 
@@ -181,10 +182,12 @@ class GitProject:
         changes = self._changes()
         if any("U" in c["status"] or c["status"] in {"AA", "DD"} for c in changes):
             raise DeweyError("git_unmerged", "Resolve Git conflicts before committing", 2)
+        validate_project(self.repo, "Commit refused")
+        write_project_readme(self.repo, explorer_payload(self.repo))
+        changes = self._changes()
         paths = [self._repo_path(c["path"]) for c in changes if not private_path(c["path"])]
         if not paths:
             raise DeweyError("git_no_changes", "No project changes to commit", 2)
-        validate_project(self.repo, "Commit refused")
         site = write_project_site(self.repo)
         changes = self._changes()
         paths = [self._repo_path(c["path"]) for c in changes if not private_path(c["path"])]

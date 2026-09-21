@@ -11,6 +11,7 @@ from urllib.parse import quote
 
 from dewey.bibtex import dump_entry
 from dewey.evidence import EvidenceStore
+from dewey.project_readme import write_project_readme
 from dewey.repo import DeweyError, DeweyRepo, atomic_write_text, utc_now
 
 
@@ -218,4 +219,5 @@ def write_project_site(repo: DeweyRepo) -> dict[str, Any]:
         raise DeweyError("site_exists", "docs/index.html already contains a different page; move it before generating the explorer", 2)
     result = write_explorer(repo, target)
     atomic_write_text(target.parent / ".nojekyll", "")
+    result["readme"] = write_project_readme(repo, explorer_payload(repo))
     return result

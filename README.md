@@ -129,6 +129,19 @@ upstream and never force-pushes. Clone and pull validate project structure and r
 the local index. If fetched research is invalid, Dewey returns an error and leaves
 the checkout available for inspection with `dewey doctor --json`.
 
+Each shared review gets an auto-generated **`README.md`** with its research question,
+recorded conclusions, corpus and screening counts, coverage gaps, and a guide to the
+files and workflow. It refreshes with `dewey git site`, `dewey git commit`, and
+`dewey export zip`. Hand-written text outside `<!-- dewey:overview:start -->` and
+`<!-- dewey:overview:end -->` is preserved; edit the underlying records to change
+the generated section. An existing README without markers receives a generated
+section at the end.
+
+Set `site_url` in `dewey.json` to the verified public explorer URL to put an
+**Open explorer** link near the top of the README. Dewey does not guess a Pages
+URL: GitHub project sites inherit a custom domain from the owner's account site,
+if one is configured. It does not modify your account website or DNS settings.
+
 Each review's **`docs/index.html`** is an Expected Parrot branded literature
 explorer with five views:
 
