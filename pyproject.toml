@@ -27,6 +27,7 @@ build-backend = "setuptools.build_meta"
 package-dir = {"" = "."}
 
 [tool.setuptools.package-data]
+dewey = ["assets/*.html", "assets/*.css", "assets/*.js"]
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["dewey*"]

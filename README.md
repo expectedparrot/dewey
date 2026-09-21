@@ -129,13 +129,25 @@ upstream and never force-pushes. Clone and pull validate project structure and r
 the local index. If fetched research is invalid, Dewey returns an error and leaves
 the checkout available for inspection with `dewey doctor --json`.
 
-Each review's **`docs/index.html`** is a self-contained, Expected Parrot branded
-literature explorer. It includes corpus search, summaries, notes, stored Markdown,
-discovery and screening records, the citation graph, and JSON/BibTeX downloads.
+Each review's **`docs/index.html`** is an Expected Parrot branded literature
+explorer with five views:
+
+- **Overview:** synthesis claims linked to supporting, qualifying, and contradictory findings, plus review completeness.
+- **Evidence table:** study design, population, sample, comparator, findings, and appraisal; compare 2–4 studies and export CSV/JSON.
+- **Papers:** included papers by default, with search, filters, summaries, readable notes/full text, PDFs, and BibTeX.
+- **Citation map:** focused neighborhoods, author/title search, and distinct citation/version relationships.
+- **Screening audit:** paginated candidates, discovery provenance, decisions, and recorded search coverage.
+
+The page embeds its code and research data and works directly from disk. Archival
+PDFs are copied into `docs/index.assets/papers/`; share that directory alongside
+the HTML to retain PDF links. Private local PDF references are never copied.
+Filters, comparisons, and paper/claim/study links are stored in the URL. The title
+uses `project_name` in `dewey.json`, falling back to the review topic.
+
 `dewey git site` refreshes it without committing; `dewey git commit` refreshes and
 includes it automatically. `dewey export html` also defaults to this path. Existing
 non-explorer homepages are preserved: move one aside before using `git site` or
-`git commit`. The generated page needs no server, build tools, or external assets.
+`git commit`. No server or build tools are needed to view the export.
 
 For a standalone review repository, configure GitHub **Settings → Pages → Deploy
 from a branch**, select the branch you push to and the **`/docs`** folder. Dewey
